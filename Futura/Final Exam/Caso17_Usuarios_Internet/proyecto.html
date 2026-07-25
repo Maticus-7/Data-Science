@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usuarios de Internet — Personas Digitales | FUTURA</title>
+  <style>:root {
+  --ink: #172033;
+  --muted: #5b6475;
+  --line: #d9dee8;
+  --soft: #f5f7fb;
+  --accent: #0b5cad;
+  --accent-soft: #e8f2ff;
+  --warn: #7a4a00;
+  --warn-soft: #fff4d7;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #eef2f7;
+  color: var(--ink);
+  font-family: Aptos, Calibri, "Segoe UI", sans-serif;
+  line-height: 1.55;
+}
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 18px 48px;
+}
+.document {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(23, 32, 51, 0.08);
+  padding: 34px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.topbar a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+.meta-pill {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+h1, h2, h3, h4 { line-height: 1.2; margin: 28px 0 12px; }
+h1 { font-size: 34px; margin-top: 20px; }
+h2 { font-size: 24px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 19px; color: #25324a; }
+p { margin: 10px 0; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+code {
+  background: var(--soft);
+  border: 1px solid #e2e6ee;
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 0.92em;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0 22px;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid var(--line);
+  padding: 9px 10px;
+  vertical-align: top;
+}
+th { background: var(--soft); text-align: left; }
+tr:nth-child(even) td { background: #fbfcff; }
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding-left: 4px; }
+.checklist input { margin-right: 8px; }
+.callout {
+  background: var(--warn-soft);
+  border-left: 4px solid #d99100;
+  color: var(--warn);
+  padding: 12px 14px;
+  margin: 16px 0;
+  border-radius: 6px;
+}
+.table-wrap { overflow-x: auto; margin: 14px 0 22px; }
+.table-wrap table { margin: 0; min-width: 760px; }
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+.case-card {
+  display: block;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: 0 10px 28px rgba(23, 32, 51, 0.06);
+}
+.case-card:hover { border-color: var(--accent); }
+.case-card strong { display: block; margin-bottom: 6px; }
+.case-card span { color: var(--muted); font-size: 13px; }
+@media (max-width: 720px) {
+  .document { padding: 20px; }
+  h1 { font-size: 27px; }
+  h2 { font-size: 21px; }
+  .topbar { align-items: flex-start; flex-direction: column; }
+}
+@media print {
+  body { background: #fff; }
+  .page { padding: 0; }
+  .document { border: 0; box-shadow: none; }
+  .topbar { display: none; }
+}</style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <a href="../index.html">← Volver al índice</a>
+      <span class="meta-pill">Caso17_Usuarios_Internet</span>
+    </div>
+    <article class="document">
+<div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+    <img src="https://i.postimg.cc/J7sf3Lq4/Group.png" alt="FUTURA" style="height:70px;"/>
+    <div>
+        <div style="font-size:22px; font-weight:700; line-height:1.25;">FUTURA, Data y Analítica Avanzada</div>
+        <div style="font-size:16px; line-height:1.35;">Caso aplicado — Segmentación no supervisada</div>
+        <div style="font-size:14px; color:#555; line-height:1.35;">KDD Internet Usage · Caso 17</div>
+    </div>
+</div>
+<hr>
+<p><strong>Incluye enunciado del caso, guía de análisis y criterios de solución.</strong></p>
+<h1>Usuarios de Internet — Personas Digitales</h1>
+<h2>Resumen Ejecutivo</h2>
+<p>Dataset <strong>KDD Internet Usage</strong> con <strong>10,108 filas</strong> y <strong>71 variables de trabajo</strong>. El caso está diseñado para <strong>Segmentación no supervisada</strong> en un contexto de investigación de mercado, adopción digital y diseño de audiencias.</p>
+<hr>
+<h2>1. Contexto de Negocio</h2>
+<p>Este caso permite trabajar un problema accionable: descubrir perfiles de usuarios digitales según demografía, acceso, hábitos de compra, uso web y actitudes hacia internet. El dataset reúne señales propias del dominio y permite conectar el análisis exploratorio con una decisión práctica.</p>
+<p><strong>Decisión que se espera soportar:</strong> el equipo debe transformar el análisis en una recomendación concreta para investigación de mercado, adopción digital y diseño de audiencias. La entrega debe dejar claro qué se prioriza, qué se predice o qué segmentos se accionan, y qué haría el stakeholder con los resultados.</p>
+<hr>
+<h2>2. Objetivo del Proyecto</h2>
+<p><strong>Objetivo principal:</strong> Descubrir perfiles de usuarios digitales según demografía, acceso, hábitos de compra, uso web y actitudes hacia internet.</p>
+<p><strong>Objetivos específicos:</strong></p>
+<ul>
+<li>Auditar calidad de datos, valores atípicos, codificaciones y variables que puedan generar leakage.</li>
+<li>Preparar variables numéricas, categóricas, fechas, texto o geografía según corresponda.</li>
+<li>Construir una solución reproducible de segmentación no supervisada.</li>
+<li>Interpretar resultados con lenguaje de negocio y recomendaciones accionables.</li>
+<li>Documentar restricciones éticas, operativas y de despliegue.</li>
+</ul>
+<h3>2.1 Instrucciones para el Estudiante</h3>
+<p>El estudiante debe construir una solución no supervisada para descubrir grupos interpretables. La variable <code>who_pays_for_access_work</code> es una referencia para perfilar o contrastar resultados; no debe usarse para formar los clusters salvo que el docente indique lo contrario.</p>
+<p><strong>Preguntas que debe responder el trabajo:</strong></p>
+<ul>
+<li>¿Qué variables se usan para formar segmentos y por qué son apropiadas para el negocio?</li>
+<li>¿Qué variables se excluyen por ser identificadores, targets de referencia o información redundante?</li>
+<li>¿Cuántos segmentos se recomiendan y qué evidencia respalda esa decisión?</li>
+<li>¿Cómo se llama cada segmento y qué rasgos lo diferencian de los demás?</li>
+<li>¿Qué acción concreta tomaría el negocio para cada segmento?</li>
+</ul>
+<p class="callout"><strong>No se acepta:</strong> entregar clusters sin nombres de negocio, elegir k sin justificación, usar la variable de referencia como input, o presentar gráficos sin recomendaciones accionables.</p>
+<hr>
+<h2>3. Stakeholders y Audiencia</h2>
+<div class="table-wrap"><table>
+<thead><tr>
+<th>Stakeholder</th>
+<th>Rol</th>
+<th>Interés principal</th>
+</tr></thead><tbody>
+<tr>
+<td>Sponsor de negocio</td>
+<td>Dueño del problema</td>
+<td>Mejorar decisiones, priorización o eficiencia</td>
+</tr>
+<tr>
+<td>Equipo operativo</td>
+<td>Usuario</td>
+<td>Aplicar predicciones, segmentos o alertas en procesos reales</td>
+</tr>
+<tr>
+<td>Analytics / Data Science</td>
+<td>Ejecutor</td>
+<td>Preparar datos, modelar, validar e interpretar</td>
+</tr>
+<tr>
+<td>Riesgo / Compliance</td>
+<td>Consultado</td>
+<td>Revisar sesgos, privacidad, trazabilidad y uso responsable</td>
+</tr>
+<tr>
+<td>Dirección</td>
+<td>Informado</td>
+<td>Evaluar impacto, límites y retorno esperado</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2>4. Dataset</h2>
+<h3>4.1 Descripción General</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+<th>Campo</th>
+<th>Detalle</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Nombre</strong></td>
+<td>KDD Internet Usage</td>
+</tr>
+<tr>
+<td><strong>Fuente</strong></td>
+<td>OpenML</td>
+</tr>
+<tr>
+<td><strong>URL</strong></td>
+<td>https://www.openml.org/d/43920</td>
+</tr>
+<tr>
+<td><strong>Licencia</strong></td>
+<td>OpenML / verificar ficha fuente</td>
+</tr>
+<tr>
+<td><strong>Filas totales</strong></td>
+<td>10,108</td>
+</tr>
+<tr>
+<td><strong>Variables</strong></td>
+<td>71</td>
+</tr>
+<tr>
+<td><strong>Variable objetivo / referencia</strong></td>
+<td><code>who_pays_for_access_work</code></td>
+</tr>
+<tr>
+<td><strong>Tipo de problema</strong></td>
+<td>Segmentación no supervisada</td>
+</tr>
+<tr>
+<td><strong>Case ID</strong></td>
+<td>17</td>
+</tr>
+<tr>
+<td><strong>Dataset original</strong></td>
+<td>openml_43920</td>
+</tr>
+<tr>
+<td><strong>Fecha de descarga</strong></td>
+<td>2026-07-01</td>
+</tr>
+<tr>
+<td><strong>Hash MD5</strong></td>
+<td><code>3cbc1f6fccc5c9aba9a1f7de56d09ef1</code></td>
+</tr>
+</tbody></table></div>
+<h3>4.2 Diccionario de Variables</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+<th>Variable</th>
+<th>Tipo</th>
+<th>Descripción</th>
+<th>Comentario</th>
+</tr></thead><tbody>
+<tr>
+<td><code>actual_time</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: actual time.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>age</code></td>
+<td>categórica</td>
+<td>Atributo demográfico declarado por el usuario digital: age.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_building</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community building.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_family</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership family.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_hobbies</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership hobbies.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_none</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership none.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_other</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership other.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_political</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership political.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_professional</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership professional.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_religious</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership religious.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>community_membership_support</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: community membership support.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>country</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: country.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>disability_cognitive</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: disability cognitive.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>disability_hearing</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: disability hearing.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>disability_motor</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: disability motor.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>disability_not_impaired</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: disability not impaired.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>disability_not_say</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: disability not say.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>disability_vision</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: disability vision.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>education_attainment</code></td>
+<td>categórica</td>
+<td>Indicador socioeconómico, de gasto, vivienda o activo del hogar: education attainment.</td>
+<td>Hogar / socioeconomía</td>
+</tr>
+<tr>
+<td><code>falsification_of_information</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como falsification of information; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>gender</code></td>
+<td>categórica</td>
+<td>Atributo demográfico declarado por el usuario digital: gender.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>household_income</code></td>
+<td>categórica</td>
+<td>Indicador socioeconómico, de gasto, vivienda o activo del hogar: household income.</td>
+<td>Hogar / socioeconomía</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_banner</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey banner.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_friend</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey friend.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_mailing_list</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey mailing list.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_others</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey others.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_printed_media</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey printed media.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_remebered</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey remebered.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_search_engine</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey search engine.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_usenet_news</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey usenet news.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>how_you_heard_about_survey_www_page</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: how you heard about survey www page.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>major_geographical_location</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como major geographical location; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>major_occupation</code></td>
+<td>categórica</td>
+<td>Indicador socioeconómico, de gasto, vivienda o activo del hogar: major occupation.</td>
+<td>Hogar / socioeconomía</td>
+</tr>
+<tr>
+<td><code>marital_status</code></td>
+<td>categórica</td>
+<td>Característica sociodemográfica del cliente: marital status.</td>
+<td>Perfil del cliente</td>
+</tr>
+<tr>
+<td><code>most_import_issue_facing_the_internet</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: most import issue facing the internet.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>opinions_on_censorship</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como opinions on censorship; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>primary_computing_platform</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como primary computing platform; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>primary_language</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como primary language; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>primary_place_of_www_access</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: primary place of www access.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>race</code></td>
+<td>categórica</td>
+<td>Categoría racial registrada; variable sensible que debe evaluarse con cautela.</td>
+<td>Variable clínica</td>
+</tr>
+<tr>
+<td><code>not_purchasing_bad_experience</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing bad experience; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_bad_press</code></td>
+<td>categórica</td>
+<td>Medición ambiental o meteorológica: not purchasing bad press.</td>
+<td>Sensor ambiental</td>
+</tr>
+<tr>
+<td><code>not_purchasing_cant_find</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing cant find; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_company_policy</code></td>
+<td>categórica</td>
+<td>Indicador de tenencia, contribución o propensión aseguradora relacionado con not purchasing company policy.</td>
+<td>Seguros</td>
+</tr>
+<tr>
+<td><code>not_purchasing_easier_locally</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing easier locally; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_enough_info</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing enough info; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_judge_quality</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing judge quality; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_never_tried</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing never tried; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_no_credit</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing no credit; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_not_applicable</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing not applicable; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_not_option</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing not option; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_other</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing other; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_prefer_people</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing prefer people; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_privacy</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: not purchasing privacy.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>not_purchasing_receipt</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing receipt; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_security</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: not purchasing security.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>not_purchasing_too_complicated</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing too complicated; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_uncomfortable</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como not purchasing uncomfortable; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>not_purchasing_unfamiliar_vendor</code></td>
+<td>categórica</td>
+<td>Atributo operacional del viaje de taxi: not purchasing unfamiliar vendor.</td>
+<td>Movilidad</td>
+</tr>
+<tr>
+<td><code>registered_to_vote</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como registered to vote; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>sexual_preference</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como sexual preference; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>web_ordering</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: web ordering.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>web_page_creation</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: web page creation.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>who_pays_for_access_dont_know</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: who pays for access dont know.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>who_pays_for_access_other</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: who pays for access other.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>who_pays_for_access_parents</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: who pays for access parents.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>who_pays_for_access_school</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: who pays for access school.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>who_pays_for_access_self</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: who pays for access self.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>willingness_to_pay_fees</code></td>
+<td>categórica</td>
+<td>Variable de negocio identificable como willingness to pay fees; revisar distribución, codificación y relación con la variable objetivo o los segmentos.</td>
+<td>Analizar en EDA</td>
+</tr>
+<tr>
+<td><code>years_on_internet</code></td>
+<td>categórica</td>
+<td>Indicador de acceso, hábito, actitud o contexto declarado por usuarios de internet: years on internet.</td>
+<td>Perfil digital</td>
+</tr>
+<tr>
+<td><code>who_pays_for_access_work</code></td>
+<td>categórica</td>
+<td>Variable de referencia para perfilar segmentos: who pays for access work; no se usa para formar clusters.</td>
+<td>Referencia externa</td>
+</tr>
+</tbody></table></div>
+<h3>4.3 Notas sobre Calidad de Datos</h3>
+<ul>
+<li>Revisar faltantes, outliers, consistencia de codificación y cardinalidad antes del modelado.</li>
+<li>Tratar con cuidado variables sensibles, identificadores, fechas y campos de texto.</li>
+<li>Confirmar que la variable objetivo o de referencia se use de acuerdo con el tipo de problema.</li>
+<li>Registrar explícitamente qué columnas se excluyen y justificar si se eliminan por identificador, leakage, privacidad, baja utilidad o disponibilidad operacional.</li>
+<li>Mantener separación entre datos de entrenamiento y evaluación; toda imputación, codificación o escalamiento debe aprenderse solo con entrenamiento.</li>
+</ul>
+<hr>
+<h2>5. Plan de Análisis</h2>
+<h3>5.1 Análisis Exploratorio de Datos (EDA)</h3>
+<p>Explorar distribuciones, cardinalidad, correlaciones, outliers, valores faltantes y relación entre variables clave y la decisión de negocio.</p>
+<p><strong>Mínimo esperado:</strong> incluir resumen de calidad de datos, distribución de la variable objetivo o de referencia, análisis de al menos cinco variables relevantes y tres hallazgos escritos en lenguaje de negocio.</p>
+<h3>5.2 Estadística Inferencial</h3>
+<p>Formular hipótesis de negocio y contrastarlas con pruebas apropiadas: chi-cuadrado, t-test, ANOVA, pruebas no paramétricas o intervalos de confianza según el tipo de variable.</p>
+<p><strong>Mínimo esperado:</strong> plantear al menos dos hipótesis verificables, mostrar el resultado estadístico y explicar si cambia alguna decisión del negocio.</p>
+<h3>5.3 Análisis Multivariante</h3>
+<p>Aplicar reducción dimensional, análisis de correlación, análisis de correspondencias, embeddings o mapas de segmentos para entender relaciones simultáneas.</p>
+<p><strong>Mínimo esperado:</strong> mostrar relaciones entre variables, redundancias, grupos de variables o patrones multivariados que ayuden a seleccionar features o interpretar segmentos.</p>
+<h3>5.4 Preparación del Dataset y Feature Engineering</h3>
+<p>Codificar categóricas, escalar numéricas, derivar variables temporales/geográficas, excluir identificadores y controlar leakage.</p>
+<p><strong>Mínimo esperado:</strong> explicar el pipeline final, listar variables eliminadas, describir transformaciones y justificar cualquier variable derivada.</p>
+<h3>5.5 Modelado Predictivo / Segmentación</h3>
+<p><strong>Tipo de problema:</strong> Segmentación no supervisada <strong>Variable objetivo o referencia:</strong> <code>who_pays_for_access_work</code></p>
+<p>Comparar K-Means/K-Prototypes, clustering jerárquico y HDBSCAN o Gower según mezcla de variables. Las variables de referencia no deben usarse para formar clusters.</p>
+<p><strong>Mínimo esperado:</strong> comparar alternativas, separar validación de entrenamiento, justificar la configuración final y explicar los errores, drivers o segmentos en términos de negocio.</p>
+<hr>
+<h2>6. Métricas de Éxito</h2>
+<div class="table-wrap"><table>
+<thead><tr>
+<th>Métrica</th>
+<th>Uso</th>
+</tr></thead><tbody>
+<tr>
+<td>Silhouette</td>
+<td>Medir separación entre segmentos</td>
+</tr>
+<tr>
+<td>Davies-Bouldin</td>
+<td>Penalizar clusters solapados</td>
+</tr>
+<tr>
+<td>Estabilidad por remuestreo</td>
+<td>Validar que segmentos no dependan de una semilla</td>
+</tr>
+<tr>
+<td>Perfilabilidad</td>
+<td>Confirmar que cada cluster tenga rasgos de negocio claros</td>
+</tr>
+<tr>
+<td>Accionabilidad</td>
+<td>Traducir cada segmento a una estrategia concreta</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2>7. Entregables Esperados</h2>
+<ol>
+<li>Notebook reproducible con EDA, limpieza, preparación de variables y comparación de métodos de segmentación.</li>
+<li>Justificación de variables usadas para formar clusters y variables excluidas o usadas solo para perfilar.</li>
+<li>Comparación de al menos tres configuraciones o métodos de segmentación.</li>
+<li>Perfil de cada segmento con tamaño, rasgos diferenciales, nombre de negocio y riesgos de interpretación.</li>
+<li>Recomendación de acciones por segmento y forma de usar los segmentos en una decisión real.</li>
+</ol>
+<h3>7.1 Formato de Entrega</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+<th>Entregable</th>
+<th>Contenido mínimo</th>
+</tr></thead><tbody>
+<tr>
+<td>Notebook técnico</td>
+<td>Código ejecutable, EDA, limpieza, preparación, modelado o segmentación, métricas y conclusiones.</td>
+</tr>
+<tr>
+<td>Resumen ejecutivo</td>
+<td>Una página o sección final con problema, hallazgos, recomendación, impacto esperado y límites.</td>
+</tr>
+<tr>
+<td>Tabla de variables usadas</td>
+<td>Variables incluidas, excluidas y motivo de exclusión cuando aplique.</td>
+</tr>
+<tr>
+<td>Evidencia de validación</td>
+<td>Métricas, gráficos, matriz de confusión, residuales o perfiles de segmento según el caso.</td>
+</tr>
+<tr>
+<td>Recomendación accionable</td>
+<td>Decisión concreta para el stakeholder, priorización propuesta y riesgos de implementación.</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2>8. Criterios de Evaluación</h2>
+<div class="table-wrap"><table>
+<thead><tr>
+<th>Criterio</th>
+<th>Peso</th>
+<th>Qué debe verse en la entrega</th>
+</tr></thead><tbody>
+<tr>
+<td>Entendimiento del negocio</td>
+<td>15%</td>
+<td>Problema formulado como decisión real, stakeholder claro y uso esperado de la solución.</td>
+</tr>
+<tr>
+<td>Calidad y preparación de datos</td>
+<td>20%</td>
+<td>Auditoría de faltantes, outliers, tipos, cardinalidad, leakage, variables excluidas y pipeline reproducible.</td>
+</tr>
+<tr>
+<td>Análisis exploratorio e inferencial</td>
+<td>15%</td>
+<td>Hallazgos visuales y estadísticos conectados con hipótesis de negocio, no solo gráficos descriptivos.</td>
+</tr>
+<tr>
+<td>Modelado o segmentación</td>
+<td>25%</td>
+<td>Comparación metodológica, validación correcta, métricas apropiadas y justificación técnica del resultado elegido.</td>
+</tr>
+<tr>
+<td>Interpretación y recomendación</td>
+<td>20%</td>
+<td>Drivers, errores o perfiles explicados en lenguaje de negocio, con acciones concretas y límites de uso.</td>
+</tr>
+<tr>
+<td>Presentación reproducible</td>
+<td>5%</td>
+<td>Notebook ordenado, código ejecutable, conclusiones visibles y anexos suficientes para revisar el trabajo.</td>
+</tr>
+</tbody></table></div>
+<p><strong>Criterio específico del caso:</strong> La evaluación debe incluir estabilidad, separación, perfilabilidad, tamaño de segmentos y acciones diferenciadas por segmento.</p>
+<hr>
+<h2>9. Checklist Antes de Entregar</h2>
+<ul class="checklist">
+<li><input type="checkbox" disabled > El notebook corre de inicio a fin sin depender de rutas absolutas personales.</li>
+<li><input type="checkbox" disabled > El dataset usado corresponde a <code>dataset.csv</code> del caso y la variable objetivo o referencia coincide con la metadata.</li>
+<li><input type="checkbox" disabled > Excluí identificadores, variables con leakage y campos que no estarían disponibles al momento de decidir.</li>
+<li><input type="checkbox" disabled > Documenté decisiones de limpieza, imputación, codificación y escalamiento.</li>
+<li><input type="checkbox" disabled > Confirmé que la variable de referencia no fue usada para construir clusters.</li>
+<li><input type="checkbox" disabled > Cada cluster tiene nombre de negocio, tamaño, rasgos diferenciales y acción recomendada.</li>
+<li><input type="checkbox" disabled > Incluí al menos tres hallazgos de negocio sustentados por datos.</li>
+<li><input type="checkbox" disabled > La recomendación final indica qué hacer, con quién hacerlo, por qué y con qué cautelas.</li>
+<li><input type="checkbox" disabled > La presentación ejecutiva puede leerse sin revisar el código.</li>
+</ul>
+    </article>
+  </main>
+</body>
+</html>
