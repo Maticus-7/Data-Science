@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 3 · Probabilidad Aplicada · Data Science for Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --azul:        #0073A6;
+  --azul-osc:    #004A6E;
+  --navy:        #0A1F44;
+  --teal:        #0085AE;
+  --texto:       #3F3F3F;
+  --gris:        #7F7F7F;
+  --azul-suave:  #E8F4F8;
+  --blanco:      #FFFFFF;
+
+  --c-bernoulli: #2980B9;
+  --c-poisson:   #E67E22;
+  --c-lognormal: #8E44AD;
+  --c-expo:      #C0392B;
+  --c-normal:    #16A085;
+  --c-tlc:       #0073A6;
+
+  --s-banca:  #0073A6;
+  --s-retail: #C0392B;
+  --s-telco:  #8E44AD;
+  --s-gaming: #27AE60;
+  --s-cierre: #0A1F44;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--blanco);
+  color: var(--texto);
+  font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 28px 32px 80px; }
+
+/* ============= HEADER ============= */
+header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--azul-osc) 100%);
+  color: var(--blanco);
+  padding: 36px 32px 28px;
+  border-bottom: 4px solid var(--teal);
+}
+header .container { padding: 0; max-width: 1400px; }
+header .eyebrow {
+  font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase;
+  font-weight: 700; color: var(--teal); margin-bottom: 8px;
+}
+header h1 {
+  font-size: clamp(28px, 3.2vw, 40px); font-weight: 800;
+  margin-bottom: 6px; line-height: 1.15;
+}
+header .sub {
+  font-size: 17px; color: #C5D8E5; max-width: 1000px; font-weight: 400;
+}
+
+/* ============= TABS ============= */
+nav.tabs {
+  background: var(--blanco);
+  border-bottom: 1px solid #DCE5EA;
+  position: sticky; top: 0; z-index: 50;
+  padding: 14px 32px 0;
+}
+nav.tabs .container { padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+nav.tabs button {
+  background: transparent;
+  border: 2px solid transparent;
+  border-bottom: none;
+  color: var(--gris);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 22px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+nav.tabs button:hover { color: var(--azul); background: var(--azul-suave); }
+nav.tabs button.active {
+  color: var(--azul);
+  background: var(--azul-suave);
+  border-color: #D0E4EE;
+  border-bottom-color: var(--azul-suave);
+  margin-bottom: -1px;
+}
+nav.tabs .pill {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gris);
+  background: #ECF1F4;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-right: 8px;
+  font-weight: 700;
+}
+nav.tabs button.active .pill { background: var(--azul); color: var(--blanco); }
+
+@media (max-width: 720px) {
+  nav.tabs .container { display: none; }
+  nav.tabs::after { content: ''; }
+  nav.tabs select.mobile-tabs {
+    display: block; width: 100%;
+    padding: 14px;
+    font-size: 16px; font-family: inherit; font-weight: 600;
+    border: 2px solid var(--azul); border-radius: 8px;
+    color: var(--azul); background: var(--blanco);
+  }
+}
+nav.tabs select.mobile-tabs { display: none; }
+@media (max-width: 720px) {
+  nav.tabs .container { display: none; }
+  nav.tabs select.mobile-tabs { display: block; margin-bottom: 12px; }
+}
+
+/* ============= PANELS ============= */
+.panel { display: none; padding: 32px 0 0; animation: fadein 0.25s ease-out; }
+.panel.active { display: block; }
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============= BREADCRUMB ============= */
+.crumb {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 700; padding: 8px 14px;
+  border-radius: 999px; margin-bottom: 14px;
+  border: 1.5px solid;
+}
+.crumb .dot { width: 9px; height: 9px; border-radius: 50%; }
+.crumb .sep { color: var(--gris); }
+
+.panel h2 {
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 800; color: var(--navy);
+  margin-bottom: 8px; line-height: 1.2;
+}
+.panel .intro {
+  font-size: 16px; color: var(--gris); max-width: 1000px;
+  margin-bottom: 28px;
+}
+
+/* ============= LAYOUTS ============= */
+.layout-2col {
+  display: grid; grid-template-columns: minmax(320px, 380px) 1fr;
+  gap: 32px; align-items: start;
+}
+@media (max-width: 980px) { .layout-2col { grid-template-columns: 1fr; } }
+
+.layout-tlc {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+}
+@media (max-width: 1100px) { .layout-tlc { grid-template-columns: 1fr; } }
+
+/* ============= CONTROLS ============= */
+.controls-card {
+  background: var(--azul-suave);
+  border: 1px solid #D0E4EE;
+  border-radius: 12px;
+  padding: 22px 22px;
+}
+.controls-card h3 {
+  font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--azul-osc); margin-bottom: 16px; font-weight: 800;
+}
+.control { margin-bottom: 22px; }
+.control:last-child { margin-bottom: 0; }
+.control label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 15px; font-weight: 600; color: var(--navy);
+  margin-bottom: 8px;
+}
+.control label .v {
+  background: var(--azul); color: var(--blanco);
+  padding: 4px 12px; border-radius: 6px;
+  font-family: 'Cambria', 'Times New Roman', serif;
+  font-weight: 700; font-size: 14px;
+  min-width: 80px; text-align: center;
+}
+.control input[type=range] {
+  width: 100%;
+  height: 6px;
+  background: #C5DDE8;
+  border-radius: 999px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.control input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px;
+  background: var(--azul); border: 3px solid var(--blanco);
+  box-shadow: 0 2px 6px rgba(0,73,110,0.3);
+  border-radius: 50%; cursor: pointer;
+}
+.control input[type=range]::-moz-range-thumb {
+  width: 22px; height: 22px;
+  background: var(--azul); border: 3px solid var(--blanco);
+  box-shadow: 0 2px 6px rgba(0,73,110,0.3);
+  border-radius: 50%; cursor: pointer;
+}
+.control .hint {
+  font-size: 12px; color: var(--gris);
+  margin-top: 6px; font-style: italic;
+}
+
+.btn-row { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+button.primary, button.secondary {
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  padding: 12px 22px; border-radius: 8px;
+  cursor: pointer; transition: all 0.15s ease;
+}
+button.primary {
+  background: var(--azul); color: var(--blanco);
+  border: 2px solid var(--azul);
+}
+button.primary:hover { background: var(--azul-osc); border-color: var(--azul-osc); }
+button.primary:active { transform: translateY(1px); }
+button.secondary {
+  background: var(--blanco); color: var(--azul);
+  border: 2px solid var(--azul);
+}
+button.secondary:hover { background: var(--azul-suave); }
+button.big { font-size: 16px; padding: 14px 26px; }
+
+.toggle {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 15px; font-weight: 600; color: var(--navy);
+  user-select: none; cursor: pointer;
+}
+.toggle input { display: none; }
+.toggle .switch {
+  width: 44px; height: 24px; background: #C5DDE8;
+  border-radius: 999px; position: relative; transition: 0.2s;
+}
+.toggle .switch::after {
+  content: ''; position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px;
+  background: var(--blanco);
+  border-radius: 50%; transition: 0.2s;
+}
+.toggle input:checked + .switch { background: var(--azul); }
+.toggle input:checked + .switch::after { left: 23px; }
+
+.select-row {
+  display: block; width: 100%;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  padding: 10px 14px; color: var(--navy);
+  background: var(--blanco);
+  border: 2px solid #C5DDE8; border-radius: 8px;
+  margin-top: 6px;
+}
+
+/* ============= KPIS ============= */
+.kpis {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 18px;
+}
+.kpi {
+  background: var(--blanco);
+  border: 1px solid #DCE5EA;
+  border-left: 5px solid var(--azul);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.kpi .lbl {
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--gris); font-weight: 700; margin-bottom: 4px;
+}
+.kpi .val {
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 800; color: var(--navy);
+  font-family: 'Cambria', 'Times New Roman', serif;
+}
+.kpi .sub {
+  font-size: 12px; color: var(--gris); margin-top: 4px;
+}
+.kpi.ok    { border-left-color: var(--c-normal); }
+.kpi.ok    .val { color: var(--c-normal); }
+.kpi.warn  { border-left-color: var(--c-poisson); }
+.kpi.warn  .val { color: var(--c-poisson); }
+.kpi.danger{ border-left-color: var(--c-expo); }
+.kpi.danger.val,
+.kpi.danger .val { color: var(--c-expo); }
+
+/* ============= CHART CARDS ============= */
+.chart-card {
+  background: var(--blanco);
+  border: 1px solid #DCE5EA;
+  border-radius: 12px;
+  padding: 20px 22px 22px;
+  margin-bottom: 18px;
+}
+.chart-card h3 {
+  font-size: 15px; font-weight: 700; color: var(--navy);
+  margin-bottom: 6px;
+}
+.chart-card .nota {
+  font-size: 13px; color: var(--gris); margin-bottom: 14px;
+}
+.chart-wrap { position: relative; height: 400px; }
+.chart-wrap.small { height: 200px; }
+.chart-wrap.tall { height: 480px; }
+
+/* ============= INSIGHT BOX ============= */
+.insight {
+  background: var(--navy);
+  color: var(--blanco);
+  border-radius: 12px;
+  padding: 22px 28px;
+  margin-top: 28px;
+  border-left: 6px solid var(--teal);
+}
+.insight .ti {
+  font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--teal); font-weight: 800; margin-bottom: 8px;
+}
+.insight p { font-size: 15.5px; line-height: 1.6; }
+
+/* ============= TLC SPECIFIC ============= */
+.tlc-mini { background: var(--blanco); border: 1px solid #DCE5EA;
+            border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.tlc-mini h4 {
+  font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--gris); margin-bottom: 6px; font-weight: 700;
+}
+.tlc-mini .chart-wrap { height: 140px; }
+.tlc-side-text {
+  font-size: 13px; color: var(--navy);
+  background: var(--azul-suave); padding: 12px 14px;
+  border-radius: 8px; line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* misc */
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
+.tag {
+  display: inline-block; font-size: 11px;
+  font-weight: 700; padding: 3px 10px;
+  border-radius: 999px; letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="eyebrow">Módulo 2 · Sesión 3 · Data Science for Business</div>
+    <h1>Probabilidad aplicada: qué distribución modela cada problema de negocio</h1>
+    <p class="sub">Material interactivo de la sesión. Caso BancoSur: la CRO
+       Marta Echevarría tiene 5 KPIs trampa en su dashboard. Cada uno esconde
+       una distribución diferente. Aprender a reconocerlas es el corazón de
+       hacer inferencia honesta.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="container">
+    <button class="active" data-tab="t1"><span class="pill">01</span>Bernoulli · Binomial</button>
+    <button data-tab="t2"><span class="pill">02</span>Poisson</button>
+    <button data-tab="t3"><span class="pill">03</span>Log-normal</button>
+    <button data-tab="t4"><span class="pill">04</span>Exponencial</button>
+    <button data-tab="t5"><span class="pill">05</span>Normal</button>
+    <button data-tab="t6"><span class="pill">06</span>TLC · cierre</button>
+  </div>
+  <select class="mobile-tabs" id="mobileNav">
+    <option value="t1">01 · Bernoulli · Binomial</option>
+    <option value="t2">02 · Poisson</option>
+    <option value="t3">03 · Log-normal</option>
+    <option value="t4">04 · Exponencial</option>
+    <option value="t5">05 · Normal</option>
+    <option value="t6">06 · TLC · cierre</option>
+  </select>
+</nav>
+
+<main class="container">
+
+<!-- ===================== TAB 1: BINOMIAL ===================== -->
+<section id="t1" class="panel active">
+  <div class="crumb" style="border-color:var(--s-banca); color:var(--s-banca);">
+    <span class="dot" style="background:var(--s-banca);"></span>
+    CASO BANCOSUR <span class="sep">·</span> BANCA
+    <span class="sep">·</span> ¿La tasa de aprobación subió de verdad?
+  </div>
+  <h2>Bernoulli y Binomial: cuándo una diferencia es señal y cuándo es ruido</h2>
+  <p class="intro">El equipo de Riesgos lanzó un nuevo modelo de scoring que
+     aprobó al 3.1% de los solicitantes la semana pasada, contra el 2.8% del
+     modelo viejo. Marta quiere saber si esa subida de 0.3 puntos es real o
+     ruido binomial. Movés el tamaño de muestra y las tasas; la simulación
+     responde.</p>
+
+  <div class="layout-2col">
+    <aside class="controls-card">
+      <h3>Controles del experimento</h3>
+
+      <div class="control">
+        <label>Tamaño de muestra <em style="font-style:normal;color:var(--gris);font-weight:500;">n</em>
+          <span class="v" id="v-n1">1.000</span></label>
+        <input type="range" id="s-n1" min="0" max="6" step="1" value="3">
+        <div class="hint">Pasos: 50 · 100 · 500 · 1k · 5k · 10k · 50k</div>
+      </div>
+
+      <div class="control">
+        <label>Tasa control (A) <span class="v" id="v-pA">2.80%</span></label>
+        <input type="range" id="s-pA" min="1" max="30" step="0.1" value="2.8">
+      </div>
+
+      <div class="control">
+        <label>Tasa tratamiento (B) <span class="v" id="v-pB">3.10%</span></label>
+        <input type="range" id="s-pB" min="1" max="30" step="0.1" value="3.1">
+      </div>
+
+      <div class="btn-row">
+        <button class="primary big" id="b1-sim1">Correr 1 simulación</button>
+        <button class="primary big" id="b1-sim100">Correr 100 simulaciones</button>
+        <button class="secondary" id="b1-reset">Reset</button>
+      </div>
+    </aside>
+
+    <div>
+      <div class="kpis" id="k1">
+        <div class="kpi"><div class="lbl">Esperadas A</div><div class="val" id="k1-ea">28</div><div class="sub">n · pA</div></div>
+        <div class="kpi"><div class="lbl">Esperadas B</div><div class="val" id="k1-eb">31</div><div class="sub">n · pB</div></div>
+        <div class="kpi"><div class="lbl">Diferencia</div><div class="val" id="k1-diff">+3</div><div class="sub">B − A</div></div>
+        <div class="kpi" id="k1-veredicto-box"><div class="lbl">¿Señal real?</div><div class="val" id="k1-veredicto">NO</div><div class="sub" id="k1-z">z = 0.42</div></div>
+      </div>
+      <div class="chart-card">
+        <h3>Conversiones esperadas con su buffer de ruido (±2σ)</h3>
+        <div class="nota">Las barras son el valor esperado. Las líneas en T son el
+          intervalo ±2σ. Los puntos que aparecen al simular son las conversiones
+          observadas en cada experimento.</div>
+        <div class="chart-wrap"><canvas id="c1"></canvas></div>
+      </div>
+
+      <div class="insight">
+        <div class="ti">Insight pedagógico</div>
+        <p>Cuando n = 1.000, una diferencia de 0.3 puntos porcentuales se diluye
+           en el ruido binomial. Cuando n = 50.000, esa misma diferencia se
+           vuelve señal real. La Binomial te dice cuánto buffer de ruido tenés,
+           y por qué los A/B tests con muestras chicas mienten.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 2: POISSON ===================== -->
+<section id="t2" class="panel">
+  <div class="crumb" style="border-color:var(--s-banca); color:var(--s-banca);">
+    <span class="dot" style="background:var(--s-banca);"></span>
+    CASO BANCOSUR <span class="sep">·</span> BANCA
+    <span class="sep">·</span> Dimensionamiento del equipo antifraude
+  </div>
+  <h2>Poisson: cuántos analistas necesitás para cumplir el SLA</h2>
+  <p class="intro">Marta dimensiona el equipo antifraude. Los días llegan en
+     promedio 4.2 alertas (λ), y cada analista puede investigar 1 por turno.
+     Si dimensiona al promedio falla el 50% de los días. La Poisson le da
+     el buffer correcto.</p>
+
+  <div class="layout-2col">
+    <aside class="controls-card">
+      <h3>Parámetros operativos</h3>
+
+      <div class="control">
+        <label>λ · alertas promedio por día
+          <span class="v" id="v-lam">4.2</span></label>
+        <input type="range" id="s-lam" min="1" max="20" step="0.1" value="4.2">
+      </div>
+
+      <div class="control">
+        <label>Capacidad del equipo (alertas/día)
+          <span class="v" id="v-cap">6</span></label>
+        <input type="range" id="s-cap" min="1" max="25" step="1" value="6">
+      </div>
+
+      <div style="background:var(--blanco); border:1px solid #C5DDE8;
+                  padding:14px 16px; border-radius:8px; margin-top:8px;">
+        <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gris);font-weight:700;">Cobertura SLA</div>
+        <div style="font-size:32px;font-weight:800;color:var(--c-normal);font-family:'Cambria',serif;" id="cov-display">96.5%</div>
+        <div style="font-size:12px;color:var(--gris);">P(alertas ≤ capacidad)</div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="kpis">
+        <div class="kpi danger"><div class="lbl">Prob. saturación</div>
+          <div class="val" id="k2-sat">3.5%</div>
+          <div class="sub">P(alertas &gt; capacidad)</div></div>
+        <div class="kpi"><div class="lbl">P(0 alertas)</div>
+          <div class="val" id="k2-p0">1.5%</div>
+          <div class="sub">día tranquilo</div></div>
+        <div class="kpi ok"><div class="lbl">P(λ exactas)</div>
+          <div class="val" id="k2-plam">19.4%</div>
+          <div class="sub">día tipo "promedio"</div></div>
+        <div class="kpi warn"><div class="lbl">P(catastrófico)</div>
+          <div class="val" id="k2-pcat">2.1%</div>
+          <div class="sub">≥ 2λ alertas</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Distribución de alertas diarias · Poisson(λ)</h3>
+        <div class="nota">Verde: días que el equipo cubre con holgura.
+          Rojo: días que el equipo se satura. La cola derecha es la que
+          define el dimensionamiento, no el promedio.</div>
+        <div class="chart-wrap"><canvas id="c2"></canvas></div>
+      </div>
+
+      <div class="insight">
+        <div class="ti">Insight pedagógico</div>
+        <p>Dimensionar a la media (λ) te falla el 50% del tiempo, porque la
+           mitad de los días superan la media. Para cumplir SLA del 95%
+           necesitás capacidad ≈ λ + 2√λ. Esto aplica igual a call centers,
+           servidores, técnicos en campo, stock de seguridad y mostradores
+           de atención.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 3: LOG-NORMAL ===================== -->
+<section id="t3" class="panel">
+  <div class="crumb" style="border-color:var(--s-banca); color:var(--s-banca);">
+    <span class="dot" style="background:var(--s-banca);"></span>
+    CASO BANCOSUR <span class="sep">·</span> BANCA
+    <span class="sep">·</span> ¿De qué tamaño son nuestros préstamos?
+  </div>
+  <h2>Log-normal: cuando la media oculta al cliente típico</h2>
+  <p class="intro">Marta reporta al directorio el "ticket promedio" del nuevo
+     producto de préstamos personales: S/ 12.300. El directorio aprueba un
+     budget basado en ese número. Cuando llegan los resultados reales, la
+     mediana fue S/ 7.400. ¿Qué pasó?</p>
+
+  <div class="layout-2col">
+    <aside class="controls-card">
+      <h3>Parámetros log-normales</h3>
+
+      <div class="control">
+        <label>μ del log · escala
+          <span class="v" id="v-mulog">9.00</span></label>
+        <input type="range" id="s-mulog" min="7" max="10" step="0.1" value="9.0">
+        <div class="hint">Controla dónde se centra la masa</div>
+      </div>
+
+      <div class="control">
+        <label>σ del log · asimetría
+          <span class="v" id="v-siglog">0.90</span></label>
+        <input type="range" id="s-siglog" min="0.3" max="2" step="0.05" value="0.9">
+        <div class="hint">A mayor σ, más asimetría y más cola</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="primary big" id="b3-gen">Generar 1.000 préstamos</button>
+        <button class="secondary" id="b3-reset">Reset</button>
+      </div>
+    </aside>
+
+    <div>
+      <div class="chart-card">
+        <h3>Distribución de los montos generados</h3>
+        <div class="nota">Las líneas verticales marcan media, mediana y moda.
+          Cuanto más se separan, más miente la media.</div>
+        <div class="chart-wrap"><canvas id="c3"></canvas></div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi" style="border-left-color: var(--s-retail);">
+          <div class="lbl">Media</div>
+          <div class="val" id="k3-media" style="color:var(--s-retail);">S/ 12.300</div>
+          <div class="sub">centro de masa</div></div>
+        <div class="kpi" style="border-left-color: var(--c-normal);">
+          <div class="lbl">Mediana</div>
+          <div class="val" id="k3-mediana" style="color:var(--c-normal);">S/ 7.400</div>
+          <div class="sub">cliente típico</div></div>
+        <div class="kpi" style="border-left-color: #6FB78C;">
+          <div class="lbl">Moda</div>
+          <div class="val" id="k3-moda" style="color:#6FB78C;">S/ 3.900</div>
+          <div class="sub">monto más frecuente</div></div>
+      </div>
+
+      <div style="background:var(--azul-suave); padding:14px 18px;
+                  border-radius:8px; font-size:14px; color:var(--navy);
+                  margin-bottom: 18px;" id="brecha-mensaje">
+        La media está <strong id="k3-brecha">66%</strong> por encima de la
+        mediana. Cuando reportás "promedio" al CEO, lo estás sobreestimando
+        el ticket del cliente típico en ese porcentaje.
+      </div>
+
+      <div class="insight">
+        <div class="ti">Insight pedagógico</div>
+        <p>En log-normal, media &gt; mediana &gt; moda, siempre. Y la brecha
+           crece con σ. Si tu KPI dice "ticket promedio" pero la distribución
+           es log-normal, estás sobreestimando al cliente típico. Reportá la
+           mediana, o reportá ambas y explicá la asimetría.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 4: EXPONENCIAL ===================== -->
+<section id="t4" class="panel">
+  <div class="crumb" style="border-color:var(--s-banca); color:var(--s-banca);">
+    <span class="dot" style="background:var(--s-banca);"></span>
+    CASO BANCOSUR <span class="sep">·</span> BANCA
+    <span class="sep">·</span> Tiempo desde originación hasta default
+  </div>
+  <h2>Exponencial: cuánto vive un crédito antes de defaultear</h2>
+  <p class="intro">Para provisionar bien, Marta necesita saber a qué velocidad
+     se "queman" los créditos. La distribución exponencial modela el tiempo
+     hasta el primer evento, y tiene una propiedad clave: no tiene memoria.
+     Lo que ya sobrevivió no cuenta.</p>
+
+  <div class="layout-2col">
+    <aside class="controls-card">
+      <h3>Parámetros del modelo de hazard</h3>
+
+      <div class="control">
+        <label>λ · tasa de default mensual
+          <span class="v" id="v-lamE">0.071</span></label>
+        <input type="range" id="s-lamE" min="0.01" max="0.20" step="0.005" value="0.071">
+        <div class="hint">Default ~ Exponencial(λ)</div>
+      </div>
+
+      <div style="background:var(--blanco); border:1px solid #C5DDE8;
+                  padding:14px 16px; border-radius:8px; margin: 14px 0;">
+        <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gris);font-weight:700;">Tiempo medio a default</div>
+        <div style="font-size:32px;font-weight:800;color:var(--c-expo);font-family:'Cambria',serif;" id="meanlife">14.1 meses</div>
+        <div style="font-size:12px;color:var(--gris);">E[T] = 1/λ</div>
+      </div>
+
+      <div class="control">
+        <label>Horizonte de observación
+          <span class="v" id="v-hor">24 meses</span></label>
+        <input type="range" id="s-hor" min="1" max="60" step="1" value="24">
+      </div>
+    </aside>
+
+    <div>
+      <div class="kpis">
+        <div class="kpi danger"><div class="lbl">P(default antes mes 12)</div>
+          <div class="val" id="k4-p12">56.7%</div></div>
+        <div class="kpi warn"><div class="lbl">P(default antes mes 24)</div>
+          <div class="val" id="k4-p24">81.2%</div></div>
+        <div class="kpi"><div class="lbl">Mediana del tiempo</div>
+          <div class="val" id="k4-pmed">9.8 m</div>
+          <div class="sub">P50</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>PDF de Exponencial(λ) · área hasta el horizonte</h3>
+        <div class="nota">La curva es la densidad del tiempo a default. El
+          área sombreada es la probabilidad acumulada hasta el horizonte.</div>
+        <div class="chart-wrap"><canvas id="c4"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Hazard rate · constante en λ</h3>
+        <div class="nota">La probabilidad instantánea de defaultear NO depende
+          del tiempo que ya pasó. Esa es la propiedad de "sin memoria".</div>
+        <div class="chart-wrap small"><canvas id="c4b"></canvas></div>
+      </div>
+
+      <div class="insight">
+        <div class="ti">Insight pedagógico</div>
+        <p>La Exponencial es "sin memoria": la probabilidad de default en el
+           próximo mes NO depende de cuántos meses ya lleva el crédito. Es la
+           hermana continua de Poisson, misma λ, dos lecturas. Si Poisson
+           cuenta eventos por intervalo, Exponencial mide el tiempo entre
+           eventos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 5: NORMAL ===================== -->
+<section id="t5" class="panel">
+  <div class="crumb" style="border-color:var(--s-gaming); color:var(--s-gaming);">
+    <span class="dot" style="background:var(--s-gaming);"></span>
+    CASO BANCOSUR <span class="sep">·</span> GAMING
+    <span class="sep">·</span> Control de calidad en línea de máquinas
+  </div>
+  <h2>Normal: la campana universal y por qué aparece</h2>
+  <p class="intro">La división de gaming opera 12.000 máquinas tragamonedas.
+     El payout regulatorio es de 92%. Las mediciones de payout efectivo de
+     cada máquina se distribuyen como una Normal alrededor del objetivo.
+     Cualquier máquina que salga de las 3σ activa alerta de auditoría.</p>
+
+  <div class="layout-2col">
+    <aside class="controls-card">
+      <h3>Parámetros de la Normal</h3>
+
+      <div class="control">
+        <label>μ · media <span class="v" id="v-muN">0.00</span></label>
+        <input type="range" id="s-muN" min="-5" max="5" step="0.1" value="0">
+      </div>
+
+      <div class="control">
+        <label>σ · desviación estándar
+          <span class="v" id="v-sigN">1.00</span></label>
+        <input type="range" id="s-sigN" min="0.3" max="3" step="0.1" value="1">
+      </div>
+
+      <label class="toggle" style="margin-top:18px;">
+        <input type="checkbox" id="t-bands" checked>
+        <span class="switch"></span>
+        Mostrar regla 68-95-99.7
+      </label>
+    </aside>
+
+    <div>
+      <div class="kpis">
+        <div class="kpi" style="border-left-color:var(--c-normal);">
+          <div class="lbl">Dentro de μ ± 1σ</div>
+          <div class="val" style="color:var(--c-normal);">68.3%</div></div>
+        <div class="kpi" style="border-left-color:var(--c-normal);">
+          <div class="lbl">Dentro de μ ± 2σ</div>
+          <div class="val" style="color:var(--c-normal);">95.5%</div></div>
+        <div class="kpi warn"><div class="lbl">Fuera de μ ± 2σ</div>
+          <div class="val" id="k5-out2">4.5%</div></div>
+        <div class="kpi danger"><div class="lbl">Fuera de μ ± 3σ</div>
+          <div class="val" id="k5-out3">0.3%</div>
+          <div class="sub">alerta auditoría</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Densidad N(μ, σ²) con bandas 68-95-99.7</h3>
+        <div class="nota">Verde fuerte: el 68% central. Verde medio: el 95%.
+          Verde claro: el 99.7%. Lo que cae afuera de 3σ es noticia.</div>
+        <div class="chart-wrap"><canvas id="c5"></canvas></div>
+      </div>
+
+      <div class="insight">
+        <div class="ti">Insight pedagógico</div>
+        <p>La Normal aparece poco en datos crudos de negocio (revenue, tickets,
+           tiempos son log-normal o exponencial). Pero aparece SIEMPRE en
+           mediciones físicas, errores residuales, y vía TLC en los PROMEDIOS
+           muestrales de cualquier otra distribución. Por eso es la base de
+           toda la inferencia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB 6: TLC ===================== -->
+<section id="t6" class="panel">
+  <div class="crumb" style="border-color:var(--s-cierre); color:var(--s-cierre);">
+    <span class="dot" style="background:var(--s-cierre);"></span>
+    CASO BANCOSUR <span class="sep">·</span> CIERRE
+    <span class="sep">·</span> Por qué los promedios mensuales son tan estables
+  </div>
+  <h2>Teorema del Límite Central: la campana que aparece de la nada</h2>
+  <p class="intro">El resultado más profundo de la estadística. Cualquier
+     distribución original, por bizarra que sea, produce promedios que se
+     distribuyen normales. Esto es por qué podemos hacer inferencia sin
+     conocer la distribución real de los datos.</p>
+
+  <div class="controls-card" style="margin-bottom: 22px;">
+    <h3>Configurá el experimento</h3>
+    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap: 22px;">
+      <div class="control" style="margin:0;">
+        <label>Distribución de origen</label>
+        <select class="select-row" id="t6-dist">
+          <option value="lognormal">Log-normal · tickets retail (asimétrica)</option>
+          <option value="exp">Exponencial · tiempos churn (cola larga)</option>
+          <option value="bern">Bernoulli · conversión A/B (binaria)</option>
+          <option value="bimodal">Bimodal · segmentos mixtos</option>
+          <option value="uniforme">Uniforme · control</option>
+        </select>
+      </div>
+      <div class="control" style="margin:0;">
+        <label>Tamaño de cada muestra (n)
+          <span class="v" id="v-n6">5</span></label>
+        <input type="range" id="s-n6" min="1" max="200" step="1" value="5">
+      </div>
+      <div class="control" style="margin:0;">
+        <label>Cantidad de muestras
+          <span class="v" id="v-m6">100</span></label>
+        <input type="range" id="s-m6" min="10" max="5000" step="10" value="100">
+      </div>
+    </div>
+    <div class="btn-row" style="flex-direction: row; margin-top: 18px;">
+      <button class="primary big" id="b6-gen">Generar muestras</button>
+      <button class="primary big" id="b6-anim" style="background:var(--teal);border-color:var(--teal);">▶ Animar progresivamente</button>
+      <button class="secondary" id="b6-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="layout-tlc">
+    <aside>
+      <div class="tlc-mini">
+        <h4>Distribución de origen (los datos crudos)</h4>
+        <div class="chart-wrap small"><canvas id="c6-origen"></canvas></div>
+      </div>
+      <div class="tlc-side-text" id="t6-side-text">
+        Los datos vienen de una <strong>log-normal</strong> claramente asimétrica.
+        Pero las medias muestrales se distribuyen como una Normal.
+      </div>
+      <div class="tlc-mini" style="margin-top:14px;">
+        <h4>Histograma de las medias (resultado del TLC)</h4>
+        <div class="chart-wrap small"><canvas id="c6-medias"></canvas></div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="kpis">
+        <div class="kpi"><div class="lbl">μ teórica</div>
+          <div class="val" id="k6-mu">8.10</div></div>
+        <div class="kpi"><div class="lbl">X̄ observada</div>
+          <div class="val" id="k6-xbar">8.09</div></div>
+        <div class="kpi"><div class="lbl">σ/√n esperada</div>
+          <div class="val" id="k6-se">3.62</div></div>
+        <div class="kpi"><div class="lbl">SE observada</div>
+          <div class="val" id="k6-seobs">3.58</div></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Histograma de las medias muestrales con Normal teórica superpuesta</h3>
+        <div class="nota">La curva azul es la Normal N(μ, σ²/n) esperada por el
+          TLC. Cuanto más grande es n, más se ajusta el histograma a la curva.</div>
+        <div class="chart-wrap tall"><canvas id="c6-main"></canvas></div>
+      </div>
+
+      <div class="insight">
+        <div class="ti">Insight pedagógico · cierre de la sesión</div>
+        <p>El TLC es el resultado más profundo de la estadística. NO importa
+           qué distribución tengas en tus datos: si trabajás con PROMEDIOS y
+           tu n es suficiente, esos promedios se distribuyen como una Normal.
+           Esto es por qué podemos hacer inferencia (intervalos de confianza,
+           pruebas de hipótesis, A/B testing) sin saber la distribución real
+           de los datos. La próxima sesión va a depender enteramente de esto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// =========================================================================
+// PALETA (sincronizada con CSS variables)
+// =========================================================================
+const PAL = {
+  azul: '#0073A6', azulOsc: '#004A6E', navy: '#0A1F44', teal: '#0085AE',
+  texto: '#3F3F3F', gris: '#7F7F7F', azulSuave: '#E8F4F8',
+  bernoulli: '#2980B9', poisson: '#E67E22', lognormal: '#8E44AD',
+  expo: '#C0392B', normal: '#16A085', tlc: '#0073A6',
+};
+
+Chart.defaults.font.family = "'Open Sans', system-ui, sans-serif";
+Chart.defaults.color = PAL.texto;
+Chart.defaults.borderColor = '#E0E0E0';
+
+// =========================================================================
+// UTIL · formatters
+// =========================================================================
+const fmt = (x, dec = 1) => Number(x).toLocaleString('es-PE', {
+  minimumFractionDigits: dec, maximumFractionDigits: dec,
+});
+const fmtPct = (x, dec = 1) => fmt(x * 100, dec) + '%';
+const fmtInt = (x) => Math.round(x).toLocaleString('es-PE');
+const fmtMoney = (x) => 'S/ ' + Math.round(x).toLocaleString('es-PE');
+
+// =========================================================================
+// GENERADORES DE DISTRIBUCIONES (JS puro, sin libs externas)
+// =========================================================================
+function randNormal(mu = 0, sigma = 1) {
+  // Box-Muller
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  return mu + sigma * z;
+}
+function randPoisson(lambda) {
+  // Knuth
+  if (lambda > 30) {
+    // aproximación normal para λ grande (estabilidad)
+    let n;
+    do { n = Math.round(randNormal(lambda, Math.sqrt(lambda))); } while (n < 0);
+    return n;
+  }
+  const L = Math.exp(-lambda);
+  let k = 0, p = 1;
+  do { k++; p *= Math.random(); } while (p > L);
+  return k - 1;
+}
+function randLogNormal(mu, sigma) { return Math.exp(randNormal(mu, sigma)); }
+function randExp(lambda) { return -Math.log(Math.random()) / lambda; }
+function randBernoulli(p) { return Math.random() < p ? 1 : 0; }
+function randBinomial(n, p) {
+  let s = 0;
+  for (let i = 0; i < n; i++) if (Math.random() < p) s++;
+  return s;
+}
+function randBimodal() {
+  // mezcla 0.5: N(-2, 0.8) + N(2, 0.8)
+  return Math.random() < 0.5 ? randNormal(-2, 0.8) : randNormal(2, 0.8);
+}
+function randUniform(a = 0, b = 1) { return a + Math.random() * (b - a); }
+
+// =========================================================================
+// PMFs / PDFs cerradas
+// =========================================================================
+function poissonPMF(k, lambda) {
+  if (k < 0) return 0;
+  let logP = -lambda + k * Math.log(lambda);
+  for (let i = 2; i <= k; i++) logP -= Math.log(i);
+  return Math.exp(logP);
+}
+function normalPDF(x, mu = 0, sigma = 1) {
+  return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(2 * Math.PI));
+}
+function exponPDF(x, lambda) { return x < 0 ? 0 : lambda * Math.exp(-lambda * x); }
+function exponCDF(x, lambda) { return x < 0 ? 0 : 1 - Math.exp(-lambda * x); }
+function normalCDF(x, mu = 0, sigma = 1) {
+  // aproximación Abramowitz & Stegun
+  const z = (x - mu) / sigma;
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return z >= 0 ? 1 - p : p;
+}
+
+// =========================================================================
+// HELPERS · estadística descriptiva
+// =========================================================================
+function arrStats(arr) {
+  const n = arr.length;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mean = arr.reduce((a, b) => a + b, 0) / n;
+  const median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+  const m2 = arr.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+  const sd = Math.sqrt(m2);
+  return { n, mean, median, sd, min: sorted[0], max: sorted[n - 1], sorted };
+}
+function histogram(arr, bins, minV, maxV) {
+  const min = minV !== undefined ? minV : Math.min(...arr);
+  const max = maxV !== undefined ? maxV : Math.max(...arr);
+  const width = (max - min) / bins;
+  const counts = new Array(bins).fill(0);
+  const labels = [];
+  for (let i = 0; i < bins; i++) labels.push(min + (i + 0.5) * width);
+  arr.forEach(v => {
+    if (v < min || v > max) return;
+    let i = Math.floor((v - min) / width);
+    if (i >= bins) i = bins - 1;
+    counts[i]++;
+  });
+  return { counts, labels, min, max, width };
+}
+
+// =========================================================================
+// NAV · cambio de tabs
+// =========================================================================
+function showTab(id) {
+  document.querySelectorAll('nav.tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === id);
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === id);
+  });
+  document.getElementById('mobileNav').value = id;
+}
+document.querySelectorAll('nav.tabs button').forEach(b => {
+  b.addEventListener('click', () => showTab(b.dataset.tab));
+});
+document.getElementById('mobileNav').addEventListener('change', e => showTab(e.target.value));
+
+// =========================================================================
+// TAB 1 · BINOMIAL
+// =========================================================================
+const N_OPTIONS = [50, 100, 500, 1000, 5000, 10000, 50000];
+let c1 = null;
+let t1_simulations = { A: [], B: [] };
+
+function t1_state() {
+  return {
+    n: N_OPTIONS[+document.getElementById('s-n1').value],
+    pA: +document.getElementById('s-pA').value / 100,
+    pB: +document.getElementById('s-pB').value / 100,
+  };
+}
+function t1_render() {
+  const { n, pA, pB } = t1_state();
+  document.getElementById('v-n1').textContent = n.toLocaleString('es-PE');
+  document.getElementById('v-pA').textContent = fmt(pA * 100, 2) + '%';
+  document.getElementById('v-pB').textContent = fmt(pB * 100, 2) + '%';
+
+  const eA = n * pA, eB = n * pB;
+  const sigmaA = Math.sqrt(n * pA * (1 - pA));
+  const sigmaB = Math.sqrt(n * pB * (1 - pB));
+  const pBar = (eA + eB) / (2 * n);
+  const se = Math.sqrt(pBar * (1 - pBar) * (2 / n));
+  const diff = Math.abs(pB - pA);
+  const z = diff / se;
+
+  document.getElementById('k1-ea').textContent = fmtInt(eA);
+  document.getElementById('k1-eb').textContent = fmtInt(eB);
+  document.getElementById('k1-diff').textContent = (pB >= pA ? '+' : '') + fmtInt(eB - eA);
+  const kbox = document.getElementById('k1-veredicto-box');
+  const ver = document.getElementById('k1-veredicto');
+  document.getElementById('k1-z').textContent = 'z = ' + fmt(z, 2);
+  kbox.classList.remove('ok', 'warn', 'danger');
+  if (z > 2) { ver.textContent = 'SÍ'; kbox.classList.add('ok'); }
+  else if (z > 1.5) { ver.textContent = 'AL BORDE'; kbox.classList.add('warn'); }
+  else { ver.textContent = 'NO'; kbox.classList.add('danger'); }
+
+  // dataset
+  const datasets = [
+    {
+      label: 'Esperadas (n · p)',
+      data: [eA, eB],
+      backgroundColor: ['rgba(41,128,185,0.55)', 'rgba(41,128,185,0.55)'],
+      borderColor: ['#2980B9', '#2980B9'],
+      borderWidth: 2,
+      borderRadius: 6,
+    },
+  ];
+  if (t1_simulations.A.length > 0) {
+    datasets.push({
+      label: 'Conversiones observadas',
+      type: 'scatter',
+      data: t1_simulations.A.map((v, i) => ({ x: 0, y: v }))
+        .concat(t1_simulations.B.map((v, i) => ({ x: 1, y: v }))),
+      backgroundColor: PAL.poisson,
+      borderColor: PAL.poisson,
+      pointRadius: t1_simulations.A.length > 30 ? 3 : 6,
+      pointStyle: 'circle',
+    });
+  }
+
+  if (c1) c1.destroy();
+  c1 = new Chart(document.getElementById('c1'), {
+    type: 'bar',
+    data: { labels: ['Control (A)', 'Tratamiento (B)'], datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y !== null ? fmtInt(ctx.parsed.y) + ' conversiones' : '' } },
+      },
+      scales: {
+        x: { title: { display: false }, grid: { display: false } },
+        y: { title: { display: true, text: 'Conversiones' }, beginAtZero: true },
+      },
+    },
+    plugins: [{
+      id: 'errorBars',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const xs = chart.scales.x, ys = chart.scales.y;
+        const lows  = [Math.max(0, eA - 2 * sigmaA), Math.max(0, eB - 2 * sigmaB)];
+        const highs = [eA + 2 * sigmaA, eB + 2 * sigmaB];
+        const cxs = [xs.getPixelForValue(0), xs.getPixelForValue(1)];
+        cxs.forEach((cx, i) => {
+          const yLow = ys.getPixelForValue(lows[i]);
+          const yHigh = ys.getPixelForValue(highs[i]);
+          ctx.save();
+          ctx.strokeStyle = PAL.azulOsc;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, yLow); ctx.lineTo(cx, yHigh);
+          ctx.moveTo(cx - 18, yLow); ctx.lineTo(cx + 18, yLow);
+          ctx.moveTo(cx - 18, yHigh); ctx.lineTo(cx + 18, yHigh);
+          ctx.stroke();
+          ctx.fillStyle = PAL.azulOsc;
+          ctx.font = 'bold 11px "Open Sans", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('±2σ', cx + 32, (yLow + yHigh) / 2 + 4);
+          ctx.restore();
+        });
+      },
+    }],
+  });
+}
+['s-n1', 's-pA', 's-pB'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    t1_simulations = { A: [], B: [] };
+    t1_render();
+  });
+});
+document.getElementById('b1-sim1').addEventListener('click', () => {
+  const { n, pA, pB } = t1_state();
+  t1_simulations.A.push(randBinomial(n, pA));
+  t1_simulations.B.push(randBinomial(n, pB));
+  t1_render();
+});
+document.getElementById('b1-sim100').addEventListener('click', () => {
+  const { n, pA, pB } = t1_state();
+  for (let i = 0; i < 100; i++) {
+    t1_simulations.A.push(randBinomial(n, pA));
+    t1_simulations.B.push(randBinomial(n, pB));
+  }
+  t1_render();
+});
+document.getElementById('b1-reset').addEventListener('click', () => {
+  document.getElementById('s-n1').value = 3;
+  document.getElementById('s-pA').value = 2.8;
+  document.getElementById('s-pB').value = 3.1;
+  t1_simulations = { A: [], B: [] };
+  t1_render();
+});
+
+// =========================================================================
+// TAB 2 · POISSON
+// =========================================================================
+let c2 = null;
+function t2_render() {
+  const lam = +document.getElementById('s-lam').value;
+  const cap = +document.getElementById('s-cap').value;
+  document.getElementById('v-lam').textContent = fmt(lam, 1);
+  document.getElementById('v-cap').textContent = cap;
+
+  const maxK = Math.max(25, Math.ceil(lam + 4 * Math.sqrt(lam)));
+  const labels = [], pmfs = [], colors = [];
+  let pCov = 0, pCat = 0;
+  for (let k = 0; k <= maxK; k++) {
+    const pk = poissonPMF(k, lam);
+    labels.push(k);
+    pmfs.push(pk);
+    if (k <= cap) { colors.push(PAL.normal); pCov += pk; }
+    else { colors.push(PAL.expo); }
+    if (k >= 2 * lam) pCat += pk;
+  }
+  const pSat = 1 - pCov;
+  const p0 = poissonPMF(0, lam);
+  const pLam = poissonPMF(Math.round(lam), lam);
+
+  document.getElementById('cov-display').textContent = fmt(pCov * 100, 1) + '%';
+  document.getElementById('k2-sat').textContent = fmt(pSat * 100, 1) + '%';
+  document.getElementById('k2-p0').textContent = fmt(p0 * 100, 1) + '%';
+  document.getElementById('k2-plam').textContent = fmt(pLam * 100, 1) + '%';
+  document.getElementById('k2-pcat').textContent = fmt(pCat * 100, 1) + '%';
+
+  if (c2) c2.destroy();
+  c2 = new Chart(document.getElementById('c2'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'P(X = k)',
+        data: pmfs,
+        backgroundColor: colors,
+        borderRadius: 3,
+        barPercentage: 0.9,
+        categoryPercentage: 0.95,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => 'P(X=' + ctx.label + ') = ' + fmt(ctx.parsed.y * 100, 2) + '%' } },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Número de alertas en el día' }, grid: { display: false } },
+        y: { title: { display: true, text: 'Probabilidad' },
+             ticks: { callback: v => fmt(v * 100, 1) + '%' } },
+      },
+    },
+    plugins: [{
+      id: 'capLine',
+      afterDraw(ch) {
+        const xs = ch.scales.x, ys = ch.scales.y, ctx = ch.ctx;
+        const x = xs.getPixelForValue(cap + 0.5);
+        ctx.save();
+        ctx.strokeStyle = PAL.navy;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 5]);
+        ctx.beginPath();
+        ctx.moveTo(x, ys.top); ctx.lineTo(x, ys.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = PAL.navy;
+        ctx.font = 'bold 12px "Open Sans", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Capacidad = ' + cap, x + 6, ys.top + 14);
+        ctx.restore();
+      },
+    }],
+  });
+}
+['s-lam', 's-cap'].forEach(id => {
+  document.getElementById(id).addEventListener('input', t2_render);
+});
+
+// =========================================================================
+// TAB 3 · LOG-NORMAL
+// =========================================================================
+let c3 = null;
+let t3_data = null;
+
+function t3_generar() {
+  const mu = +document.getElementById('s-mulog').value;
+  const sig = +document.getElementById('s-siglog').value;
+  const arr = [];
+  for (let i = 0; i < 1000; i++) arr.push(randLogNormal(mu, sig));
+  t3_data = arr;
+  t3_render();
+}
+function t3_render() {
+  const mu = +document.getElementById('s-mulog').value;
+  const sig = +document.getElementById('s-siglog').value;
+  document.getElementById('v-mulog').textContent = fmt(mu, 2);
+  document.getElementById('v-siglog').textContent = fmt(sig, 2);
+
+  if (!t3_data) t3_generar();
+  const arr = t3_data;
+  const s = arrStats(arr);
+  // moda muestral: bin más frecuente en el cuerpo
+  const cap = Math.min(s.max, s.median * 5);
+  const h = histogram(arr.filter(v => v <= cap), 50, 0, cap);
+  const modaIdx = h.counts.indexOf(Math.max(...h.counts));
+  const moda = h.labels[modaIdx];
+
+  document.getElementById('k3-media').textContent = fmtMoney(s.mean);
+  document.getElementById('k3-mediana').textContent = fmtMoney(s.median);
+  document.getElementById('k3-moda').textContent = fmtMoney(moda);
+  const brecha = ((s.mean - s.median) / s.median) * 100;
+  document.getElementById('k3-brecha').textContent = fmt(brecha, 0) + '%';
+
+  if (c3) c3.destroy();
+  c3 = new Chart(document.getElementById('c3'), {
+    type: 'bar',
+    data: {
+      labels: h.labels.map(v => fmtInt(v)),
+      datasets: [{
+        label: 'Préstamos',
+        data: h.counts,
+        backgroundColor: 'rgba(142,68,173,0.65)',
+        borderColor: PAL.lognormal,
+        borderWidth: 1,
+        barPercentage: 1.0,
+        categoryPercentage: 1.0,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' préstamos' } },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Monto del préstamo (S/)' }, ticks: { maxTicksLimit: 10 } },
+        y: { title: { display: true, text: 'Frecuencia' }, beginAtZero: true },
+      },
+    },
+    plugins: [{
+      id: 'lnLines',
+      afterDraw(ch) {
+        const xs = ch.scales.x, ys = ch.scales.y, ctx = ch.ctx;
+        const drawLine = (val, color, label) => {
+          // localizar bin más cercano
+          let idx = h.labels.findIndex(v => v >= val);
+          if (idx < 0) idx = h.labels.length - 1;
+          if (idx === 0 && val < h.labels[0]) idx = 0;
+          const x = xs.getPixelForValue(idx);
+          ctx.save();
+          ctx.strokeStyle = color; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(x, ys.top + 10); ctx.lineTo(x, ys.bottom); ctx.stroke();
+          ctx.fillStyle = color; ctx.font = 'bold 12px "Open Sans", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(label, x, ys.top + 8);
+          ctx.restore();
+        };
+        drawLine(moda, '#6FB78C', 'Moda');
+        drawLine(s.median, PAL.normal, 'Mediana');
+        drawLine(s.mean, '#C0392B', 'Media');
+      },
+    }],
+  });
+}
+['s-mulog', 's-siglog'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    t3_data = null; t3_render();
+  });
+});
+document.getElementById('b3-gen').addEventListener('click', t3_generar);
+document.getElementById('b3-reset').addEventListener('click', () => {
+  document.getElementById('s-mulog').value = 9;
+  document.getElementById('s-siglog').value = 0.9;
+  t3_data = null; t3_render();
+});
+
+// =========================================================================
+// TAB 4 · EXPONENCIAL
+// =========================================================================
+let c4 = null, c4b = null;
+function t4_render() {
+  const lam = +document.getElementById('s-lamE').value;
+  const hor = +document.getElementById('s-hor').value;
+  document.getElementById('v-lamE').textContent = fmt(lam, 3);
+  document.getElementById('v-hor').textContent = hor + ' meses';
+  document.getElementById('meanlife').textContent = fmt(1 / lam, 1) + ' meses';
+
+  document.getElementById('k4-p12').textContent = fmt(exponCDF(12, lam) * 100, 1) + '%';
+  document.getElementById('k4-p24').textContent = fmt(exponCDF(24, lam) * 100, 1) + '%';
+  const median = Math.log(2) / lam;
+  document.getElementById('k4-pmed').textContent = fmt(median, 1) + ' m';
+
+  const xs = [];
+  const ys = [];
+  const yShade = [];
+  const xMax = Math.max(hor + 6, 60);
+  const points = 200;
+  for (let i = 0; i <= points; i++) {
+    const x = (xMax * i) / points;
+    xs.push(x);
+    const y = exponPDF(x, lam);
+    ys.push(y);
+    yShade.push(x <= hor ? y : null);
+  }
+
+  if (c4) c4.destroy();
+  c4 = new Chart(document.getElementById('c4'), {
+    type: 'line',
+    data: {
+      labels: xs.map(v => fmt(v, 0)),
+      datasets: [
+        {
+          label: 'PDF f(t) = λ·e^(-λt)',
+          data: ys,
+          borderColor: PAL.expo,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.2,
+        },
+        {
+          label: 'Acumulado hasta horizonte',
+          data: yShade,
+          borderColor: 'rgba(192,57,43,0.5)',
+          backgroundColor: 'rgba(192,57,43,0.30)',
+          fill: 'origin',
+          pointRadius: 0,
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => 'f(' + fmt(xs[ctx.dataIndex], 1) + ' meses) = ' + fmt(ctx.parsed.y, 4) } },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Meses desde originación' }, ticks: { maxTicksLimit: 12 } },
+        y: { title: { display: true, text: 'Densidad' }, beginAtZero: true },
+      },
+    },
+    plugins: [{
+      id: 'horLine',
+      afterDraw(ch) {
+        const x = ch.scales.x, y = ch.scales.y;
+        const idx = xs.findIndex(v => v >= hor);
+        if (idx < 0) return;
+        const px = x.getPixelForValue(idx);
+        const ctx = ch.ctx;
+        ctx.save();
+        ctx.strokeStyle = PAL.navy; ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(px, y.top); ctx.lineTo(px, y.bottom); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = PAL.navy; ctx.font = 'bold 12px "Open Sans", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Horizonte = ' + hor + ' meses', px + 6, y.top + 16);
+        ctx.fillText('CDF = ' + fmt(exponCDF(hor, lam) * 100, 1) + '%', px + 6, y.top + 32);
+        ctx.restore();
+      },
+    }],
+  });
+
+  // hazard rate
+  if (c4b) c4b.destroy();
+  c4b = new Chart(document.getElementById('c4b'), {
+    type: 'line',
+    data: {
+      labels: xs.map(v => fmt(v, 0)),
+      datasets: [{
+        label: 'h(t) = λ',
+        data: xs.map(() => lam),
+        borderColor: PAL.expo,
+        borderWidth: 3,
+        pointRadius: 0,
+        fill: false,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        x: { title: { display: true, text: 'Meses' }, ticks: { maxTicksLimit: 10 } },
+        y: { title: { display: true, text: 'Hazard h(t)' }, beginAtZero: true,
+             suggestedMax: lam * 1.6 },
+      },
+    },
+  });
+}
+['s-lamE', 's-hor'].forEach(id => {
+  document.getElementById(id).addEventListener('input', t4_render);
+});
+
+// =========================================================================
+// TAB 5 · NORMAL
+// =========================================================================
+let c5 = null;
+function t5_render() {
+  const mu = +document.getElementById('s-muN').value;
+  const sig = +document.getElementById('s-sigN').value;
+  const bands = document.getElementById('t-bands').checked;
+  document.getElementById('v-muN').textContent = fmt(mu, 2);
+  document.getElementById('v-sigN').textContent = fmt(sig, 2);
+
+  document.getElementById('k5-out2').textContent = '4.5%';
+  document.getElementById('k5-out3').textContent = '0.3%';
+
+  // PDF samples
+  const xMin = mu - 4.5 * sig, xMax = mu + 4.5 * sig;
+  const n = 220;
+  const xs = [], ys = [];
+  const ys1 = [], ys2 = [], ys3 = [];
+  for (let i = 0; i <= n; i++) {
+    const x = xMin + ((xMax - xMin) * i) / n;
+    xs.push(x);
+    const y = normalPDF(x, mu, sig);
+    ys.push(y);
+    ys1.push(Math.abs(x - mu) <= sig ? y : null);
+    ys2.push(Math.abs(x - mu) <= 2 * sig && Math.abs(x - mu) > sig ? y : null);
+    ys3.push(Math.abs(x - mu) <= 3 * sig && Math.abs(x - mu) > 2 * sig ? y : null);
+  }
+
+  const datasets = [];
+  if (bands) {
+    datasets.push({
+      label: '99.7% (μ±3σ)',
+      data: ys3,
+      backgroundColor: 'rgba(22,160,133,0.18)',
+      borderColor: 'transparent',
+      fill: 'origin', pointRadius: 0,
+    });
+    datasets.push({
+      label: '95% (μ±2σ)',
+      data: ys2,
+      backgroundColor: 'rgba(22,160,133,0.30)',
+      borderColor: 'transparent',
+      fill: 'origin', pointRadius: 0,
+    });
+    datasets.push({
+      label: '68% (μ±1σ)',
+      data: ys1,
+      backgroundColor: 'rgba(22,160,133,0.55)',
+      borderColor: 'transparent',
+      fill: 'origin', pointRadius: 0,
+    });
+  }
+  datasets.push({
+    label: 'N(μ, σ²)',
+    data: ys,
+    borderColor: PAL.normal,
+    borderWidth: 2.5,
+    pointRadius: 0,
+    fill: false, tension: 0.2,
+  });
+
+  if (c5) c5.destroy();
+  c5 = new Chart(document.getElementById('c5'), {
+    type: 'line',
+    data: { labels: xs.map(v => fmt(v, 1)), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => 'f(' + fmt(xs[ctx.dataIndex], 2) + ') = ' + fmt(ctx.parsed.y, 4) } },
+      },
+      scales: {
+        x: { title: { display: true, text: 'x' }, ticks: { maxTicksLimit: 11 } },
+        y: { title: { display: true, text: 'Densidad' }, beginAtZero: true },
+      },
+    },
+    plugins: [{
+      id: 'muLine',
+      afterDraw(ch) {
+        const xS = ch.scales.x, yS = ch.scales.y, ctx = ch.ctx;
+        const idx = xs.findIndex(v => v >= mu);
+        if (idx < 0) return;
+        const px = xS.getPixelForValue(idx);
+        ctx.save();
+        ctx.strokeStyle = PAL.navy; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(px, yS.top); ctx.lineTo(px, yS.bottom); ctx.stroke();
+        ctx.fillStyle = PAL.navy; ctx.font = 'bold 12px "Open Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('μ', px, yS.top + 14);
+        ctx.restore();
+      },
+    }],
+  });
+}
+['s-muN', 's-sigN'].forEach(id => {
+  document.getElementById(id).addEventListener('input', t5_render);
+});
+document.getElementById('t-bands').addEventListener('change', t5_render);
+
+// =========================================================================
+// TAB 6 · TLC
+// =========================================================================
+let c6Main = null, c6Origen = null, c6Medias = null;
+let t6_means = [];
+let t6_animTimer = null;
+
+const DIST_INFO = {
+  lognormal: {
+    // X = exp(N(1.2, 0.9^2))
+    // E[X]   = exp(1.2 + 0.81/2) = exp(1.605) = 4.978
+    // SD[X]  = sqrt( (e^0.81 - 1) * e^(2.4 + 0.81) ) = 5.561
+    label: 'log-normal', muTeo: 4.978, sigTeo: 5.561,
+    sample: () => randLogNormal(1.2, 0.9), unit: '',
+    explica: 'Los datos vienen de una <strong>log-normal</strong> claramente asimétrica. Pero las medias muestrales se distribuyen como una Normal.',
+  },
+  exp: {
+    label: 'exponencial', muTeo: 1, sigTeo: 1,
+    sample: () => randExp(1), unit: '',
+    explica: 'Los datos vienen de una <strong>exponencial</strong> con cola larga. Aún así, los promedios convergen a una Normal.',
+  },
+  bern: {
+    label: 'Bernoulli', muTeo: 0.3, sigTeo: Math.sqrt(0.3 * 0.7),
+    sample: () => randBernoulli(0.3), unit: '',
+    explica: 'Cada muestra es 0/1 (Bernoulli con p=0.3). El promedio de n bernoullis converge a una Normal por TLC.',
+  },
+  bimodal: {
+    label: 'bimodal', muTeo: 0, sigTeo: Math.sqrt(4 + 0.64),
+    sample: () => randBimodal(), unit: '',
+    explica: 'Los datos son <strong>bimodales</strong> (dos picos visibles). Sorprendentemente, los promedios igual se vuelven Normal.',
+  },
+  uniforme: {
+    label: 'uniforme', muTeo: 0.5, sigTeo: Math.sqrt(1 / 12),
+    sample: () => randUniform(0, 1), unit: '',
+    explica: 'Los datos son <strong>uniformes</strong> (plana). Es el caso más simple, y converge muy rápido a una Normal.',
+  },
+};
+
+function t6_state() {
+  return {
+    distKey: document.getElementById('t6-dist').value,
+    n: +document.getElementById('s-n6').value,
+    m: +document.getElementById('s-m6').value,
+  };
+}
+function t6_drawOrigen() {
+  const { distKey } = t6_state();
+  const dist = DIST_INFO[distKey];
+  const arr = [];
+  for (let i = 0; i < 2000; i++) arr.push(dist.sample());
+  // recortar cola para visualización
+  const s = arrStats(arr);
+  const cap = distKey === 'lognormal' ? s.median * 6 :
+              distKey === 'exp' ? s.median * 6 : Math.max(s.max, 1);
+  const h = histogram(arr.filter(v => v <= cap), 35, undefined, cap);
+
+  document.getElementById('t6-side-text').innerHTML = dist.explica;
+
+  if (c6Origen) c6Origen.destroy();
+  c6Origen = new Chart(document.getElementById('c6-origen'), {
+    type: 'bar',
+    data: {
+      labels: h.labels.map(v => fmt(v, 1)),
+      datasets: [{
+        data: h.counts,
+        backgroundColor: 'rgba(127,127,127,0.55)',
+        borderColor: PAL.gris,
+        borderWidth: 0,
+        barPercentage: 1.0, categoryPercentage: 1.0,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 6, font: { size: 10 } } },
+        y: { display: false },
+      },
+    },
+  });
+}
+function t6_drawMedias() {
+  if (t6_means.length === 0) {
+    if (c6Medias) { c6Medias.destroy(); c6Medias = null; }
+    return;
+  }
+  const h = histogram(t6_means, 30);
+  if (c6Medias) c6Medias.destroy();
+  c6Medias = new Chart(document.getElementById('c6-medias'), {
+    type: 'bar',
+    data: {
+      labels: h.labels.map(v => fmt(v, 1)),
+      datasets: [{
+        data: h.counts,
+        backgroundColor: 'rgba(0,115,166,0.55)',
+        borderColor: PAL.azul,
+        borderWidth: 0,
+        barPercentage: 1.0, categoryPercentage: 1.0,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 6, font: { size: 10 } } },
+        y: { display: false },
+      },
+    },
+  });
+}
+function t6_drawMain() {
+  const { distKey, n } = t6_state();
+  const dist = DIST_INFO[distKey];
+  const muTeo = dist.muTeo;
+  const seTeo = dist.sigTeo / Math.sqrt(n);
+  let s = { mean: muTeo, sd: seTeo };
+  if (t6_means.length >= 2) s = arrStats(t6_means);
+
+  document.getElementById('k6-mu').textContent = fmt(muTeo, 3);
+  document.getElementById('k6-xbar').textContent = t6_means.length ? fmt(s.mean, 3) : '—';
+  document.getElementById('k6-se').textContent = fmt(seTeo, 3);
+  document.getElementById('k6-seobs').textContent = t6_means.length >= 2 ? fmt(s.sd, 3) : '—';
+
+  const datasets = [];
+  let labels = [];
+  let h = null;
+
+  if (t6_means.length >= 5) {
+    // ----- CASO CON MUESTRAS: histograma de barras + curva Normal teórica -----
+    // El histograma usa un rango fijo centrado en muTeo±4·seTeo para que la
+    // curva teórica siempre quepa entera y se monte visualmente sobre las barras.
+    const sObs = arrStats(t6_means);
+    const widthRange = Math.max(4 * seTeo, 4 * sObs.sd);
+    const xMin = Math.min(muTeo, sObs.mean) - widthRange;
+    const xMax = Math.max(muTeo, sObs.mean) + widthRange;
+    const nBins = 28;
+
+    h = histogram(t6_means, nBins, xMin, xMax);
+    const binWidth = h.width;
+    const total = t6_means.length;
+    // densidad empírica: count / (n · ancho_bin), comparable con PDF
+    const dens = h.counts.map(c => c / (total * binWidth));
+    labels = h.labels.map(v => fmt(v, 2));
+
+    // PDF de la Normal teórica N(muTeo, seTeo^2) evaluada en los centros de bin
+    const pdfYs = h.labels.map(x => normalPDF(x, muTeo, seTeo));
+
+    datasets.push({
+      type: 'bar',
+      label: 'Histograma de medias observadas',
+      data: dens,
+      backgroundColor: 'rgba(0,115,166,0.70)',
+      borderColor: PAL.azulOsc,
+      borderWidth: 1,
+      barPercentage: 1.0,
+      categoryPercentage: 1.0,
+      order: 2,
+    });
+    datasets.push({
+      type: 'line',
+      label: 'N(μ, σ²/n) teórica',
+      data: pdfYs,
+      borderColor: '#E67E22',
+      backgroundColor: 'transparent',
+      borderWidth: 3.5,
+      pointRadius: 0,
+      tension: 0.35,
+      fill: false,
+      order: 1,
+    });
+  } else {
+    // ----- SIN MUESTRAS: solo curva Normal teórica de referencia -----
+    const xMin = muTeo - 4 * seTeo, xMax = muTeo + 4 * seTeo;
+    const nn = 60;
+    const xs = [], ys = [];
+    for (let i = 0; i <= nn; i++) {
+      const x = xMin + ((xMax - xMin) * i) / nn;
+      xs.push(x);
+      ys.push(normalPDF(x, muTeo, seTeo));
+    }
+    labels = xs.map(v => fmt(v, 2));
+    datasets.push({
+      type: 'line',
+      label: 'N(μ, σ²/n) teórica',
+      data: ys,
+      borderColor: '#E67E22',
+      borderWidth: 3.5,
+      pointRadius: 0,
+      tension: 0.35,
+      fill: false,
+    });
+  }
+
+  if (c6Main) c6Main.destroy();
+  c6Main = new Chart(document.getElementById('c6-main'), {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 350 },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 13 } } },
+        tooltip: { enabled: false },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Media muestral X̄', font: { size: 13 } },
+          ticks: { maxTicksLimit: 10 },
+        },
+        y: {
+          title: { display: true, text: 'Densidad', font: { size: 13 } },
+          beginAtZero: true,
+        },
+      },
+    },
+    plugins: [{
+      id: 'tlcRefs',
+      afterDraw(ch) {
+        if (!h) return;
+        const xs = ch.scales.x, ys = ch.scales.y, ctx = ch.ctx;
+        const drawV = (val, color, lbl, side) => {
+          let idx = h.labels.findIndex(v => v >= val);
+          if (idx < 0) idx = h.labels.length - 1;
+          if (idx > 0 && Math.abs(h.labels[idx - 1] - val) < Math.abs(h.labels[idx] - val)) idx = idx - 1;
+          const px = xs.getPixelForValue(idx);
+          ctx.save();
+          ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath(); ctx.moveTo(px, ys.top + 24); ctx.lineTo(px, ys.bottom); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = color; ctx.font = 'bold 11px "Open Sans", sans-serif';
+          ctx.textAlign = side === 'left' ? 'right' : 'left';
+          ctx.fillText(lbl, px + (side === 'left' ? -4 : 4), ys.top + 18);
+          ctx.restore();
+        };
+        drawV(muTeo, PAL.navy, 'μ teórica', 'left');
+        if (t6_means.length >= 2) drawV(s.mean, PAL.teal, 'X̄ observada', 'right');
+      },
+    }],
+  });
+}
+
+function t6_renderAll() {
+  const { n, m } = t6_state();
+  document.getElementById('v-n6').textContent = n;
+  document.getElementById('v-m6').textContent = m.toLocaleString('es-PE');
+  t6_drawOrigen();
+  t6_drawMedias();
+  t6_drawMain();
+}
+function t6_generarMuestras(totalGoal, animar = false) {
+  const { distKey, n } = t6_state();
+  const dist = DIST_INFO[distKey];
+
+  if (t6_animTimer) { clearInterval(t6_animTimer); t6_animTimer = null; }
+
+  if (!animar) {
+    t6_means = [];
+    for (let i = 0; i < totalGoal; i++) {
+      let suma = 0;
+      for (let j = 0; j < n; j++) suma += dist.sample();
+      t6_means.push(suma / n);
+    }
+    t6_drawMedias();
+    t6_drawMain();
+  } else {
+    t6_means = [];
+    const batch = Math.max(10, Math.round(totalGoal / 80));
+    t6_animTimer = setInterval(() => {
+      for (let i = 0; i < batch && t6_means.length < totalGoal; i++) {
+        let suma = 0;
+        for (let j = 0; j < n; j++) suma += dist.sample();
+        t6_means.push(suma / n);
+      }
+      t6_drawMedias();
+      t6_drawMain();
+      if (t6_means.length >= totalGoal) {
+        clearInterval(t6_animTimer);
+        t6_animTimer = null;
+      }
+    }, 180);
+  }
+}
+['t6-dist', 's-n6', 's-m6'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    if (t6_animTimer) { clearInterval(t6_animTimer); t6_animTimer = null; }
+    t6_means = [];
+    t6_renderAll();
+  });
+});
+document.getElementById('b6-gen').addEventListener('click', () => {
+  const { m } = t6_state();
+  t6_generarMuestras(m, false);
+});
+document.getElementById('b6-anim').addEventListener('click', () => {
+  const { m } = t6_state();
+  t6_generarMuestras(m, true);
+});
+document.getElementById('b6-reset').addEventListener('click', () => {
+  document.getElementById('t6-dist').value = 'lognormal';
+  document.getElementById('s-n6').value = 5;
+  document.getElementById('s-m6').value = 100;
+  t6_means = [];
+  if (t6_animTimer) { clearInterval(t6_animTimer); t6_animTimer = null; }
+  t6_renderAll();
+});
+
+// =========================================================================
+// INIT
+// =========================================================================
+t1_render();
+t2_render();
+t3_render();
+t4_render();
+t5_render();
+t6_renderAll();
+</script>
+</body>
+</html>

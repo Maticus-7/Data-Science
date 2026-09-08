@@ -1,0 +1,133 @@
+{
+    "total_features_iniciales": 212,
+    "total_features_seleccionadas": 35,
+    "top_35_features": [
+        "normal_pipe__primary_place_of_www_access_Home",
+        "normal_pipe__primary_computing_platform_No_Informado",
+        "normal_pipe__major_occupation_Other",
+        "normal_pipe__web_page_creation_Yes",
+        "normal_pipe__web_page_creation_No",
+        "normal_pipe__primary_place_of_www_access_Primarily_work",
+        "normal_pipe__who_pays_for_access_self_Si",
+        "normal_pipe__who_pays_for_access_self_No",
+        "normal_pipe__who_pays_for_access_work_Si",
+        "normal_pipe__major_occupation_Education",
+        "normal_pipe__who_pays_for_access_work_No",
+        "normal_pipe__community_membership_professional_Si",
+        "normal_pipe__willingness_to_pay_fees_Already_paying",
+        "normal_pipe__who_pays_for_access_school_Si",
+        "normal_pipe__actual_time_College_Student",
+        "normal_pipe__community_membership_professional_No",
+        "normal_pipe__years_on_internet_0.5 - 1 a\u00f1o",
+        "normal_pipe__years_on_internet_0 - 0.5 a\u00f1os",
+        "normal_pipe__who_pays_for_access_school_No",
+        "normal_pipe__major_occupation_Computer",
+        "normal_pipe__clean_country_United_States",
+        "normal_pipe__major_geographical_location_USA",
+        "normal_pipe__years_on_internet_4 - 6 a\u00f1os",
+        "normal_pipe__state_province_No_Aplica",
+        "normal_pipe__primary_computing_platform_Windows / PC",
+        "mnar_pipe__age_18 - 24 a\u00f1os",
+        "normal_pipe__primary_computing_platform_Macintosh / Apple",
+        "normal_pipe__marital_status_Single",
+        "normal_pipe__major_geographical_location_Europe",
+        "normal_pipe__actual_time_Retired",
+        "normal_pipe__willingness_to_pay_fees_Otras_Fuentes_Alternativas",
+        "normal_pipe__years_on_internet_> 7 a\u00f1os",
+        "normal_pipe__clean_country_Otras_Categorias",
+        "normal_pipe__years_on_internet_1 - 3 a\u00f1os",
+        "normal_pipe__actual_time_Programmer"
+    ],
+    "detalle_consenso_top10": [
+        {
+            "feature": "normal_pipe__primary_place_of_www_access_Home",
+            "info_mutua": 0.22255927565078668,
+            "rank_mi": 1.0,
+            "rf_importance": 0.09522678502106212,
+            "rank_rf": 2.0,
+            "VIF": 15.775362816752727,
+            "score_consenso": 1.5
+        },
+        {
+            "feature": "normal_pipe__primary_computing_platform_No_Informado",
+            "info_mutua": 0.20375370855211128,
+            "rank_mi": 2.0,
+            "rf_importance": 0.12006190166805437,
+            "rank_rf": 1.0,
+            "VIF": 17.899566385408068,
+            "score_consenso": 1.5
+        },
+        {
+            "feature": "normal_pipe__major_occupation_Other",
+            "info_mutua": 0.14193313506489832,
+            "rank_mi": 3.0,
+            "rf_importance": 0.07363508491795277,
+            "rank_rf": 3.0,
+            "VIF": 2.1210196712567475,
+            "score_consenso": 3.0
+        },
+        {
+            "feature": "normal_pipe__web_page_creation_Yes",
+            "info_mutua": 0.10962438956375897,
+            "rank_mi": 4.0,
+            "rf_importance": 0.05217546041632349,
+            "rank_rf": 5.0,
+            "VIF": 101.55869981707353,
+            "score_consenso": 4.5
+        },
+        {
+            "feature": "normal_pipe__web_page_creation_No",
+            "info_mutua": 0.10894406808046142,
+            "rank_mi": 5.0,
+            "rf_importance": 0.052296516471792204,
+            "rank_rf": 4.0,
+            "VIF": 101.29750175812929,
+            "score_consenso": 4.5
+        },
+        {
+            "feature": "normal_pipe__primary_place_of_www_access_Primarily_work",
+            "info_mutua": 0.09611517007612827,
+            "rank_mi": 6.0,
+            "rf_importance": 0.03589994644813706,
+            "rank_rf": 7.0,
+            "VIF": 11.556931092530805,
+            "score_consenso": 6.5
+        },
+        {
+            "feature": "normal_pipe__who_pays_for_access_self_Si",
+            "info_mutua": 0.0954387535834465,
+            "rank_mi": 7.0,
+            "rf_importance": 0.039814304802344935,
+            "rank_rf": 6.0,
+            "VIF": 61737.63200587905,
+            "score_consenso": 6.5
+        },
+        {
+            "feature": "normal_pipe__who_pays_for_access_self_No",
+            "info_mutua": 0.09543875358344649,
+            "rank_mi": 8.0,
+            "rf_importance": 0.022806193582045452,
+            "rank_rf": 10.0,
+            "VIF": 884910.6327031499,
+            "score_consenso": 9.0
+        },
+        {
+            "feature": "normal_pipe__who_pays_for_access_work_Si",
+            "info_mutua": 0.08888699146817354,
+            "rank_mi": 9.0,
+            "rf_importance": 0.02341761067100131,
+            "rank_rf": 9.0,
+            "VIF": 177808.4756919015,
+            "score_consenso": 9.0
+        },
+        {
+            "feature": "normal_pipe__major_occupation_Education",
+            "info_mutua": 0.07452077505590057,
+            "rank_mi": 11.0,
+            "rf_importance": 0.0333401637371552,
+            "rank_rf": 8.0,
+            "VIF": 3.114570227500124,
+            "score_consenso": 9.5
+        }
+    ]
+}

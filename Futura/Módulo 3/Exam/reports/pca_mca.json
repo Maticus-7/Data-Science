@@ -1,0 +1,13 @@
+{
+    "pca_varianza_plano_2d_pct": 12.63,
+    "pca_componentes_80_pct": 56,
+    "pca_componentes_90_pct": 80,
+    "mca_inercia_plano_2d_pct": 5.79,
+    "mca_top_categorias_mejor_representadas": [
+        "actual_time__K-12_Student",
+        "primary_place_of_www_access__School",
+        "who_pays_for_access_parents__Si",
+        "education_attainment__Grammar",
+        "age__< 18 a\u00f1os"
+    ]
+}

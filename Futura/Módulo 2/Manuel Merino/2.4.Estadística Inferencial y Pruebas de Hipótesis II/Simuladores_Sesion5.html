@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simuladores · Sesión 4 · Inferencia Aplicada · BancoSur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --futura: #0073A6;
+  --futura-dark: #004A6E;
+  --navy: #0A1F44;
+  --teal: #0085AE;
+  --text: #2A2A2A;
+  --text-soft: #5A5A5A;
+  --gray: #9A9A9A;
+  --gray-light: #DCDCDC;
+  --bg: #FAFAF7;
+  --bg-soft: #F0EFE9;
+  --bg-card: #FFFFFF;
+  --good: #16A085;
+  --good-light: #D9F2EC;
+  --bad: #C0392B;
+  --bad-light: #FDECEA;
+  --warn: #E67E22;
+  --warn-light: #FDF1E5;
+  --ic: #16A085;
+  --hipotesis: #E67E22;
+  --estimador: #2980B9;
+  --shadow-sm: 0 1px 2px rgba(10,31,68,0.04), 0 1px 3px rgba(10,31,68,0.05);
+  --shadow-md: 0 4px 12px rgba(10,31,68,0.06), 0 2px 4px rgba(10,31,68,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter Tight', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ TOPBAR ============ */
+.topbar {
+  background: var(--navy);
+  color: white;
+  padding: 14px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 19px;
+  font-weight: 500;
+}
+.topbar-title em { font-style: italic; color: #8BB8DD; font-weight: 400; }
+.topbar-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #C0CFE0;
+  letter-spacing: 0.08em;
+}
+.topbar-meta strong { color: white; }
+
+/* ============ TABS ============ */
+.tabs-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--gray-light);
+  padding: 0 32px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 18px 24px;
+  cursor: pointer;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-soft);
+  border-bottom: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 160ms;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--futura-dark); background: var(--bg-soft); }
+.tab-btn.active { color: var(--futura); border-bottom-color: var(--futura); font-weight: 600; }
+.tab-btn .tab-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--gray);
+  background: var(--bg-soft);
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+}
+.tab-btn.active .tab-num { color: var(--futura); background: rgba(0,115,166,0.1); }
+
+.tab-content { display: none; padding: 32px; max-width: 1400px; margin: 0 auto; }
+.tab-content.active { display: block; }
+
+/* ============ HEROES ============ */
+.hero {
+  margin-bottom: 28px;
+}
+.hero-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  margin-bottom: 10px;
+  line-height: 1.15;
+}
+.hero-title em { font-style: italic; color: var(--futura-dark); font-weight: 400; }
+.hero-sub {
+  font-size: 14px;
+  color: var(--text-soft);
+  max-width: 900px;
+}
+
+/* ============ PANEL ============ */
+.panel {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 26px 30px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-light);
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gray-light);
+}
+.panel-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.panel-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--navy);
+}
+.panel-title em { font-style: italic; }
+
+/* ============ GRID 2 COL ============ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+}
+.grid-2-equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ============ CONTROL PANEL ============ */
+.controls {
+  background: var(--bg-soft);
+  padding: 22px;
+  border-radius: 8px;
+}
+.controls h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.control-row { margin-bottom: 18px; }
+.control-row:last-of-type { margin-bottom: 8px; }
+.control-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.control-label-text {
+  font-size: 12.5px;
+  color: var(--text);
+  font-weight: 500;
+}
+.control-label-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--futura-dark);
+  background: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 50px;
+  text-align: center;
+}
+.slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--gray-light);
+  outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--futura);
+  cursor: pointer;
+  transition: transform 100ms;
+}
+.slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--futura); cursor: pointer; border: none;
+}
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.btn {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 120ms;
+  letter-spacing: -0.01em;
+}
+.btn-primary {
+  background: var(--futura);
+  color: white;
+  flex: 1;
+}
+.btn-primary:hover { background: var(--futura-dark); transform: translateY(-1px); }
+.btn-secondary {
+  background: white;
+  color: var(--futura);
+  border: 1px solid var(--futura);
+}
+.btn-secondary:hover { background: var(--bg-soft); }
+.btn-danger {
+  background: white;
+  color: var(--bad);
+  border: 1px solid var(--bad);
+}
+.btn-danger:hover { background: var(--bad-light); }
+.btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.note {
+  font-size: 11px;
+  color: var(--text-soft);
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--gray-light);
+  line-height: 1.55;
+}
+.note strong { color: var(--navy); }
+
+/* ============ KPIS ============ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.kpi-card {
+  background: white;
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  padding: 14px 16px;
+  border-top: 3px solid var(--futura);
+}
+.kpi-card.good { border-top-color: var(--good); }
+.kpi-card.bad { border-top-color: var(--bad); }
+.kpi-card.warn { border-top-color: var(--warn); }
+.kpi-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+.kpi-value {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1;
+}
+.kpi-value.good { color: var(--good); }
+.kpi-value.bad { color: var(--bad); }
+.kpi-value.warn { color: var(--warn); }
+.kpi-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+/* ============ CHART AREAS ============ */
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.chart-card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.chart-card-sub {
+  font-size: 12.5px;
+  color: var(--text);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+.chart-canvas-wrapper {
+  position: relative;
+  min-height: 280px;
+}
+
+/* IC visualization custom canvas */
+.ic-canvas-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  padding: 14px;
+  height: 480px;
+  position: relative;
+  overflow: hidden;
+}
+.ic-svg { width: 100%; height: 100%; }
+
+/* ============ INSIGHT ============ */
+.insight {
+  background: var(--navy);
+  color: white;
+  padding: 22px 28px;
+  border-radius: 10px;
+  margin-top: 22px;
+}
+.insight-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8BB8DD;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.insight-text {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.5;
+}
+.insight-text strong { color: #FFD08A; font-style: normal; font-weight: 600; }
+
+/* ============ VERDICT (cajas color) ============ */
+.verdict {
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  border-left: 3px solid;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.verdict-icon {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+.verdict-text strong {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.verdict.good { background: var(--good-light); color: #0F6B57; border-left-color: var(--good); }
+.verdict.warn { background: var(--warn-light); color: #A05420; border-left-color: var(--warn); }
+.verdict.bad  { background: var(--bad-light);  color: #8E2A20; border-left-color: var(--bad); }
+
+/* ============ DASHBOARD ITEMS (Tab 3) ============ */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.dash-card {
+  background: white;
+  border: 1px solid var(--gray-light);
+  border-radius: 10px;
+  padding: 18px 20px;
+  border-left: 4px solid var(--futura);
+}
+.dash-card.good { border-left-color: var(--good); }
+.dash-card.warn { border-left-color: var(--warn); }
+.dash-card.bad { border-left-color: var(--bad); }
+.dash-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.dash-card-name {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--navy);
+}
+.dash-card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+.dash-card-value {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.dash-card-ic {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--futura-dark);
+  margin-bottom: 10px;
+}
+.dash-card-ic strong { color: var(--futura); }
+.dash-card-verdict {
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+.dash-card-verdict.good { background: var(--good-light); color: #0F6B57; }
+.dash-card-verdict.warn { background: var(--warn-light); color: #A05420; }
+.dash-card-verdict.bad { background: var(--bad-light); color: #8E2A20; }
+.dash-card-verdict strong { font-weight: 600; }
+
+/* Mini barra de IC visual */
+.ic-bar {
+  position: relative;
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  margin: 12px 0 6px 0;
+  overflow: hidden;
+}
+.ic-bar-range {
+  position: absolute;
+  height: 100%;
+  background: rgba(0,115,166,0.25);
+  border-left: 2px solid var(--futura);
+  border-right: 2px solid var(--futura);
+}
+.ic-bar-point {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  top: -3px;
+  background: var(--futura-dark);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.ic-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-soft);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 1100px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Simuladores · <em>Sesión 4 · Inferencia Aplicada</em></div>
+  <div class="topbar-meta">CASO: <strong>BANCOSUR</strong> · 3 SIMULADORES</div>
+</div>
+
+<!-- TABS -->
+<nav class="tabs-bar">
+  <button class="tab-btn active" data-tab="tab1"><span class="tab-num">01</span><span>Intervalos de Confianza</span></button>
+  <button class="tab-btn" data-tab="tab2"><span class="tab-num">02</span><span>A/B Testing</span></button>
+  <button class="tab-btn" data-tab="tab3"><span class="tab-num">03</span><span>Dashboard BancoSur</span></button>
+</nav>
+
+<!-- ============================================================ -->
+<!-- TAB 1 · VISUALIZADOR DE IC95%                                  -->
+<!-- ============================================================ -->
+<div class="tab-content active" id="tab1">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--ic);">SIMULADOR 1 · INTERVALOS DE CONFIANZA</div>
+    <h1 class="hero-title">El 95% que <em>casi nadie entiende bien.</em></h1>
+    <p class="hero-sub">Si la afirmación "IC95%" significa "hay 95% de probabilidad de que μ esté en este intervalo" — entonces este simulador es justamente lo que necesitás ver. Vamos a generar muchos intervalos y mostrar qué pasa realmente.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-kicker">CONFIGURACIÓN · 100 MUESTRAS REPETIDAS</div>
+        <div class="panel-title">¿Cuántos IC95% contienen <em>realmente</em> a μ?</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="controls">
+        <h4>Parámetros poblacionales</h4>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">μ verdadero (default rate)</span>
+            <span class="control-label-value" id="ic-mu-val">2.8%</span>
+          </div>
+          <input type="range" class="slider" id="ic-mu" min="1" max="10" step="0.1" value="2.8">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">n (tamaño de cada muestra)</span>
+            <span class="control-label-value" id="ic-n-val">500</span>
+          </div>
+          <input type="range" class="slider" id="ic-n" min="50" max="5000" step="50" value="500">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">Nivel de confianza</span>
+            <span class="control-label-value" id="ic-conf-val">95%</span>
+          </div>
+          <input type="range" class="slider" id="ic-conf" min="80" max="99" step="1" value="95">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="ic-generate">🎲 &nbsp;Generar 100 muestras</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="ic-animate">▶  Animar lento</button>
+          <button class="btn btn-danger" id="ic-clear">↺ Reset</button>
+        </div>
+
+        <div class="note">
+          <strong>Qué hace este simulador:</strong> simula que tu equipo de auditoría hace 100 auditorías independientes de n créditos cada una. Para cada una, calcula el IC95% del default rate. Cuenta cuántos IC contienen el μ verdadero.
+        </div>
+      </div>
+
+      <div>
+        <div class="kpi-row">
+          <div class="kpi-card good">
+            <div class="kpi-label">IC QUE CONTIENEN μ</div>
+            <div class="kpi-value good" id="ic-hits">— / 100</div>
+            <div class="kpi-meta">aciertos del método</div>
+          </div>
+          <div class="kpi-card bad">
+            <div class="kpi-label">IC QUE NO CONTIENEN μ</div>
+            <div class="kpi-value bad" id="ic-misses">— / 100</div>
+            <div class="kpi-meta">fallas (esperadas ≈ 5)</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">% DE ACIERTO</div>
+            <div class="kpi-value" id="ic-pct">— %</div>
+            <div class="kpi-meta">esperado: <span id="ic-pct-target">95%</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ANCHO PROMEDIO IC</div>
+            <div class="kpi-value" id="ic-width">— pp</div>
+            <div class="kpi-meta">depende de n y confianza</div>
+          </div>
+        </div>
+
+        <div class="ic-canvas-wrapper">
+          <svg class="ic-svg" id="ic-svg" viewBox="0 0 800 460" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">LO QUE TE LLEVAS</div>
+      <div class="insight-text">
+        El "95%" del IC <strong>no es la probabilidad de que μ esté en TU intervalo específico</strong>. Es la frecuencia de aciertos del método: si repitieras la auditoría muchas veces, ~95 de cada 100 IC contendrían el verdadero μ. Para tu intervalo concreto, μ está o no está — ya no hay probabilidad. Esa distinción cambia cómo reportás incertidumbre al directorio.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 2 · A/B TESTING + PODER                                    -->
+<!-- ============================================================ -->
+<div class="tab-content" id="tab2">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--hipotesis);">SIMULADOR 2 · A/B TESTING EN VIVO + PODER ESTADÍSTICO</div>
+    <h1 class="hero-title">Ver el p-valor <em>moverse en tiempo real.</em></h1>
+    <p class="hero-sub">El problema de "peeking" en A/B testing es invisible si solo lo explicás teóricamente. Pero si lo ves moverse — con el p-valor brincando caóticamente con muestras chicas, y estabilizándose con n grande — el alumno entiende por qué pre-registrar n es vital.</p>
+  </header>
+
+  <!-- PANEL EXPERIMENTO -->
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-kicker">EXPERIMENTO A/B · Q4 vs Q1 DEFAULT RATE</div>
+        <div class="panel-title">¿Cuánto se mueve el p-valor mientras <em>corre el experimento</em>?</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="controls">
+        <h4>Configuración del experimento</h4>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">p_A (control · Q4)</span>
+            <span class="control-label-value" id="ab-pa-val">2.5%</span>
+          </div>
+          <input type="range" class="slider" id="ab-pa" min="0.5" max="10" step="0.1" value="2.5">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">p_B (tratamiento · Q1)</span>
+            <span class="control-label-value" id="ab-pb-val">2.8%</span>
+          </div>
+          <input type="range" class="slider" id="ab-pb" min="0.5" max="10" step="0.1" value="2.8">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">Total n por brazo</span>
+            <span class="control-label-value" id="ab-n-val">5000</span>
+          </div>
+          <input type="range" class="slider" id="ab-n" min="500" max="50000" step="500" value="5000">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">Velocidad simulación</span>
+            <span class="control-label-value" id="ab-speed-val">5×</span>
+          </div>
+          <input type="range" class="slider" id="ab-speed" min="1" max="20" step="1" value="5">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="ab-start">▶  Correr experimento</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="ab-instant">⚡ Saltar al final</button>
+          <button class="btn btn-danger" id="ab-reset">↺ Reset</button>
+        </div>
+
+        <div class="note">
+          <strong>Para Marta:</strong> probá pa=2.5%, pb=2.8%, n=5000 (caso real BancoSur Q4 vs Q1). Vas a ver que el p-valor casi nunca baja de 0.05 — no hay evidencia de deterioro real.
+        </div>
+      </div>
+
+      <div>
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">USUARIOS PROCESADOS</div>
+            <div class="kpi-value" id="ab-n-now">0 / 0</div>
+            <div class="kpi-meta">por brazo</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">LIFT OBSERVADO</div>
+            <div class="kpi-value" id="ab-lift">— pp</div>
+            <div class="kpi-meta" id="ab-lift-ic">IC95%: —</div>
+          </div>
+          <div class="kpi-card" id="ab-pkpi">
+            <div class="kpi-label">P-VALOR ACTUAL</div>
+            <div class="kpi-value" id="ab-pval">—</div>
+            <div class="kpi-meta">α = 0.05</div>
+          </div>
+          <div class="kpi-card" id="ab-verdict-card">
+            <div class="kpi-label">VEREDICTO</div>
+            <div class="kpi-value" id="ab-verdict">esperando</div>
+            <div class="kpi-meta" id="ab-verdict-meta">corré el experimento</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-title">P-VALOR EN VIVO</div>
+          <div class="chart-card-sub">Cómo se mueve el p-valor a medida que crecen las muestras. Línea roja: α=0.05.</div>
+          <div class="chart-canvas-wrapper" style="min-height: 220px;">
+            <canvas id="ab-pchart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-title">CONVERSIONES ACUMULADAS</div>
+          <div class="chart-card-sub">Tasas observadas en A y B según se acumulan usuarios.</div>
+          <div class="chart-canvas-wrapper" style="min-height: 180px;">
+            <canvas id="ab-ratechart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">EL PROBLEMA DEL PEEKING</div>
+      <div class="insight-text">
+        Si parás un test "cuando p&lt;0.05 al fin", inflás el α real de 5% a aproximadamente <strong>30%</strong>. Eso significa: 1 de cada 3 lanzamientos basados en peeking sería un falso positivo. La regla profesional: <strong>pre-registrá n con cálculo de poder ANTES del test</strong>, no mires p hasta el final.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL PODER -->
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-kicker">CALCULADORA DE PODER · ¿CUÁNTO N NECESITO?</div>
+        <div class="panel-title">El poder estadístico <em>visualizado</em></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="controls">
+        <h4>Parámetros del diseño</h4>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">Tasa base p̄</span>
+            <span class="control-label-value" id="pw-p-val">2.5%</span>
+          </div>
+          <input type="range" class="slider" id="pw-p" min="0.5" max="20" step="0.1" value="2.5">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">Δ mínimo detectable (pp)</span>
+            <span class="control-label-value" id="pw-delta-val">0.5</span>
+          </div>
+          <input type="range" class="slider" id="pw-delta" min="0.1" max="5" step="0.1" value="0.5">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">n por brazo</span>
+            <span class="control-label-value" id="pw-n-val">5000</span>
+          </div>
+          <input type="range" class="slider" id="pw-n" min="100" max="100000" step="500" value="5000">
+        </div>
+        <div class="control-row">
+          <div class="control-label">
+            <span class="control-label-text">α (nivel de significancia)</span>
+            <span class="control-label-value" id="pw-alpha-val">0.05</span>
+          </div>
+          <input type="range" class="slider" id="pw-alpha" min="0.01" max="0.10" step="0.01" value="0.05">
+        </div>
+
+        <div class="note">
+          <strong>Caso BancoSur:</strong> p̄=2.5%, Δ=0.5pp → calculá cuánto n necesitás para poder ≥ 80%. Vas a ver que con 5,000 estás muy lejos.
+        </div>
+      </div>
+
+      <div>
+        <div class="kpi-row">
+          <div class="kpi-card" id="pw-pkpi">
+            <div class="kpi-label">PODER (1−β)</div>
+            <div class="kpi-value" id="pw-power">— %</div>
+            <div class="kpi-meta">estándar: ≥ 80%</div>
+          </div>
+          <div class="kpi-card warn">
+            <div class="kpi-label">β (NO DETECTAR EFECTO)</div>
+            <div class="kpi-value warn" id="pw-beta">— %</div>
+            <div class="kpi-meta">probabilidad de error II</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">n REQUERIDO PARA 80%</div>
+            <div class="kpi-value" id="pw-nreq">—</div>
+            <div class="kpi-meta">por brazo</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">TAMAÑO EFECTO (h)</div>
+            <div class="kpi-value" id="pw-h">—</div>
+            <div class="kpi-meta">Cohen's h</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-title">DISTRIBUCIONES BAJO H₀ Y H₁</div>
+          <div class="chart-card-sub">Cómo se solapan o separan las hipótesis. Área roja: α (error I). Área naranja: β (error II). Área verde: poder.</div>
+          <div class="chart-canvas-wrapper" style="min-height: 280px;">
+            <canvas id="pw-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">LA REGLA DE BOLSILLO</div>
+      <div class="insight-text">
+        Para detectar un Δ con poder 80% y α=5% en proporciones: <strong>n ≈ 16 · p̄(1−p̄) / Δ²</strong>. Para BancoSur (p̄=2.5%, Δ=0.5pp): n ≈ <strong>15,600 por brazo</strong>. Por eso los 5,000 originales no alcanzaron. El concepto de "poder" determina si tu test tiene chance de detectar un efecto real — sin él, estás corriendo un experimento ciego.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 3 · DASHBOARD BANCOSUR INFERENCIAL                         -->
+<!-- ============================================================ -->
+<div class="tab-content" id="tab3">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--estimador);">SIMULADOR 3 · EL DASHBOARD QUE MARTA PROYECTARÍA AL DIRECTORIO</div>
+    <h1 class="hero-title">Los 5 KPIs <em>con su rango de incertidumbre.</em></h1>
+    <p class="hero-sub">El cierre del arco BancoSur en formato interactivo. Cada KPI ya no es solo un número — es una estimación puntual + IC95% + veredicto inferencial. Movés el tamaño de la auditoría y ves cómo se achican los intervalos.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-kicker">DASHBOARD INFERENCIAL · MARTA ECHEVARRÍA · CRO</div>
+        <div class="panel-title">El portfolio en cinco KPIs, <em>con su incertidumbre.</em></div>
+      </div>
+      <div style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-soft);">
+        Q1 2026 · BancoSur SA
+      </div>
+    </div>
+
+    <div class="controls" style="margin-bottom: 22px;">
+      <h4>Tamaño de auditoría · n créditos auditados</h4>
+      <div class="control-row" style="margin-bottom: 4px;">
+        <div class="control-label">
+          <span class="control-label-text">n créditos en la muestra</span>
+          <span class="control-label-value" id="dash-n-val">5,000</span>
+        </div>
+        <input type="range" class="slider" id="dash-n" min="500" max="30000" step="500" value="5000">
+      </div>
+      <div class="note" style="margin-top: 10px; padding-top: 10px;">
+        <strong>Probá:</strong> n=500 (auditoría chica) vs n=20,000 (auditoría grande). Los IC se achican cuadráticamente con n — pero cada nuevo dato cuesta operativamente. Esta es la decisión real del negocio.
+      </div>
+    </div>
+
+    <div class="dashboard-grid" id="dash-grid">
+      <!-- Las dash-cards se generan por JS -->
+    </div>
+
+    <div class="insight">
+      <div class="insight-label">PARA LA REUNIÓN DEL DIRECTORIO</div>
+      <div class="insight-text" id="dash-narrative">
+        El portfolio está estable en agregado, pero el alza viene concentrada en producto Consumo, especialmente en sucursales Trujillo y Piura. Acción recomendada: <strong>revisar política de aprobación de Consumo en esas dos sucursales</strong>. El resto de KPIs (fraudes, ticket mediano, tiempo a default, días-mora) están en bandas históricas — no requieren acción inmediata.
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>FUTURA · ANALÍTICA AVANZADA · MÓDULO 2 · SESIÓN 4 · SIMULADORES DE INFERENCIA</footer>
+
+<script>
+'use strict';
+
+// ============================================================
+// UTILIDADES MATEMÁTICAS
+// ============================================================
+function normalRandom() {
+  // Box-Muller
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function normalCDF(z) {
+  // Aproximación de Abramowitz y Stegun
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp(-z * z / 2);
+  const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return z > 0 ? 1 - p : p;
+}
+
+function normalInv(p) {
+  // Acklam approximation
+  const a1=-39.69683028665376,a2=220.9460984245205,a3=-275.9285104469687;
+  const a4=138.357751867269,a5=-30.66479806614716,a6=2.506628277459239;
+  const b1=-54.47609879822406,b2=161.5858368580409,b3=-155.6989798598866;
+  const b4=66.80131188771972,b5=-13.28068155288572;
+  const c1=-0.007784894002430293,c2=-0.3223964580411365,c3=-2.400758277161838;
+  const c4=-2.549732539343734,c5=4.374664141464968,c6=2.938163982698783;
+  const d1=0.007784695709041462,d2=0.3224671290700398,d3=2.445134137142996;
+  const d4=3.754408661907416;
+  const plow=0.02425, phigh=1-plow;
+  let q, r;
+  if (p < plow) {
+    q = Math.sqrt(-2*Math.log(p));
+    return (((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6)/((((d1*q+d2)*q+d3)*q+d4)*q+1);
+  }
+  if (p <= phigh) {
+    q = p-0.5; r = q*q;
+    return (((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q/(((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1);
+  }
+  q = Math.sqrt(-2*Math.log(1-p));
+  return -(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6)/((((d1*q+d2)*q+d3)*q+d4)*q+1);
+}
+
+// Sampleo binomial rápido (para p chico): aprox via normal o sumando bernoullis cuando n*p es manejable
+function binomialSample(n, p) {
+  if (n*p < 25 || n*p*(1-p) < 9) {
+    // suma exacta
+    let k = 0;
+    for (let i = 0; i < n; i++) if (Math.random() < p) k++;
+    return k;
+  }
+  // aproximación normal con corrección de continuidad
+  const mu = n*p, sd = Math.sqrt(n*p*(1-p));
+  return Math.max(0, Math.min(n, Math.round(mu + sd * normalRandom())));
+}
+
+// Z-test de dos proporciones: devuelve {z, p}
+function twoPropZTest(x1, n1, x2, n2) {
+  const p1 = x1/n1, p2 = x2/n2;
+  const pooled = (x1+x2)/(n1+n2);
+  const se = Math.sqrt(pooled*(1-pooled)*(1/n1 + 1/n2));
+  if (se === 0) return { z: 0, p: 1, diff: 0, seDiff: 0 };
+  const z = (p2 - p1) / se;
+  const pVal = 2 * (1 - normalCDF(Math.abs(z)));
+  // SE del lift sin pooling (para IC del lift)
+  const seDiff = Math.sqrt(p1*(1-p1)/n1 + p2*(1-p2)/n2);
+  return { z, p: pVal, diff: p2-p1, seDiff };
+}
+
+// Poder analítico para test z de dos proporciones bilateral
+function powerTwoProp(p1, p2, n, alpha) {
+  if (p1 === p2 || n < 5) return alpha;
+  const pooled = (p1+p2)/2;
+  const seNull = Math.sqrt(2*pooled*(1-pooled)/n);
+  const seAlt  = Math.sqrt(p1*(1-p1)/n + p2*(1-p2)/n);
+  const zCrit = normalInv(1 - alpha/2);
+  const diff = Math.abs(p2 - p1);
+  // P(rechazar H0 | H1 verdadera)
+  // crítico en escala de diff: zCrit * seNull
+  const critical = zCrit * seNull;
+  // P(|X̂| > critical | media=diff, sd=seAlt)
+  const upperZ = (critical - diff) / seAlt;
+  const lowerZ = (-critical - diff) / seAlt;
+  const power = (1 - normalCDF(upperZ)) + normalCDF(lowerZ);
+  return Math.min(1, Math.max(alpha, power));
+}
+
+// Cohen's h
+function cohenH(p1, p2) {
+  const phi1 = 2 * Math.asin(Math.sqrt(p1));
+  const phi2 = 2 * Math.asin(Math.sqrt(p2));
+  return Math.abs(phi1 - phi2);
+}
+
+// ============================================================
+// TABS
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ============================================================
+// TAB 1 · IC VISUALIZER
+// ============================================================
+const IC = {
+  mu: 0.028, n: 500, conf: 95,
+  intervals: [],
+  animTimer: null,
+
+  init() {
+    document.getElementById('ic-mu').addEventListener('input', e => {
+      this.mu = parseFloat(e.target.value) / 100;
+      document.getElementById('ic-mu-val').textContent = (this.mu*100).toFixed(1) + '%';
+    });
+    document.getElementById('ic-n').addEventListener('input', e => {
+      this.n = parseInt(e.target.value);
+      document.getElementById('ic-n-val').textContent = this.n.toLocaleString();
+    });
+    document.getElementById('ic-conf').addEventListener('input', e => {
+      this.conf = parseInt(e.target.value);
+      document.getElementById('ic-conf-val').textContent = this.conf + '%';
+      document.getElementById('ic-pct-target').textContent = this.conf + '%';
+    });
+
+    document.getElementById('ic-generate').addEventListener('click', () => this.generateAll());
+    document.getElementById('ic-animate').addEventListener('click', () => this.animate());
+    document.getElementById('ic-clear').addEventListener('click', () => this.clear());
+
+    this.drawEmpty();
+  },
+
+  drawEmpty() {
+    const svg = document.getElementById('ic-svg');
+    svg.innerHTML = '';
+    // Línea de μ
+    const muX = 400; // centro
+    svg.innerHTML += `
+      <line x1="${muX}" y1="20" x2="${muX}" y2="440" stroke="#0A1F44" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="${muX}" y="15" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0A1F44" font-weight="600">μ = ${(this.mu*100).toFixed(2)}%</text>
+      <text x="400" y="455" text-anchor="middle" font-family="Inter Tight" font-size="12" fill="#5A5A5A" font-style="italic">Cada raya horizontal es un IC de una muestra independiente</text>
+    `;
+  },
+
+  computeIC() {
+    // Genera una muestra binomial y devuelve {phat, lo, hi, contains}
+    const x = binomialSample(this.n, this.mu);
+    const phat = x / this.n;
+    const z = normalInv(1 - (1 - this.conf/100)/2);
+    const se = Math.sqrt(phat*(1-phat)/this.n);
+    const margin = z * se;
+    const lo = Math.max(0, phat - margin);
+    const hi = phat + margin;
+    return { phat, lo, hi, contains: this.mu >= lo && this.mu <= hi, margin: margin*2 };
+  },
+
+  generateAll() {
+    if (this.animTimer) { clearInterval(this.animTimer); this.animTimer = null; }
+    this.intervals = [];
+    for (let i = 0; i < 100; i++) this.intervals.push(this.computeIC());
+    this.render();
+  },
+
+  animate() {
+    if (this.animTimer) { clearInterval(this.animTimer); this.animTimer = null; return; }
+    this.intervals = [];
+    this.render();
+    let i = 0;
+    this.animTimer = setInterval(() => {
+      if (i >= 100) { clearInterval(this.animTimer); this.animTimer = null; return; }
+      this.intervals.push(this.computeIC());
+      this.render();
+      i++;
+    }, 60);
+  },
+
+  clear() {
+    if (this.animTimer) { clearInterval(this.animTimer); this.animTimer = null; }
+    this.intervals = [];
+    this.render();
+    this.updateKPIs();
+  },
+
+  render() {
+    const svg = document.getElementById('ic-svg');
+    svg.innerHTML = '';
+    const W = 800, H = 460;
+    const padTop = 30, padBot = 30, padL = 80, padR = 40;
+    const plotW = W - padL - padR;
+    const plotH = H - padTop - padBot;
+
+    // Determinar rango horizontal: centrar en μ, ancho dinámico
+    // El IC más ancho de todos define la escala
+    const maxMargin = this.intervals.length === 0
+      ? 0.04
+      : Math.max(...this.intervals.map(iv => iv.margin)) * 1.2;
+    const xMin = Math.max(0, this.mu - maxMargin * 0.7);
+    const xMax = this.mu + maxMargin * 0.7;
+    const xRange = xMax - xMin;
+    const toX = (v) => padL + ((v - xMin) / xRange) * plotW;
+    const muX = toX(this.mu);
+
+    // Grid vertical (% labels)
+    const gridStep = xRange > 0.08 ? 0.02 : 0.01;
+    for (let v = Math.ceil(xMin/gridStep)*gridStep; v <= xMax; v += gridStep) {
+      const x = toX(v);
+      svg.innerHTML += `<line x1="${x}" y1="${padTop}" x2="${x}" y2="${H-padBot}" stroke="#EEEEEE" stroke-width="1"/>`;
+      svg.innerHTML += `<text x="${x}" y="${H-padBot+18}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#9A9A9A">${(v*100).toFixed(1)}%</text>`;
+    }
+
+    // Línea de μ (vertical)
+    svg.innerHTML += `<line x1="${muX}" y1="${padTop-5}" x2="${muX}" y2="${H-padBot}" stroke="#0A1F44" stroke-width="2" stroke-dasharray="6 4"/>`;
+    svg.innerHTML += `<text x="${muX}" y="${padTop-10}" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#0A1F44" font-weight="600">μ = ${(this.mu*100).toFixed(2)}%</text>`;
+
+    // Dibujar intervalos
+    const lineH = plotH / 100;
+    this.intervals.forEach((iv, i) => {
+      const y = padTop + i * lineH + lineH/2;
+      const x1 = toX(iv.lo);
+      const x2 = toX(iv.hi);
+      const xp = toX(iv.phat);
+      const color = iv.contains ? '#16A085' : '#C0392B';
+      const alpha = iv.contains ? '0.55' : '0.85';
+      svg.innerHTML += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="2.5" stroke-opacity="${alpha}"/>`;
+      // Punto del p̂
+      svg.innerHTML += `<circle cx="${xp}" cy="${y}" r="1.8" fill="${color}"/>`;
+    });
+
+    this.updateKPIs();
+  },
+
+  updateKPIs() {
+    const hits = this.intervals.filter(iv => iv.contains).length;
+    const misses = this.intervals.length - hits;
+    document.getElementById('ic-hits').textContent = `${hits} / ${this.intervals.length || 100}`;
+    document.getElementById('ic-misses').textContent = `${misses} / ${this.intervals.length || 100}`;
+    if (this.intervals.length > 0) {
+      const pct = (hits / this.intervals.length * 100).toFixed(0);
+      document.getElementById('ic-pct').textContent = pct + '%';
+      const avgWidth = this.intervals.reduce((a, b) => a + b.margin, 0) / this.intervals.length;
+      document.getElementById('ic-width').textContent = (avgWidth*100).toFixed(2) + ' pp';
+    } else {
+      document.getElementById('ic-pct').textContent = '— %';
+      document.getElementById('ic-width').textContent = '— pp';
+    }
+  },
+};
+
+// ============================================================
+// TAB 2 · A/B TEST
+// ============================================================
+const AB = {
+  pA: 0.025, pB: 0.028, n: 5000, speed: 5,
+  running: false, pauseFlag: false,
+  curN: 0, xA: 0, xB: 0,
+  history: [], // {n, p}
+  rateHistory: [], // {n, pAhat, pBhat}
+  intervalId: null,
+  pChart: null, rateChart: null,
+
+  init() {
+    document.getElementById('ab-pa').addEventListener('input', e => {
+      this.pA = parseFloat(e.target.value)/100;
+      document.getElementById('ab-pa-val').textContent = (this.pA*100).toFixed(1) + '%';
+    });
+    document.getElementById('ab-pb').addEventListener('input', e => {
+      this.pB = parseFloat(e.target.value)/100;
+      document.getElementById('ab-pb-val').textContent = (this.pB*100).toFixed(1) + '%';
+    });
+    document.getElementById('ab-n').addEventListener('input', e => {
+      this.n = parseInt(e.target.value);
+      document.getElementById('ab-n-val').textContent = this.n.toLocaleString();
+    });
+    document.getElementById('ab-speed').addEventListener('input', e => {
+      this.speed = parseInt(e.target.value);
+      document.getElementById('ab-speed-val').textContent = this.speed + '×';
+    });
+
+    document.getElementById('ab-start').addEventListener('click', () => this.start());
+    document.getElementById('ab-instant').addEventListener('click', () => this.instant());
+    document.getElementById('ab-reset').addEventListener('click', () => this.reset());
+
+    this.initCharts();
+    this.reset();
+  },
+
+  initCharts() {
+    const ctx1 = document.getElementById('ab-pchart').getContext('2d');
+    this.pChart = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'p-valor', data: [], borderColor: '#E67E22', backgroundColor: 'rgba(230,126,34,0.15)',
+            borderWidth: 2, fill: true, tension: 0.2, pointRadius: 0 },
+          { label: 'α = 0.05', data: [], borderColor: '#C0392B', borderWidth: 1.5, borderDash: [5,5], pointRadius: 0, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 200 },
+        plugins: { legend: { display: false }, tooltip: { callbacks: {
+          title: items => 'n=' + items[0].label,
+          label: item => item.datasetIndex === 0 ? 'p=' + item.parsed.y.toFixed(4) : 'α=0.05'
+        }}},
+        scales: {
+          x: { title: { display: true, text: 'usuarios procesados por brazo', font:{family:'JetBrains Mono',size:10}, color:'#5A5A5A' },
+               grid: { display: false }, ticks: { font:{family:'JetBrains Mono',size:9}, color:'#5A5A5A', maxTicksLimit: 10 } },
+          y: { title: { display: true, text: 'p-valor', font:{family:'JetBrains Mono',size:10}, color:'#5A5A5A' },
+               min: 0, max: 1, ticks: { font:{family:'JetBrains Mono',size:9}, color:'#5A5A5A' }, grid: { color: '#EFEFEF' } }
+        }
+      }
+    });
+
+    const ctx2 = document.getElementById('ab-ratechart').getContext('2d');
+    this.rateChart = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'p̂_A (control)', data: [], borderColor: '#2980B9', borderWidth: 2, fill: false, tension: 0.2, pointRadius: 0 },
+          { label: 'p̂_B (tratamiento)', data: [], borderColor: '#16A085', borderWidth: 2, fill: false, tension: 0.2, pointRadius: 0 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 200 },
+        plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Inter Tight', size: 11 }, boxWidth: 12 } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font:{family:'JetBrains Mono',size:9}, color:'#5A5A5A', maxTicksLimit: 8 } },
+          y: { title: { display: true, text: 'tasa observada', font:{family:'JetBrains Mono',size:10}, color:'#5A5A5A' },
+               ticks: { callback: v => (v*100).toFixed(1) + '%', font:{family:'JetBrains Mono',size:9}, color:'#5A5A5A' }, grid: { color: '#EFEFEF' } }
+        }
+      }
+    });
+  },
+
+  reset() {
+    if (this.intervalId) { clearInterval(this.intervalId); this.intervalId = null; }
+    this.running = false;
+    this.curN = 0; this.xA = 0; this.xB = 0;
+    this.history = []; this.rateHistory = [];
+    document.getElementById('ab-start').disabled = false;
+    document.getElementById('ab-start').textContent = '▶  Correr experimento';
+    this.updateUI();
+    this.refreshCharts();
+  },
+
+  start() {
+    if (this.running) {
+      // Pausa
+      this.running = false;
+      document.getElementById('ab-start').textContent = '▶  Continuar';
+      if (this.intervalId) { clearInterval(this.intervalId); this.intervalId = null; }
+      return;
+    }
+    if (this.curN >= this.n) {
+      this.reset();
+    }
+    this.running = true;
+    document.getElementById('ab-start').textContent = '❚❚ Pausar';
+    const tickMs = 80;
+    const batchSize = Math.max(1, Math.floor(this.n / 100 * this.speed / 5));
+    this.intervalId = setInterval(() => {
+      this.tick(batchSize);
+    }, tickMs);
+  },
+
+  tick(batch) {
+    const remaining = this.n - this.curN;
+    const step = Math.min(batch, remaining);
+    if (step <= 0) {
+      this.running = false;
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      document.getElementById('ab-start').disabled = true;
+      document.getElementById('ab-start').textContent = '✓ Terminado';
+      return;
+    }
+    // sample binomial para este batch en cada brazo
+    this.xA += binomialSample(step, this.pA);
+    this.xB += binomialSample(step, this.pB);
+    this.curN += step;
+
+    // calcular p-valor actual
+    if (this.curN >= 10) {
+      const test = twoPropZTest(this.xA, this.curN, this.xB, this.curN);
+      this.history.push({ n: this.curN, p: test.p });
+      this.rateHistory.push({ n: this.curN, pAhat: this.xA/this.curN, pBhat: this.xB/this.curN });
+    }
+    this.updateUI();
+    if (this.history.length % 3 === 0 || step >= remaining) this.refreshCharts();
+  },
+
+  instant() {
+    if (this.intervalId) { clearInterval(this.intervalId); this.intervalId = null; }
+    this.curN = 0; this.xA = 0; this.xB = 0;
+    this.history = []; this.rateHistory = [];
+    // procesar en batches de n/50 para tener una curva
+    const batchSize = Math.max(1, Math.floor(this.n / 50));
+    while (this.curN < this.n) {
+      const step = Math.min(batchSize, this.n - this.curN);
+      this.xA += binomialSample(step, this.pA);
+      this.xB += binomialSample(step, this.pB);
+      this.curN += step;
+      if (this.curN >= 10) {
+        const test = twoPropZTest(this.xA, this.curN, this.xB, this.curN);
+        this.history.push({ n: this.curN, p: test.p });
+        this.rateHistory.push({ n: this.curN, pAhat: this.xA/this.curN, pBhat: this.xB/this.curN });
+      }
+    }
+    this.running = false;
+    document.getElementById('ab-start').disabled = true;
+    document.getElementById('ab-start').textContent = '✓ Terminado';
+    this.updateUI();
+    this.refreshCharts();
+  },
+
+  updateUI() {
+    document.getElementById('ab-n-now').textContent = this.curN.toLocaleString() + ' / ' + this.n.toLocaleString();
+    if (this.curN > 0) {
+      const pAhat = this.xA / this.curN;
+      const pBhat = this.xB / this.curN;
+      const lift = (pBhat - pAhat) * 100;
+      document.getElementById('ab-lift').textContent = (lift >= 0 ? '+' : '') + lift.toFixed(2) + ' pp';
+
+      if (this.curN >= 10) {
+        const test = twoPropZTest(this.xA, this.curN, this.xB, this.curN);
+        const liftIC = 1.96 * test.seDiff * 100;
+        document.getElementById('ab-lift-ic').textContent = 'IC95%: ±' + liftIC.toFixed(2) + ' pp';
+
+        const pval = test.p;
+        document.getElementById('ab-pval').textContent = pval < 0.0001 ? '< 0.0001' : pval.toFixed(4);
+
+        // Veredicto
+        const card = document.getElementById('ab-pkpi');
+        const vcard = document.getElementById('ab-verdict-card');
+        const v = document.getElementById('ab-verdict');
+        const vm = document.getElementById('ab-verdict-meta');
+        if (pval < 0.05) {
+          card.className = 'kpi-card good';
+          vcard.className = 'kpi-card good';
+          document.getElementById('ab-pval').className = 'kpi-value good';
+          v.textContent = 'rechazar H₀';
+          v.className = 'kpi-value good';
+          vm.textContent = 'lift estadísticamente significativo';
+        } else {
+          card.className = 'kpi-card';
+          vcard.className = 'kpi-card warn';
+          document.getElementById('ab-pval').className = 'kpi-value';
+          v.textContent = 'no rechazar';
+          v.className = 'kpi-value warn';
+          vm.textContent = 'evidencia insuficiente';
+        }
+      }
+    } else {
+      document.getElementById('ab-lift').textContent = '— pp';
+      document.getElementById('ab-lift-ic').textContent = 'IC95%: —';
+      document.getElementById('ab-pval').textContent = '—';
+      document.getElementById('ab-verdict').textContent = 'esperando';
+      document.getElementById('ab-verdict-meta').textContent = 'corré el experimento';
+    }
+  },
+
+  refreshCharts() {
+    if (!this.pChart || !this.rateChart) return;
+    const labels = this.history.map(h => h.n.toLocaleString());
+    this.pChart.data.labels = labels;
+    this.pChart.data.datasets[0].data = this.history.map(h => h.p);
+    this.pChart.data.datasets[1].data = this.history.map(() => 0.05);
+    this.pChart.update('none');
+
+    this.rateChart.data.labels = this.rateHistory.map(h => h.n.toLocaleString());
+    this.rateChart.data.datasets[0].data = this.rateHistory.map(h => h.pAhat);
+    this.rateChart.data.datasets[1].data = this.rateHistory.map(h => h.pBhat);
+    this.rateChart.update('none');
+  },
+};
+
+// ============================================================
+// TAB 2 PARTE B · CALCULADORA DE PODER
+// ============================================================
+const PW = {
+  p: 0.025, delta: 0.005, n: 5000, alpha: 0.05,
+  chart: null,
+
+  init() {
+    document.getElementById('pw-p').addEventListener('input', e => {
+      this.p = parseFloat(e.target.value)/100;
+      document.getElementById('pw-p-val').textContent = (this.p*100).toFixed(1) + '%';
+      this.update();
+    });
+    document.getElementById('pw-delta').addEventListener('input', e => {
+      this.delta = parseFloat(e.target.value)/100;
+      document.getElementById('pw-delta-val').textContent = (this.delta*100).toFixed(1);
+      this.update();
+    });
+    document.getElementById('pw-n').addEventListener('input', e => {
+      this.n = parseInt(e.target.value);
+      document.getElementById('pw-n-val').textContent = this.n.toLocaleString();
+      this.update();
+    });
+    document.getElementById('pw-alpha').addEventListener('input', e => {
+      this.alpha = parseFloat(e.target.value);
+      document.getElementById('pw-alpha-val').textContent = this.alpha.toFixed(2);
+      this.update();
+    });
+    this.initChart();
+    this.update();
+  },
+
+  initChart() {
+    const ctx = document.getElementById('pw-chart').getContext('2d');
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: [], datasets: [] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 200 },
+        plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Inter Tight', size: 11 }, boxWidth: 12 } } },
+        scales: {
+          x: { title: { display: true, text: 'diferencia observada (pp)', font:{family:'JetBrains Mono',size:10}, color:'#5A5A5A' },
+               grid: { display: false }, ticks: { font:{family:'JetBrains Mono',size:9}, color:'#5A5A5A', maxTicksLimit: 9 } },
+          y: { display: false }
+        }
+      }
+    });
+  },
+
+  update() {
+    const p1 = this.p;
+    const p2 = this.p + this.delta;
+    const power = powerTwoProp(p1, p2, this.n, this.alpha);
+    const beta = 1 - power;
+    const h = cohenH(p1, p2);
+
+    document.getElementById('pw-power').textContent = (power*100).toFixed(0) + '%';
+    document.getElementById('pw-beta').textContent = (beta*100).toFixed(0) + '%';
+    document.getElementById('pw-h').textContent = h.toFixed(3);
+
+    const card = document.getElementById('pw-pkpi');
+    const v = document.getElementById('pw-power');
+    if (power >= 0.80) { card.className = 'kpi-card good'; v.className = 'kpi-value good'; }
+    else if (power >= 0.50) { card.className = 'kpi-card warn'; v.className = 'kpi-value warn'; }
+    else { card.className = 'kpi-card bad'; v.className = 'kpi-value bad'; }
+
+    // n requerido para 80% (búsqueda binaria)
+    let lo = 10, hi = 1000000;
+    while (lo < hi - 1) {
+      const mid = Math.floor((lo+hi)/2);
+      if (powerTwoProp(p1, p2, mid, this.alpha) >= 0.8) hi = mid;
+      else lo = mid;
+    }
+    document.getElementById('pw-nreq').textContent = (this.delta === 0 ? '∞' : hi.toLocaleString());
+
+    // Chart: distribuciones bajo H0 y H1 en escala de diff
+    const seNull = Math.sqrt(2*((p1+p2)/2)*(1-(p1+p2)/2)/this.n);
+    const seAlt  = Math.sqrt(p1*(1-p1)/this.n + p2*(1-p2)/this.n);
+    const diff = p2 - p1;
+    const zCrit = normalInv(1 - this.alpha/2);
+    const critical = zCrit * seNull;
+
+    // Eje x: centrado en 0, suficiente para abarcar ambas distribuciones
+    const span = Math.max(4 * seNull, Math.abs(diff) + 4 * seAlt);
+    const xMin = -span, xMax = span;
+    const points = 100;
+    const labels = [];
+    const h0Data = [];
+    const h1Data = [];
+    const critLine = [];
+    const negCritLine = [];
+
+    for (let i = 0; i <= points; i++) {
+      const x = xMin + (xMax - xMin) * (i / points);
+      labels.push((x*100).toFixed(2));
+      const yH0 = (1/(seNull*Math.sqrt(2*Math.PI))) * Math.exp(-0.5 * Math.pow(x/seNull, 2));
+      const yH1 = (1/(seAlt*Math.sqrt(2*Math.PI))) * Math.exp(-0.5 * Math.pow((x-diff)/seAlt, 2));
+      h0Data.push(yH0);
+      h1Data.push(yH1);
+    }
+
+    this.chart.data.labels = labels;
+    this.chart.data.datasets = [
+      {
+        label: 'H₀ (no hay efecto)',
+        data: h0Data,
+        borderColor: '#0073A6',
+        backgroundColor: 'rgba(0,115,166,0.12)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+      },
+      {
+        label: 'H₁ (efecto Δ=' + (this.delta*100).toFixed(1) + 'pp)',
+        data: h1Data,
+        borderColor: '#16A085',
+        backgroundColor: 'rgba(22,160,133,0.12)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+      },
+    ];
+
+    // Annotations: líneas críticas
+    const findIdx = (val) => Math.round((val - xMin) / (xMax - xMin) * points);
+    const critIdx = findIdx(critical);
+    const negCritIdx = findIdx(-critical);
+    const yMax = Math.max(...h0Data, ...h1Data) * 1.1;
+
+    this.chart.options.scales.y.max = yMax;
+    this.chart.options.scales.y.min = 0;
+    this.chart.update('none');
+  },
+};
+
+// ============================================================
+// TAB 3 · DASHBOARD BANCOSUR
+// ============================================================
+const DASH = {
+  n: 5000,
+  // KPIs base (en muestra de referencia n=5000)
+  kpis: [
+    {
+      id: 'default',
+      name: 'Default Rate',
+      tag: 'PORTFOLIO · BINOMIAL',
+      kind: 'proportion',
+      p: 0.028,
+      unit: '%',
+      historicalMin: 0.020, historicalMax: 0.035,
+      historicalRef: 0.025,
+    },
+    {
+      id: 'fraudes',
+      name: 'Fraudes diarios',
+      tag: 'OPERACIONES · POISSON',
+      kind: 'rate',
+      lambda: 4.2,
+      unit: '/día',
+      historicalMin: 3.5, historicalMax: 5.0,
+    },
+    {
+      id: 'ticket',
+      name: 'Ticket Mediano',
+      tag: 'COMERCIAL · LOG-NORMAL',
+      kind: 'median',
+      median: 8200,
+      sigmaLog: 0.75,
+      unit: 'S/',
+      historicalMin: 7500, historicalMax: 9000,
+    },
+    {
+      id: 'tiempo',
+      name: 'Tiempo a Default',
+      tag: 'RIESGO · EXPONENCIAL',
+      kind: 'mean',
+      mean: 14,
+      cv: 1.0,
+      unit: 'meses',
+      historicalMin: 12, historicalMax: 16,
+    },
+    {
+      id: 'mora',
+      name: 'Días-mora promedio',
+      tag: 'COBRANZAS · NORMAL (TLC)',
+      kind: 'mean',
+      mean: 23,
+      sd: 8,
+      unit: 'días',
+      historicalMin: 19, historicalMax: 27,
+    },
+  ],
+
+  init() {
+    document.getElementById('dash-n').addEventListener('input', e => {
+      this.n = parseInt(e.target.value);
+      document.getElementById('dash-n-val').textContent = this.n.toLocaleString();
+      this.render();
+    });
+    this.render();
+  },
+
+  render() {
+    const grid = document.getElementById('dash-grid');
+    grid.innerHTML = '';
+    this.kpis.forEach(k => {
+      const ic = this.computeIC(k);
+      const verdict = this.verdict(k, ic);
+      const card = document.createElement('div');
+      card.className = 'dash-card ' + verdict.cssClass;
+
+      let valueDisplay, icDisplay, barFill;
+      if (k.kind === 'proportion') {
+        valueDisplay = (k.p*100).toFixed(2) + '%';
+        icDisplay = `[${(ic.lo*100).toFixed(2)}%, ${(ic.hi*100).toFixed(2)}%]`;
+        barFill = this.icBar(k.p, ic.lo, ic.hi, k.historicalMin, k.historicalMax);
+      } else if (k.kind === 'rate') {
+        valueDisplay = k.lambda.toFixed(1) + ' ' + k.unit;
+        icDisplay = `[${ic.lo.toFixed(1)}, ${ic.hi.toFixed(1)}] ${k.unit}`;
+        barFill = this.icBar(k.lambda, ic.lo, ic.hi, k.historicalMin, k.historicalMax);
+      } else if (k.kind === 'median') {
+        valueDisplay = 'S/ ' + Math.round(k.median).toLocaleString();
+        icDisplay = `[S/ ${Math.round(ic.lo).toLocaleString()}, S/ ${Math.round(ic.hi).toLocaleString()}]`;
+        barFill = this.icBar(k.median, ic.lo, ic.hi, k.historicalMin, k.historicalMax);
+      } else {
+        valueDisplay = k.mean.toFixed(1) + ' ' + k.unit;
+        icDisplay = `[${ic.lo.toFixed(1)}, ${ic.hi.toFixed(1)}] ${k.unit}`;
+        barFill = this.icBar(k.mean, ic.lo, ic.hi, k.historicalMin, k.historicalMax);
+      }
+
+      card.innerHTML = `
+        <div class="dash-card-header">
+          <div class="dash-card-name">${k.name}</div>
+          <div class="dash-card-tag">${k.tag}</div>
+        </div>
+        <div class="dash-card-value">${valueDisplay}</div>
+        <div class="dash-card-ic">IC95% <strong>${icDisplay}</strong></div>
+        ${barFill}
+        <div class="dash-card-verdict ${verdict.cssClass}">
+          <strong>${verdict.label}</strong> · ${verdict.text}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  },
+
+  icBar(value, lo, hi, hMin, hMax) {
+    const span = Math.max(hMax - hMin, hi - lo) * 1.3;
+    const center = (hMin + hMax) / 2;
+    const xMin = center - span / 2;
+    const xMax = center + span / 2;
+    const toPct = (v) => Math.max(0, Math.min(100, (v - xMin) / (xMax - xMin) * 100));
+    const loPct = toPct(lo), hiPct = toPct(hi), valPct = toPct(value);
+    return `
+      <div class="ic-bar">
+        <div class="ic-bar-range" style="left:${loPct}%; width:${hiPct-loPct}%"></div>
+        <div class="ic-bar-point" style="left:${valPct}%"></div>
+      </div>
+      <div class="ic-bar-labels">
+        <span>${this.formatTick(xMin, value)}</span>
+        <span style="color: var(--text-soft);">banda histórica</span>
+        <span>${this.formatTick(xMax, value)}</span>
+      </div>
+    `;
+  },
+
+  formatTick(v, ref) {
+    if (ref > 1000) return 'S/ ' + Math.round(v).toLocaleString();
+    if (ref < 1) return (v*100).toFixed(1) + '%';
+    return v.toFixed(1);
+  },
+
+  computeIC(k) {
+    const z = 1.96;
+    if (k.kind === 'proportion') {
+      const se = Math.sqrt(k.p * (1-k.p) / this.n);
+      return { lo: Math.max(0, k.p - z*se), hi: k.p + z*se };
+    } else if (k.kind === 'rate') {
+      // Poisson aproximación normal: λ̂ ± z·√(λ̂/n)
+      const se = Math.sqrt(k.lambda / this.n);
+      return { lo: Math.max(0, k.lambda - z*se), hi: k.lambda + z*se };
+    } else if (k.kind === 'median') {
+      // Bootstrap-style aproximación: SE de mediana ≈ 1.253·σ/√n para Normal, ajustado para log-normal
+      const seMedian = (k.median * k.sigmaLog * 1.253) / Math.sqrt(this.n);
+      return { lo: Math.max(0, k.median - z*seMedian), hi: k.median + z*seMedian };
+    } else {
+      const sd = k.sd || (k.mean * (k.cv || 1));
+      const se = sd / Math.sqrt(this.n);
+      return { lo: Math.max(0, k.mean - z*se), hi: k.mean + z*se };
+    }
+  },
+
+  verdict(k, ic) {
+    // Verdict según si IC está dentro o fuera de banda histórica
+    const value = k.p ?? k.lambda ?? k.median ?? k.mean;
+    if (k.historicalRef !== undefined) {
+      // Para default rate: comparar contra histórico
+      if (ic.lo > k.historicalRef) {
+        return { cssClass: 'bad', label: 'ALERTA', text: 'IC95% está enteramente por encima del histórico — deterioro real.' };
+      }
+      if (ic.hi < k.historicalRef) {
+        return { cssClass: 'good', label: 'MEJORA', text: 'IC95% está enteramente por debajo del histórico — mejora real.' };
+      }
+      if (value > k.historicalMax || value < k.historicalMin) {
+        return { cssClass: 'warn', label: 'BORDE', text: 'Valor puntual fuera de banda, pero IC se solapa con histórico.' };
+      }
+      return { cssClass: 'good', label: 'ESTABLE', text: 'IC95% se solapa con valor histórico — no hay evidencia de cambio.' };
+    }
+    // KPIs sin referencia histórica explícita: ver si IC está dentro de banda
+    if (ic.lo > k.historicalMax) {
+      return { cssClass: 'bad', label: 'ALERTA', text: 'Valor + IC superan banda histórica — atención.' };
+    }
+    if (ic.hi < k.historicalMin) {
+      return { cssClass: 'good', label: 'BAJO', text: 'Valor + IC están bajo histórico — favorable.' };
+    }
+    return { cssClass: 'good', label: 'ESTABLE', text: 'Valor dentro de banda histórica esperada.' };
+  },
+};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  IC.init();
+  AB.init();
+  PW.init();
+  DASH.init();
+});
+</script>
+
+</body>
+</html>

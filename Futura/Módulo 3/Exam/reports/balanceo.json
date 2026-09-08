@@ -1,0 +1,55 @@
+{
+    "tasa_posicos_train_pct": 55.53,
+    "tabla_comparativa": [
+        {
+            "Estrategia": "1. Sin Balanceo (Baseline)",
+            "Filas Train": 8018,
+            "% Clase 1 Train": 55.53,
+            "ROC-AUC (Test)": 0.988,
+            "PR-AUC (Test)": 0.9905,
+            "Precision": 0.9317,
+            "Recall": 0.9591,
+            "F1-Score": 0.9452
+        },
+        {
+            "Estrategia": "2. Random Over-Sampling (ROS)",
+            "Filas Train": 8904,
+            "% Clase 1 Train": 50.0,
+            "ROC-AUC (Test)": 0.988,
+            "PR-AUC (Test)": 0.9904,
+            "Precision": 0.94,
+            "Recall": 0.9475,
+            "F1-Score": 0.9437
+        },
+        {
+            "Estrategia": "3. Random Under-Sampling (RUS)",
+            "Filas Train": 7132,
+            "% Clase 1 Train": 50.0,
+            "ROC-AUC (Test)": 0.9878,
+            "PR-AUC (Test)": 0.9903,
+            "Precision": 0.9486,
+            "Recall": 0.9368,
+            "F1-Score": 0.9427
+        },
+        {
+            "Estrategia": "4. SMOTE",
+            "Filas Train": 8904,
+            "% Clase 1 Train": 50.0,
+            "ROC-AUC (Test)": 0.9877,
+            "PR-AUC (Test)": 0.9902,
+            "Precision": 0.9426,
+            "Recall": 0.9502,
+            "F1-Score": 0.9464
+        },
+        {
+            "Estrategia": "5. Class Weight Balanced",
+            "Filas Train": 8018,
+            "% Clase 1 Train": 55.53,
+            "ROC-AUC (Test)": 0.988,
+            "PR-AUC (Test)": 0.9904,
+            "Precision": 0.9449,
+            "Recall": 0.9466,
+            "F1-Score": 0.9458
+        }
+    ]
+}

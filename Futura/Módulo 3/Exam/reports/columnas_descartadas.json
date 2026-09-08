@@ -1,0 +1,17 @@
+{
+    "total_variables_iniciales": 61,
+    "columnas_eliminadas_varianza_nula": [],
+    "total_variables_finales": 61,
+    "variables_homogeneas_por_segmento": [
+        "how_you_heard_about_survey_banner",
+        "how_you_heard_about_survey_friend",
+        "how_you_heard_about_survey_mailing_list",
+        "major_geographical_location",
+        "primary_language",
+        "not_purchasing_not_option",
+        "not_purchasing_too_complicated",
+        "who_pays_for_access_parents",
+        "who_pays_for_access_school",
+        "clean_country"
+    ]
+}

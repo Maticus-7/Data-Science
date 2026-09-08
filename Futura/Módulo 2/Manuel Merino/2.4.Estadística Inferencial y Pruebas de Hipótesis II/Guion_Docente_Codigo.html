@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guion docente · Anatomía del código · Sesión 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --futura: #0073A6;
+  --futura-dark: #004A6E;
+  --navy: #0A1F44;
+  --teal: #0085AE;
+  --text: #2A2A2A;
+  --text-soft: #5A5A5A;
+  --gray: #9A9A9A;
+  --gray-light: #DCDCDC;
+  --bg: #FAFAF7;
+  --bg-soft: #F0EFE9;
+  --bg-card: #FFFFFF;
+  --good: #16A085;
+  --good-light: #D9F2EC;
+  --bad: #C0392B;
+  --bad-light: #FDECEA;
+  --warn: #E67E22;
+  --warn-light: #FDF1E5;
+  --case0: #5A5A5A;
+  --case1: #1a5276;
+  --case2: #d35400;
+  --case3: #117864;
+  --case4: #8e44ad;
+  --shadow-sm: 0 1px 2px rgba(10,31,68,0.04), 0 1px 3px rgba(10,31,68,0.05);
+  --shadow-md: 0 4px 12px rgba(10,31,68,0.06), 0 2px 4px rgba(10,31,68,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter Tight', -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.55; font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.topbar {
+  background: var(--navy); color: white;
+  padding: 14px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: var(--shadow-md);
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 19px; font-weight: 500;
+}
+.topbar-title em { font-style: italic; color: #8BB8DD; font-weight: 400; }
+.topbar-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #C0CFE0; letter-spacing: 0.08em;
+}
+.topbar-meta strong { color: white; }
+
+.tabs-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--gray-light);
+  padding: 0 32px;
+  display: flex; gap: 4px; overflow-x: auto;
+}
+.tab-btn {
+  background: transparent; border: none;
+  border-bottom: 3px solid transparent;
+  padding: 16px 22px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13.5px; font-weight: 600;
+  color: var(--text-soft); cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--futura); }
+.tab-btn.active { color: var(--navy); border-bottom-color: var(--futura); }
+.tab-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  background: var(--bg-soft); color: var(--gray);
+  padding: 3px 8px; border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+.tab-btn.active .tab-num { background: var(--futura); color: white; }
+
+.tab-content { display: none; padding: 32px; max-width: 1500px; margin: 0 auto; }
+.tab-content.active { display: block; animation: fadein 0.22s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.hero { margin-bottom: 28px; }
+.hero-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 3.4vw, 38px);
+  font-weight: 500; color: var(--navy); line-height: 1.15;
+  margin-bottom: 12px; letter-spacing: -0.01em;
+}
+.hero-title em { font-style: italic; font-weight: 400; color: var(--text-soft); }
+.hero-sub {
+  font-size: 16px; color: var(--text-soft); max-width: 1050px; line-height: 1.55;
+}
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--gray-light);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.panel-header { margin-bottom: 18px; display: flex; align-items: baseline; gap: 14px; }
+.panel-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: 0.10em;
+  color: var(--gray); font-weight: 600; text-transform: uppercase;
+}
+.panel-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 500;
+  color: var(--navy); line-height: 1.2;
+}
+.panel-title em { font-style: italic; color: var(--text-soft); font-weight: 400; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+@media (max-width: 980px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* ============ CODE WITH LINE NUMBERS ============ */
+.code-numbered {
+  background: #1E2A3A; color: #E8E8E8;
+  padding: 14px 16px 14px 0;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 1.6;
+  overflow-x: auto;
+  border-left: 4px solid var(--futura);
+  counter-reset: codeline;
+}
+.code-numbered .ln {
+  display: block;
+  white-space: pre;
+  padding-left: 56px;
+  position: relative;
+  min-height: 1.6em;
+}
+.code-numbered .ln::before {
+  counter-increment: codeline;
+  content: counter(codeline);
+  position: absolute;
+  left: 0; top: 0;
+  width: 40px;
+  text-align: right;
+  color: #5C7088;
+  font-size: 11.5px;
+  user-select: none;
+}
+.code-numbered .ln.hl { background: rgba(0,115,166,0.18); }
+.code-numbered .ln.spacer { min-height: 0.8em; }
+.code-numbered .kw  { color: #C792EA; }
+.code-numbered .fn  { color: #82AAFF; }
+.code-numbered .str { color: #C3E88D; }
+.code-numbered .num { color: #F78C6C; }
+.code-numbered .cm  { color: #6A737D; font-style: italic; }
+.code-numbered .var { color: #FFCB6B; }
+
+/* ============ TABLA ANATOMÍA ============ */
+.anatomia {
+  width: 100%; border-collapse: collapse;
+  font-size: 13.5px;
+}
+.anatomia th {
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: 0.08em;
+  color: var(--gray); font-weight: 600;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  border-bottom: 1.5px solid var(--gray-light);
+  background: var(--bg-soft);
+}
+.anatomia td {
+  padding: 12px;
+  border-bottom: 1px solid var(--gray-light);
+  vertical-align: top;
+}
+.anatomia td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: #F4F4F0;
+  color: var(--navy);
+  font-weight: 500;
+  min-width: 220px;
+  max-width: 280px;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.anatomia td:nth-child(2) { color: var(--text); }
+.anatomia td:nth-child(3) {
+  font-size: 12.5px; color: var(--text-soft);
+  font-style: italic;
+  min-width: 200px;
+}
+.anatomia tr:last-child td { border-bottom: none; }
+
+/* ============ DECISIÓN CARDS ============ */
+.decision {
+  border-left: 4px solid var(--futura);
+  background: #F4F8FB;
+  padding: 14px 18px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 12px;
+}
+.decision:last-child { margin-bottom: 0; }
+.decision .d-title {
+  font-family: 'Fraunces', serif;
+  font-size: 15px; font-weight: 600;
+  color: var(--navy); margin-bottom: 6px;
+}
+.decision .d-text {
+  font-size: 13.5px; color: var(--text); line-height: 1.55;
+}
+.decision .d-alt {
+  margin-top: 8px; font-size: 12.5px;
+  color: var(--text-soft); font-style: italic;
+  border-top: 1px dashed var(--gray-light);
+  padding-top: 8px;
+}
+.decision .d-alt strong { font-style: normal; color: var(--text); }
+
+/* ============ TIPS / ERRORES ============ */
+.box {
+  padding: 16px 20px; border-radius: 8px;
+  margin-bottom: 12px;
+}
+.box-tip {
+  background: var(--good-light);
+  border-left: 4px solid var(--good);
+}
+.box-err {
+  background: var(--bad-light);
+  border-left: 4px solid var(--bad);
+}
+.box-q {
+  background: var(--warn-light);
+  border-left: 4px solid var(--warn);
+}
+.box-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: 0.10em;
+  font-weight: 700; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.box-tip .box-label { color: var(--good); }
+.box-err .box-label { color: var(--bad); }
+.box-q   .box-label { color: var(--warn); }
+.box-text { font-size: 13.5px; line-height: 1.55; color: var(--text); }
+.box-text strong { color: var(--navy); }
+.box ul { margin: 8px 0 0 18px; }
+.box li { margin-bottom: 6px; }
+
+/* ============ MAPA TARJETAS ============ */
+.case-map {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+@media (max-width: 1200px) { .case-map { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 720px)  { .case-map { grid-template-columns: 1fr; } }
+.case-map-item {
+  padding: 16px; border-radius: 10px;
+  border: 1.5px solid var(--gray-light);
+  background: white; cursor: pointer;
+  transition: all 0.18s ease;
+}
+.case-map-item:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.case-map-item .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.06em;
+  color: var(--gray); font-weight: 600;
+}
+.case-map-item .title {
+  font-family: 'Fraunces', serif;
+  font-size: 16px; color: var(--navy);
+  margin: 4px 0 6px; font-weight: 500;
+}
+.case-map-item .q {
+  font-size: 12.5px; color: var(--text-soft); line-height: 1.45;
+}
+.case-map-item .fn {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 4px;
+  margin-top: 10px;
+  background: var(--bg-soft); color: var(--navy);
+}
+.case-map-item.case0 { border-left: 4px solid var(--case0); }
+.case-map-item.case1 { border-left: 4px solid var(--case1); }
+.case-map-item.case2 { border-left: 4px solid var(--case2); }
+.case-map-item.case3 { border-left: 4px solid var(--case3); }
+.case-map-item.case4 { border-left: 4px solid var(--case4); }
+
+/* ============ STORY (caso narrativo) ============ */
+.story {
+  background: var(--bg-soft);
+  border-left: 4px solid var(--gray);
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px; line-height: 1.55;
+  margin-bottom: 18px;
+}
+.story.s0 { border-left-color: var(--case0); }
+.story.s1 { border-left-color: var(--case1); }
+.story.s2 { border-left-color: var(--case2); }
+.story.s3 { border-left-color: var(--case3); }
+.story.s4 { border-left-color: var(--case4); }
+.story strong { color: var(--navy); }
+
+/* ============ VARIANTES ============ */
+.variant {
+  background: #FDFDFA;
+  border: 1px dashed var(--gray-light);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+}
+.variant-title {
+  font-family: 'Fraunces', serif;
+  font-size: 14.5px; font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.variant-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: #F4F4F0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: block;
+  margin: 8px 0;
+  color: var(--navy);
+  overflow-x: auto;
+}
+.variant-text { font-size: 13px; color: var(--text-soft); line-height: 1.55; }
+
+footer {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; color: var(--gray); letter-spacing: 0.10em;
+  padding: 30px 0; border-top: 1px solid var(--gray-light);
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Guion docente · <em>anatomía del código</em></div>
+  <div class="topbar-meta">SESIÓN 5 · NOTEBOOK <strong>INTERPRETARPVALORES-BANCOSUR</strong></div>
+</div>
+
+<nav class="tabs-bar">
+  <button class="tab-btn active" data-tab="map"><span class="tab-num">★</span><span>Mapa del soporte</span></button>
+  <button class="tab-btn" data-tab="t0"><span class="tab-num">00</span><span>Funciones auxiliares</span></button>
+  <button class="tab-btn" data-tab="t1"><span class="tab-num">01</span><span>IC para Proporción</span></button>
+  <button class="tab-btn" data-tab="t2"><span class="tab-num">02</span><span>z 2 Proporciones + Poder</span></button>
+  <button class="tab-btn" data-tab="t3"><span class="tab-num">03</span><span>ANOVA + Tukey</span></button>
+  <button class="tab-btn" data-tab="t4"><span class="tab-num">04</span><span>Chi-Cuadrado</span></button>
+</nav>
+
+<!-- ============================================================ -->
+<!-- TAB MAPA                                                     -->
+<!-- ============================================================ -->
+<div class="tab-content active" id="map">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--futura);">SOPORTE DEL DOCENTE · CÓMO USAR ESTE DOCUMENTO</div>
+    <h1 class="hero-title">Cada línea de código explicada. <em>Cada decisión justificada.</em></h1>
+    <p class="hero-sub">Este documento acompaña a la notebook <strong>InterpretarPValores-BancoSur.ipynb</strong> y al HTML <strong>Contexto_Casos_BancoSur.html</strong>. Mientras la notebook ejecuta el código y el contexto presenta el caso, este guion descompone <em>punto por punto</em> qué hace cada línea, por qué se eligió esa función y qué preguntar al alumno mientras la corrés en clase.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">ESTRUCTURA DE CADA TAB</div>
+      <div class="panel-title">Los 5 paneles que vas a encontrar en cada caso</div>
+    </div></div>
+
+    <div class="grid-2" style="gap: 14px;">
+      <div class="decision" style="border-left-color: var(--case1);">
+        <div class="d-title">1. Código completo · numerado</div>
+        <div class="d-text">El snippet entero de la notebook con numeración de línea. Las líneas destacadas (resaltadas) son las que merecen el grueso de la explicación.</div>
+      </div>
+      <div class="decision" style="border-left-color: var(--case2);">
+        <div class="d-title">2. Anatomía línea por línea</div>
+        <div class="d-text">Tabla con tres columnas: <strong>fragmento</strong>, <strong>qué hace</strong>, <strong>nota técnica</strong>. Es el zoom máximo.</div>
+      </div>
+      <div class="decision" style="border-left-color: var(--case3);">
+        <div class="d-title">3. Decisiones técnicas</div>
+        <div class="d-text">Por qué <em>esta</em> función y no otra, qué alternativas hay, qué pasaría si cambiás un parámetro clave. Incluye comparación con métodos alternativos.</div>
+      </div>
+      <div class="decision" style="border-left-color: var(--case4);">
+        <div class="d-title">4. Tips para el aula</div>
+        <div class="d-text">Preguntas socráticas para hacer al alumno mientras la celda corre, errores típicos que cometen, y cómo anticiparlos.</div>
+      </div>
+      <div class="decision" style="border-left-color: var(--futura);">
+        <div class="d-title">5. Variantes y extensiones</div>
+        <div class="d-text">Cómo se adaptaría este código a otros casos de negocio (telco, retail, gaming) que el alumno puede plantear.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">MAPA DE LOS 5 TABS</div>
+      <div class="panel-title">Cada tarjeta abre el bloque correspondiente</div>
+    </div></div>
+
+    <div class="case-map">
+      <div class="case-map-item case0" onclick="showTab('t0')">
+        <div class="num">TAB 00 · AUXILIARES</div>
+        <div class="title">interpretar_p() · imprimir_resultado()</div>
+        <div class="q">La rejilla de lectura del p-valor que se aplica a las 4 pruebas, en código reutilizable.</div>
+        <span class="fn">interpretar_p(p, α)</span>
+      </div>
+      <div class="case-map-item case1" onclick="showTab('t1')">
+        <div class="num">TAB 01 · IC PROPORCIÓN</div>
+        <div class="title">¿Cuál es el verdadero default rate?</div>
+        <div class="q">El IC95% como prueba de hipótesis disfrazada de rango.</div>
+        <span class="fn">proportion_confint()</span>
+      </div>
+      <div class="case-map-item case2" onclick="showTab('t2')">
+        <div class="num">TAB 02 · z 2 PROPORCIONES</div>
+        <div class="title">¿Subió el default vs Q4?</div>
+        <div class="q">Test z unilateral + análisis de poder con NormalIndPower.</div>
+        <span class="fn">proportions_ztest()</span>
+      </div>
+      <div class="case-map-item case3" onclick="showTab('t3')">
+        <div class="num">TAB 03 · ANOVA + TUKEY</div>
+        <div class="title">¿Hay sucursales más riesgosas?</div>
+        <div class="q">ANOVA global + Tukey HSD para identificar cuáles difieren.</div>
+        <span class="fn">f_oneway() · pairwise_tukeyhsd()</span>
+      </div>
+      <div class="case-map-item case4" onclick="showTab('t4')">
+        <div class="num">TAB 04 · CHI²</div>
+        <div class="title">¿El default depende del producto?</div>
+        <div class="q">Tabla de contingencia + residuos estandarizados.</div>
+        <span class="fn">chi2_contingency()</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓMO USAR EN CLASE</div>
+      <div class="panel-title">Tres modos sugeridos</div>
+    </div></div>
+    <div class="grid-2" style="gap: 14px;">
+      <div class="box box-tip">
+        <div class="box-label">MODO A · PARALELO</div>
+        <div class="box-text">Abrís la notebook en una ventana y este HTML en otra. Antes de correr cada celda, leés (o proyectás) la sección "Decisiones técnicas" para anticipar qué van a ver.</div>
+      </div>
+      <div class="box box-tip">
+        <div class="box-label">MODO B · PREPARACIÓN</div>
+        <div class="box-text">Una hora antes de la clase, revisás los paneles "Tips para el aula" para tener listas las preguntas socráticas y los errores típicos. Vas a clase con la munición lista.</div>
+      </div>
+      <div class="box box-tip">
+        <div class="box-label">MODO C · CONSULTA DEL ALUMNO</div>
+        <div class="box-text">Se lo dejás disponible (junto con la notebook) para que el alumno consulte después si tiene dudas sobre por qué usaste tal función o por qué tal parámetro.</div>
+      </div>
+      <div class="box box-q">
+        <div class="box-label">RECOMENDACIÓN</div>
+        <div class="box-text">Para la primera vez que dictás la sesión, usá MODO A + B combinados. Para sesiones posteriores, MODO C suele alcanzar.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 00 · FUNCIONES AUXILIARES                                -->
+<!-- ============================================================ -->
+<div class="tab-content" id="t0">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case0);">CASO 00 · FUNCIONES AUXILIARES · LA REJILLA OPERATIVA</div>
+    <h1 class="hero-title">Dos funciones que se aplican a <em>las cuatro pruebas</em></h1>
+    <p class="hero-sub">Antes de ver una sola prueba, definimos un lenguaje común: la rejilla de lectura del p-valor (función <code>interpretar_p</code>) y un bloque uniforme de reporte (función <code>imprimir_resultado</code>). Si el alumno aprende este patrón, va a leer cualquier p-valor con el mismo criterio el resto de su vida profesional.</p>
+  </header>
+
+  <div class="story s0">
+    <strong>Pieza pedagógica clave de toda la notebook.</strong> Estas dos funciones son la pieza pedagógica más importante del cuaderno: no son glamorosas, pero garantizan que el alumno escuche EL MISMO mensaje cuatro veces. Sin ellas, cada prueba terminaría con un texto distinto y la rejilla de lectura no se internalizaría.
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO COMPLETO · interpretar_p()</div>
+      <div class="panel-title">La rejilla de evidencia · convierte un número en una decisión</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="kw">def</span> <span class="fn">interpretar_p</span>(p_valor, alpha=<span class="num">0.05</span>):</div>
+<div class="ln hl">    <span class="kw">if</span> p_valor &lt; <span class="num">0.001</span>:</div>
+<div class="ln hl">        nivel = <span class="str">"Evidencia MUY FUERTE contra H₀"</span></div>
+<div class="ln hl">    <span class="kw">elif</span> p_valor &lt; <span class="num">0.01</span>:</div>
+<div class="ln hl">        nivel = <span class="str">"Evidencia FUERTE contra H₀"</span></div>
+<div class="ln hl">    <span class="kw">elif</span> p_valor &lt; <span class="num">0.05</span>:</div>
+<div class="ln hl">        nivel = <span class="str">"Evidencia SIGNIFICATIVA contra H₀"</span></div>
+<div class="ln hl">    <span class="kw">elif</span> p_valor &lt; <span class="num">0.10</span>:</div>
+<div class="ln hl">        nivel = <span class="str">"Evidencia MARGINAL (al borde)"</span></div>
+<div class="ln hl">    <span class="kw">else</span>:</div>
+<div class="ln hl">        nivel = <span class="str">"Datos COMPATIBLES con H₀"</span></div>
+<div class="ln spacer"></div>
+<div class="ln">    decision = <span class="str">"RECHAZAR H₀"</span> <span class="kw">if</span> p_valor &lt; alpha <span class="kw">else</span> <span class="str">"NO rechazar H₀"</span></div>
+<div class="ln spacer"></div>
+<div class="ln">    <span class="kw">return</span> {<span class="str">"p_valor"</span>: p_valor, <span class="str">"alpha"</span>: alpha,</div>
+<div class="ln">            <span class="str">"nivel"</span>: nivel, <span class="str">"decision"</span>: decision}</div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">ANATOMÍA LÍNEA POR LÍNEA</div>
+      <div class="panel-title">Qué hace cada fragmento</div>
+    </div></div>
+    <table class="anatomia">
+      <thead><tr><th>Fragmento</th><th>Qué hace</th><th>Nota técnica</th></tr></thead>
+      <tbody>
+        <tr><td>def interpretar_p(p_valor, alpha=0.05)</td><td>Define la función con un parámetro obligatorio y uno con default 0.05.</td><td>α = 0.05 es el estándar de industria. Le dejamos default para que el alumno casi nunca tenga que pasarlo.</td></tr>
+        <tr><td>if p_valor &lt; 0.001</td><td>Primer corte: evidencia "muy fuerte". Tres ceros = milésimas.</td><td>Convención clásica de reportes científicos. Por debajo de 0.001 se reporta como "p &lt; 0.001" en vez del valor exacto.</td></tr>
+        <tr><td>elif p_valor &lt; 0.01</td><td>Segundo corte: evidencia "fuerte".</td><td>Frontera del 1%. Algunas disciplinas (clínica) lo usan como α por defecto, más estricto que 0.05.</td></tr>
+        <tr><td>elif p_valor &lt; 0.05</td><td>Tercer corte: significancia estadística clásica.</td><td>El "famoso 5%" de Fisher. Es donde se rechaza H₀ con el α habitual.</td></tr>
+        <tr><td>elif p_valor &lt; 0.10</td><td>Cuarto corte: zona marginal.</td><td>En negocio se reporta como "al borde" para alertar que con más muestra podría salir significativo.</td></tr>
+        <tr><td>else</td><td>Quinta categoría: datos compatibles con H₀.</td><td>OJO: NO decir "H₀ verdadera". Solo "compatibles". Es la distinción crítica.</td></tr>
+        <tr><td>decision = "RECHAZAR H₀" if p_valor &lt; alpha else "NO rechazar H₀"</td><td>Operador ternario que aplica la regla de decisión.</td><td>Notá que se usa el <strong>alpha</strong> recibido (no el corte 0.05 hardcoded), por flexibilidad.</td></tr>
+        <tr><td>return {"p_valor": ..., "nivel": ..., "decision": ...}</td><td>Devuelve un diccionario con los 4 campos.</td><td>Devuelve dict (no imprime) para que sea <strong>composable</strong>: imprimir_resultado lo usa, los notebooks lo pueden formatear distinto.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">DECISIONES TÉCNICAS</div>
+      <div class="panel-title">Por qué esta función y no otra</div>
+    </div></div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué cinco categorías y no tres?</div>
+      <div class="d-text">Tres ("significativa / no significativa / al borde") es lo mínimo, pero pierde información. Cinco te permite distinguir <em>fuerza</em> de evidencia, no solo decisión. Para reportes ejecutivos: "p &lt; 0.001" pesa más que "p = 0.04" aunque ambos rechacen H₀.</div>
+      <div class="d-alt"><strong>Alternativa descartada:</strong> usar Bayes Factor en lugar de p-valor categórico. Más correcto técnicamente, pero rompe el flujo conceptual de la sesión.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué devolver dict en vez de imprimir directo?</div>
+      <div class="d-text">Si imprime directo, no se puede reusar el resultado. Devolviendo dict, otra función (como <code>imprimir_resultado</code>) puede formatearlo en una tabla, en LaTeX para un paper, o exportarlo a JSON. Es buena práctica general: <strong>separar lógica de presentación</strong>.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué alpha como parámetro y no hardcoded?</div>
+      <div class="d-text">Hay disciplinas donde α = 0.01 (clínica), donde α = 0.10 (exploratorio), donde α se corrige por Bonferroni. Hardcodear 0.05 obliga a duplicar la función. Mejor: default razonable, override fácil.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">TIPS PARA EL AULA</div>
+      <div class="panel-title">Preguntas y errores típicos</div>
+    </div></div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Qué hubiera pasado si pongo alpha=0.10?"</strong> Cambiá el default a 0.10 en vivo y mostrá cómo casos que antes decían "NO rechazar" pasan a "RECHAZAR". Pregunta de continuación: <em>"¿es esto trampa, o legítimo?"</em>. Discusión: depende del costo del error tipo I en el dominio.</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Por qué no devuelve un booleano (rechazar / no rechazar)?"</strong> Porque pierde la magnitud de la evidencia. Un booleano colapsa "p = 0.049" y "p = 1e-10" al mismo valor, cuando el segundo es muchísimo más fuerte.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 1</div>
+      <div class="box-text">El alumno escribe <code>if p_valor &lt; 0.05</code> al revés y obtiene "rechazar" cuando p es alto. <strong>Cómo prevenir:</strong> insistí 3 veces en la regla: "<strong>p chico = datos raros bajo H₀ = rechazar H₀</strong>". Es contraintuitivo porque "chico = malo".</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 2</div>
+      <div class="box-text">Confundir "evidencia MUY FUERTE contra H₀" con "H₀ es definitivamente falsa". Recordá la frase: <strong>"el p-valor no es la probabilidad de que H₀ sea verdadera; es la probabilidad de los datos asumiendo H₀ cierta"</strong>. Repetilo cada vez que aparezca.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 3</div>
+      <div class="box-text">"Si p ≥ 0.05, H₀ es verdadera". NO. Solo "no hay evidencia para rechazarla". La diferencia se ve clara en el Caso 02 (z 2 proporciones) cuando hacemos el análisis de poder y descubrimos que <strong>no rechazar no es lo mismo que aceptar</strong>.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VARIANTES Y EXTENSIONES</div>
+      <div class="panel-title">Cómo adaptarla a otros contextos</div>
+    </div></div>
+
+    <div class="variant">
+      <div class="variant-title">Para reportes ejecutivos · agregar emoji o color</div>
+      <code class="variant-code">decision = "🟢 RECHAZAR H₀" if p_valor &lt; alpha else "🔴 NO rechazar"</code>
+      <div class="variant-text">En reportes a directorio que no leen estadística, un semáforo visual ayuda. En clase mantenemos sin emoji para que el alumno se acostumbre a la lectura formal.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Para múltiples comparaciones · corrección Bonferroni</div>
+      <code class="variant-code">alpha_ajustado = alpha / n_tests
+out = interpretar_p(p_valor, alpha=alpha_ajustado)</code>
+      <div class="variant-text">Si vas a hacer 20 tests al α=0.05, esperás 1 falso positivo por azar. Bonferroni divide α por el número de tests para controlar el error global. Se discute más en el Caso 03 (ANOVA vs t-tests múltiples).</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 01 · IC PARA PROPORCIÓN                                  -->
+<!-- ============================================================ -->
+<div class="tab-content" id="t1">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case1);">CASO 01 · IC PARA PROPORCIÓN · ESTIMACIÓN HONESTA</div>
+    <h1 class="hero-title">Tres líneas con <em>statsmodels</em> que reemplazan media página de fórmula manual</h1>
+    <p class="hero-sub">El caso 01 es el más simple del cuaderno: una sola función (<code>proportion_confint</code>), tres parámetros y un resultado interpretable. Es el lugar ideal para enseñar el patrón "función de scipy/statsmodels recibe datos crudos + parámetros, devuelve resultado".</p>
+  </header>
+
+  <div class="story s1">
+    <strong>Lo que hace la celda principal.</strong> Calcula el IC95% para la
+    proporción usando el método Wald (aproximación normal). Es el método
+    clásico, el que se enseña en estadística básica. Funciona bien cuando
+    n·p̂ ≥ 10 y n·(1−p̂) ≥ 10, condiciones que en BancoSur (n=5000, p̂=0.028)
+    se cumplen holgadamente: n·p̂ = 140, n·(1−p̂) = 4860.
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO COMPLETO · IC95% para proporción</div>
+      <div class="panel-title">Tres líneas que responden la pregunta del directorio</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportion_confint</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="cm"># Datos del caso · 5.000 auditados, 140 en default</span></div>
+<div class="ln">n_audit   = <span class="num">5000</span></div>
+<div class="ln">defaults  = <span class="num">140</span></div>
+<div class="ln">p_hat     = defaults / n_audit       <span class="cm"># 0.028 = 2.8%</span></div>
+<div class="ln spacer"></div>
+<div class="ln hl">ic_inf, ic_sup = <span class="fn">proportion_confint</span>(</div>
+<div class="ln hl">    count = defaults,</div>
+<div class="ln hl">    nobs  = n_audit,</div>
+<div class="ln hl">    alpha = <span class="num">0.05</span>,</div>
+<div class="ln hl">    method = <span class="str">"normal"</span>,</div>
+<div class="ln hl">)</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"IC95% Wald: [{ic_inf:.4f}, {ic_sup:.4f}]"</span>)</div>
+<div class="ln"><span class="cm"># → IC95% Wald: [0.0234, 0.0326]</span></div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">ANATOMÍA LÍNEA POR LÍNEA</div>
+      <div class="panel-title">Qué hace cada parte del llamado a proportion_confint</div>
+    </div></div>
+    <table class="anatomia">
+      <thead><tr><th>Fragmento</th><th>Qué hace</th><th>Nota técnica</th></tr></thead>
+      <tbody>
+        <tr><td>from statsmodels.stats.proportion import proportion_confint</td><td>Importa solo la función que vamos a usar.</td><td>Buena práctica: importar la función exacta, no todo el módulo. Más legible y menos memoria.</td></tr>
+        <tr><td>count = defaults</td><td>Pasamos el número absoluto de éxitos (140), no la proporción.</td><td>La función necesita count + nobs para calcular el SE correctamente. Pasar solo p̂ no permitiría calcular SE.</td></tr>
+        <tr><td>nobs = n_audit</td><td>Tamaño de la muestra (5.000).</td><td>nobs = "number of observations". Junto con count define todo lo que la función necesita.</td></tr>
+        <tr><td>alpha = 0.05</td><td>Nivel de significancia · IC del 95%.</td><td>OJO: aquí alpha es el complemento del nivel de confianza. alpha=0.05 → confianza=95%. alpha=0.01 → confianza=99%.</td></tr>
+        <tr><td>method = "normal"</td><td>Especifica el método Wald (aproximación normal).</td><td>statsmodels ofrece 6 métodos. "normal" es el clásico, válido cuando np y n(1-p) son ambos ≥ 10.</td></tr>
+        <tr><td>ic_inf, ic_sup = ...</td><td>Unpacking de la tupla devuelta.</td><td>La función devuelve una tupla (lower, upper). Python permite asignar a dos variables en una línea.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">DECISIONES TÉCNICAS</div>
+      <div class="panel-title">Los 6 métodos posibles de proportion_confint, y por qué elegimos "normal"</div>
+    </div></div>
+
+    <div class="decision">
+      <div class="d-title">method="normal" · Wald · el clásico</div>
+      <div class="d-text">Es <code>p̂ ± z·√(p̂(1−p̂)/n)</code>. Lo que enseña cualquier libro intro. Válido cuando np ≥ 10 y n(1−p) ≥ 10.</div>
+      <div class="d-alt"><strong>Limitación:</strong> con p̂ muy cercano a 0 o 1, puede dar IC con límite negativo (sin sentido para una proporción). En este caso p̂=0.028, no llega a romperse.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">method="wilson" · más robusto · default moderno</div>
+      <div class="d-text">Corrige el problema de Wald con p cercano a los extremos. Nunca sale del rango [0, 1]. Es el método recomendado por la mayoría de estadísticos hoy.</div>
+      <div class="d-alt"><strong>Por qué no lo usamos:</strong> queremos coincidir con la fórmula del deck (slide 17, que muestra explícitamente el Wald). Para enseñar la fórmula manual, Wald es más transparente.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">method="beta" · Clopper-Pearson · exacto</div>
+      <div class="d-text">Método "exacto" basado en la distribución Binomial directamente. NO aproxima. Siempre tiene cobertura ≥ 95%.</div>
+      <div class="d-alt"><strong>Cuándo usarlo:</strong> con n muy chico (n &lt; 30) o p muy extremo (p &lt; 0.01). Es conservador (IC más anchos que Wald).</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">Otros: "agresti_coull", "jeffreys", "binom_test"</div>
+      <div class="d-text">Variantes intermedias entre Wald y Wilson. Excelentes técnicamente, raramente vistos en clases de negocio.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">TIPS PARA EL AULA</div>
+      <div class="panel-title">Preguntas y errores típicos</div>
+    </div></div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Qué pasa con el IC si auditamos 50.000 créditos en vez de 5.000?"</strong> Cambialo en vivo, recalculá. El IC se cierra a aproximadamente [0.0265, 0.0295]. Pregunta de continuación: <em>"¿el histórico Q4 (2.5%) seguiría cayendo dentro?"</em>. Conclusión pedagógica: con n suficiente, lo que antes era "ruido" se vuelve "señal real".</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Por qué pasamos count y nobs y no directamente p̂ = 0.028?"</strong> Porque la incertidumbre depende de N. Un 2.8% sobre 100 créditos tiene un IC enorme; sobre 50.000, un IC angosto. La función necesita saber el N para calcular el SE.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 1</div>
+      <div class="box-text">El alumno escribe <code>alpha=0.95</code> esperando 95% de confianza. <strong>Resultado:</strong> obtiene un IC del 5%. <strong>Cómo prevenir:</strong> repetí "α es lo que QUEDA AFUERA del IC, no lo de adentro. IC95% → α=0.05, no 0.95".</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 2</div>
+      <div class="box-text">Olvidar que <code>count</code> debe ser un entero. Si pasás un float (por ejemplo, count = 5000 * 0.028 = 140.0), statsmodels generalmente lo acepta, pero en versiones viejas tira warning. Mejor castear con <code>int()</code>.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 3</div>
+      <div class="box-text">Decir "hay 95% de probabilidad de que el verdadero default esté entre 2.34% y 3.26%". <strong>FALSO.</strong> La interpretación correcta: "si repitiéramos la auditoría muchas veces, el 95% de los IC construidos contendrían al verdadero default". El verdadero default es una constante; lo que varía es el IC.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VARIANTES Y EXTENSIONES</div>
+      <div class="panel-title">Mismo patrón, otros casos de negocio</div>
+    </div></div>
+
+    <div class="variant">
+      <div class="variant-title">Retail · IC para tasa de conversión</div>
+      <code class="variant-code">ic = proportion_confint(count=350, nobs=12000, alpha=0.05, method="wilson")
+# Conversión web: 350 compras / 12.000 visitas → IC95% [0.0263, 0.0322]</code>
+      <div class="variant-text">Mismo flujo, distinta interpretación. Para conversión web, Wilson es preferible porque las tasas suelen ser bajas (1-5%) y Wald se desestabiliza.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Salud · IC para tasa de readmisión hospitalaria</div>
+      <code class="variant-code">ic = proportion_confint(count=42, nobs=600, alpha=0.01, method="beta")
+# Readmisión 30d: 42/600 → IC99% Clopper-Pearson, conservador</code>
+      <div class="variant-text">En contexto clínico, α=0.01 y método exacto (beta = Clopper-Pearson) son norma. Decisiones que afectan pacientes piden más rigor.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 02 · z 2 PROPORCIONES + PODER                            -->
+<!-- ============================================================ -->
+<div class="tab-content" id="t2">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case2);">CASO 02 · TEST z DE 2 PROPORCIONES + ANÁLISIS DE PODER</div>
+    <h1 class="hero-title">Dos funciones de statsmodels resuelven <em>todo el A/B test</em></h1>
+    <p class="hero-sub">El caso más rico del cuaderno: combina el test formal (<code>proportions_ztest</code>) con el análisis de poder (<code>NormalIndPower</code>). El alumno aprende que reportar "no rechazo H₀" sin reportar poder es deshonesto: quizás no hay efecto, o quizás faltó muestra.</p>
+  </header>
+
+  <div class="story s2">
+    <strong>Por qué este caso es el más importante.</strong> Cubre el patrón
+    que los alumnos van a usar más en su carrera profesional: A/B testing
+    con proporciones. Si solo aprenden una prueba de la sesión, que sea
+    esta. El análisis de poder al final es lo que distingue un análisis
+    serio de un test casero.
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO COMPLETO · z test unilateral</div>
+      <div class="panel-title">Datos · llamado · interpretación</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="kw">import</span> numpy <span class="kw">as</span> np</div>
+<div class="ln"><span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportions_ztest</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="cm"># Datos del A/B test</span></div>
+<div class="ln">n_Q4, x_Q4 = <span class="num">4800</span>, <span class="num">120</span>   <span class="cm"># control · 2.5% default</span></div>
+<div class="ln">n_Q1, x_Q1 = <span class="num">5000</span>, <span class="num">140</span>   <span class="cm"># tratamiento · 2.8% default</span></div>
+<div class="ln spacer"></div>
+<div class="ln hl">z_stat, p_valor_z = <span class="fn">proportions_ztest</span>(</div>
+<div class="ln hl">    count = np.<span class="fn">array</span>([x_Q1, x_Q4]),   <span class="cm"># Q1 primero · luego Q4</span></div>
+<div class="ln hl">    nobs  = np.<span class="fn">array</span>([n_Q1, n_Q4]),</div>
+<div class="ln hl">    alternative = <span class="str">"larger"</span>,           <span class="cm"># cola derecha · "Q1 mayor"</span></div>
+<div class="ln hl">)</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"z = {z_stat:.3f}"</span>)         <span class="cm"># → z = 0.928</span></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"p = {p_valor_z:.4f}"</span>)     <span class="cm"># → p = 0.1768</span></div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">ANATOMÍA LÍNEA POR LÍNEA</div>
+      <div class="panel-title">Qué hace cada argumento de proportions_ztest</div>
+    </div></div>
+    <table class="anatomia">
+      <thead><tr><th>Fragmento</th><th>Qué hace</th><th>Nota técnica</th></tr></thead>
+      <tbody>
+        <tr><td>count = np.array([x_Q1, x_Q4])</td><td>Array con los conteos de éxitos. El ORDEN importa.</td><td>statsmodels testea p₀ vs p₁ donde p₀ es el primer elemento. Con alternative="larger" testea p₀ &gt; p₁. Por eso Q1 va primero.</td></tr>
+        <tr><td>nobs = np.array([n_Q1, n_Q4])</td><td>Array con los tamaños de muestra, en el mismo orden.</td><td>Si invertís el orden de count y nobs, el test sigue siendo correcto. Pero si invertís count solamente y olvidás nobs, el resultado es basura.</td></tr>
+        <tr><td>alternative = "larger"</td><td>Test unilateral cola derecha: H₁: p₀ &gt; p₁.</td><td>Tres opciones: "two-sided" (bilateral), "larger" (cola derecha), "smaller" (cola izquierda). Default es "two-sided".</td></tr>
+        <tr><td>z_stat, p_valor_z = ...</td><td>Unpacking de la tupla (z, p_valor).</td><td>z está en escala de Normal estándar. p_valor está ya calculado según el alternative que elegiste.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO · ANÁLISIS DE PODER (segunda parte)</div>
+      <div class="panel-title">¿Cuánto n necesitamos para detectar Δ=0.5pp?</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportion_effectsize</div>
+<div class="ln"><span class="kw">from</span> statsmodels.stats.power <span class="kw">import</span> NormalIndPower</div>
+<div class="ln spacer"></div>
+<div class="ln">p_base = <span class="num">0.025</span></div>
+<div class="ln">p_alt  = <span class="num">0.030</span>                                <span class="cm"># 0.5pp arriba</span></div>
+<div class="ln">effect_h = <span class="fn">proportion_effectsize</span>(p_alt, p_base)  <span class="cm"># Cohen's h</span></div>
+<div class="ln spacer"></div>
+<div class="ln">power_calc = <span class="fn">NormalIndPower</span>()</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="cm"># 1. Despejar el PODER dado n=5000</span></div>
+<div class="ln hl">poder = power_calc.<span class="fn">solve_power</span>(</div>
+<div class="ln hl">    effect_size = effect_h,</div>
+<div class="ln hl">    nobs1 = <span class="num">5000</span>,</div>
+<div class="ln hl">    alpha = <span class="num">0.05</span>,</div>
+<div class="ln hl">    ratio = <span class="num">1.0</span>,</div>
+<div class="ln hl">    alternative = <span class="str">"larger"</span>,</div>
+<div class="ln hl">)</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="cm"># 2. Despejar el N necesario para poder=0.80 (omitiendo nobs1)</span></div>
+<div class="ln">n_necesario = power_calc.<span class="fn">solve_power</span>(</div>
+<div class="ln">    effect_size = effect_h, alpha = <span class="num">0.05</span>,</div>
+<div class="ln">    power = <span class="num">0.80</span>, ratio = <span class="num">1.0</span>, alternative = <span class="str">"larger"</span>,</div>
+<div class="ln">)</div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">DECISIONES TÉCNICAS</div>
+      <div class="panel-title">Por qué unilateral, por qué effect_size, por qué NormalIndPower</div>
+    </div></div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué unilateral ("larger") y no bilateral ("two-sided")?</div>
+      <div class="d-text">La hipótesis del COO es DIRECCIONAL: "el default subió". No le importa si bajó. El test debe reflejar esa dirección. Si fuera bilateral, el p-valor sería 2x mayor (≈0.35) porque incluye también la cola izquierda. Que no nos interesa.</div>
+      <div class="d-alt"><strong>Cuándo elegir bilateral:</strong> cuando la pregunta es "¿hay diferencia en cualquier dirección?". Por ejemplo, comparar dos modelos sin tener priors sobre cuál será mejor.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Qué es Cohen's h (effect_size)?</div>
+      <div class="d-text">Transformación arcoseno de las dos proporciones: <code>h = 2·asin(√p₁) − 2·asin(√p₂)</code>. Estandariza la diferencia para que sea comparable entre estudios. Reglas de bolsillo: |h| ≈ 0.2 chico, 0.5 mediano, 0.8 grande. Para Q4 vs Q1: h ≈ 0.020 (efecto MUY chico).</div>
+      <div class="d-alt"><strong>Alternativa:</strong> usar directamente la diferencia (p₁ − p₂). El problema es que 0.5pp sobre base de 2.5% es mucho más grande que 0.5pp sobre base de 25%, pero la diferencia absoluta es la misma. Cohen's h normaliza.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué NormalIndPower y no TTestIndPower?</div>
+      <div class="d-text">NormalIndPower usa el test z basado en distribución Normal. Es lo correcto para proporciones con n grande. TTestIndPower es para medias con varianza desconocida (test t), más conservador.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Qué hace solve_power cuando omitís un argumento?</div>
+      <div class="d-text">Es una API <em>"despejar la incógnita"</em>: la función tiene 4 variables ligadas (effect_size, nobs1, alpha, power). Le pasás 3, y despeja la 4ta. Si no pasás <code>power</code>, calcula poder. Si no pasás <code>nobs1</code>, calcula N necesario.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">TIPS PARA EL AULA</div>
+      <div class="panel-title">Preguntas y errores típicos</div>
+    </div></div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Qué pasa si cambio alternative='larger' a 'two-sided'?"</strong> Hacelo en vivo. El p-valor se duplica de 0.177 a 0.354. Pregunta de continuación: <em>"¿en qué caso real sería honesto reportar el bilateral?"</em>. Respuesta: solo si no teníamos hipótesis previa sobre la dirección.</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"Si el poder con n=5000 es solo 27%, ¿qué significa eso?"</strong> Significa que aunque la diferencia EXISTA, solo 27 de cada 100 veces el test la detectaría. 73 de cada 100 veces, el test diría "no rechazar" aunque el deterioro fuera real. <strong>Por eso "no rechazar" no es "aceptar"</strong>.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 1</div>
+      <div class="box-text">Olvidar el ORDEN de count y nobs. Si ponés Q4 primero pero usás alternative="larger", estás testeando "Q4 &gt; Q1" (deterioro al revés), y el z viene negativo y el p ≈ 0.82. <strong>Cómo prevenir:</strong> ANTES de llamar a la función, escribí en un comentario "primer elemento = el que H₁ dice que es mayor".</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 2</div>
+      <div class="box-text">Confundir effect_size de Cohen's h con la diferencia absoluta de proporciones. Cohen's h NO es 0.5pp ni 0.005. Es ~0.020 (la transformación arcoseno reduce el número porque trabaja en otra escala). <strong>No le pidas al alumno que lo calcule a mano</strong>; deferí a <code>proportion_effectsize</code>.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 3</div>
+      <div class="box-text">Reportar al directorio "el test dice que no hay deterioro" cuando lo correcto es "el test no detecta deterioro, pero el poder es bajo (27%)". La primera frase es deshonesta y operacionalmente peligrosa.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VARIANTES Y EXTENSIONES</div>
+      <div class="panel-title">Otros A/B tests con el mismo flujo</div>
+    </div></div>
+
+    <div class="variant">
+      <div class="variant-title">A/B test de conversión web (e-commerce)</div>
+      <code class="variant-code">z, p = proportions_ztest(count=[180, 150], nobs=[8000, 8000], alternative="larger")
+# Variante B vs A · 180/8000 vs 150/8000 → ¿B convierte más?</code>
+      <div class="variant-text">El caso canónico de e-commerce. n suele ser grande (decenas de miles por brazo) y los efectos son chicos (lifts de 1-5%). Por eso pre-registrar n con poder es obligatorio.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Test de proporción contra valor fijo (one-sample)</div>
+      <code class="variant-code">from statsmodels.stats.proportion import proportions_ztest
+z, p = proportions_ztest(count=140, nobs=5000, value=0.025, alternative="larger")
+# ¿La nueva muestra difiere del histórico 2.5%?</code>
+      <div class="variant-text">Cuando comparás contra un valor de referencia (no contra otro grupo), pasás <code>value=p_referencia</code>. Es equivalente a la prueba "del IC contra histórico" del Caso 01, pero formalizada como test.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 03 · ANOVA + TUKEY                                       -->
+<!-- ============================================================ -->
+<div class="tab-content" id="t3">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case3);">CASO 03 · ANOVA DE UN FACTOR + POST-HOC TUKEY HSD</div>
+    <h1 class="hero-title">Dos funciones de dos librerías distintas, <em>una sola pregunta</em></h1>
+    <p class="hero-sub">ANOVA responde "¿alguna media es distinta?" pero NO dice cuál. Tukey HSD responde "¿cuál(es)?" controlando el error de comparaciones múltiples. Este caso es donde el alumno aprende a NO hacer "todos contra todos" con t-tests.</p>
+  </header>
+
+  <div class="story s3">
+    <strong>Particularidad técnica de este caso.</strong> Estamos haciendo
+    ANOVA sobre datos 0/1 (Bernoulli), no sobre cantidades continuas
+    "naturalmente" normales. Funciona porque el TLC garantiza que las
+    medias de muchas Bernoullis son aproximadamente Normales. Para grupos
+    chicos sería discutible y convendría una regresión logística; con
+    n &gt; 1.000 por grupo (como acá), ANOVA es perfectamente válida.
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO COMPLETO · simulación de datos + ANOVA</div>
+      <div class="panel-title">Generar los 5.000 créditos individuales y testear</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="kw">import</span> numpy <span class="kw">as</span> np</div>
+<div class="ln"><span class="kw">import</span> pandas <span class="kw">as</span> pd</div>
+<div class="ln"><span class="kw">from</span> scipy <span class="kw">import</span> stats</div>
+<div class="ln"><span class="kw">from</span> statsmodels.stats.multicomp <span class="kw">import</span> pairwise_tukeyhsd</div>
+<div class="ln spacer"></div>
+<div class="ln">np.random.<span class="fn">seed</span>(<span class="num">42</span>)         <span class="cm"># reproducibilidad</span></div>
+<div class="ln spacer"></div>
+<div class="ln">sucursales = {</div>
+<div class="ln">    <span class="str">"Lima"</span>:     {<span class="str">"n"</span>: <span class="num">1500</span>, <span class="str">"p"</span>: <span class="num">0.025</span>},</div>
+<div class="ln">    <span class="str">"Arequipa"</span>: {<span class="str">"n"</span>: <span class="num">1200</span>, <span class="str">"p"</span>: <span class="num">0.027</span>},</div>
+<div class="ln">    <span class="str">"Trujillo"</span>: {<span class="str">"n"</span>: <span class="num">1100</span>, <span class="str">"p"</span>: <span class="num">0.031</span>},</div>
+<div class="ln">    <span class="str">"Piura"</span>:    {<span class="str">"n"</span>: <span class="num">1200</span>, <span class="str">"p"</span>: <span class="num">0.030</span>},</div>
+<div class="ln">}</div>
+<div class="ln spacer"></div>
+<div class="ln">datos = {}</div>
+<div class="ln"><span class="kw">for</span> nombre, info <span class="kw">in</span> sucursales.<span class="fn">items</span>():</div>
+<div class="ln">    datos[nombre] = np.random.<span class="fn">binomial</span>(<span class="num">1</span>, info[<span class="str">"p"</span>], info[<span class="str">"n"</span>])</div>
+<div class="ln spacer"></div>
+<div class="ln hl">f_stat, p_anova = stats.<span class="fn">f_oneway</span>(*datos.<span class="fn">values</span>())</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"F = {f_stat:.3f}, p = {p_anova:.4f}"</span>)</div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO · POST-HOC TUKEY</div>
+      <div class="panel-title">¿Cuáles sucursales difieren entre sí?</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="cm"># Armar formato LARGO · una fila por crédito</span></div>
+<div class="ln">df_largo = pd.<span class="fn">concat</span>([</div>
+<div class="ln">    pd.<span class="fn">DataFrame</span>({<span class="str">"default"</span>: arr, <span class="str">"sucursal"</span>: nombre})</div>
+<div class="ln">    <span class="kw">for</span> nombre, arr <span class="kw">in</span> datos.<span class="fn">items</span>()</div>
+<div class="ln">], ignore_index=<span class="kw">True</span>)</div>
+<div class="ln spacer"></div>
+<div class="ln hl">tukey = <span class="fn">pairwise_tukeyhsd</span>(</div>
+<div class="ln hl">    endog  = df_largo[<span class="str">"default"</span>],   <span class="cm"># variable respuesta</span></div>
+<div class="ln hl">    groups = df_largo[<span class="str">"sucursal"</span>],  <span class="cm"># variable de agrupación</span></div>
+<div class="ln hl">    alpha  = <span class="num">0.05</span>,</div>
+<div class="ln hl">)</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="fn">print</span>(tukey)</div>
+<div class="ln"><span class="cm"># Output: tabla con cada par de sucursales · meandiff, p-adj, lower, upper, reject</span></div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">ANATOMÍA LÍNEA POR LÍNEA</div>
+      <div class="panel-title">Fragmentos clave de los dos bloques</div>
+    </div></div>
+    <table class="anatomia">
+      <thead><tr><th>Fragmento</th><th>Qué hace</th><th>Nota técnica</th></tr></thead>
+      <tbody>
+        <tr><td>np.random.seed(42)</td><td>Fija la semilla del generador.</td><td>CRÍTICO. Sin seed, cada corrida del notebook da F y p ligeramente distintos. Con seed, los resultados son reproducibles.</td></tr>
+        <tr><td>np.random.binomial(1, p, n)</td><td>Genera n ensayos Bernoulli con probabilidad p.</td><td>Devuelve un array de 0s y 1s. Equivale a "sample n créditos donde cada uno tiene probabilidad p de defaultear".</td></tr>
+        <tr><td>stats.f_oneway(*datos.values())</td><td>Aplica ANOVA · el * desempaqueta el dict en argumentos individuales.</td><td>f_oneway acepta N arrays como argumentos posicionales, uno por grupo. *datos.values() es el modo Pythonic.</td></tr>
+        <tr><td>pd.concat([...], ignore_index=True)</td><td>Une los DataFrames de cada sucursal en uno solo en formato largo.</td><td>Formato largo = una fila por observación (crédito). Es el formato que pairwise_tukeyhsd exige.</td></tr>
+        <tr><td>pairwise_tukeyhsd(endog, groups, alpha)</td><td>Aplica Tukey HSD a todos los pares.</td><td>endog = variable respuesta (continua o binaria), groups = etiqueta categórica. Devuelve un objeto con tabla legible.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">DECISIONES TÉCNICAS</div>
+      <div class="panel-title">ANOVA sobre binarias, formato largo, Tukey vs Bonferroni</div>
+    </div></div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué ANOVA sobre 0/1 (Bernoulli)?</div>
+      <div class="d-text">Porque por el TLC, las medias muestrales de muchas Bernoullis son aproximadamente Normales. Con n &gt; 1.000 por sucursal, la aproximación es excelente. Permite tratar la binaria como continua a efectos del test.</div>
+      <div class="d-alt"><strong>Alternativa más rigurosa:</strong> regresión logística con sucursal como predictor categórico. Pero introduce conceptos que no tocamos hasta Sesión 6. Para el propósito didáctico, ANOVA es más limpia.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué armar el formato LARGO?</div>
+      <div class="d-text">scipy.stats.f_oneway acepta lista de arrays (formato "ancho"). Pero statsmodels.pairwise_tukeyhsd exige formato LARGO: una columna con el valor, otra con el grupo. Ambos formatos son válidos en estadística; cada librería prefiere uno.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué Tukey HSD y no Bonferroni?</div>
+      <div class="d-text">Bonferroni divide α por el número de comparaciones (k). Es simple pero MUY conservador: para 6 pares, α se vuelve 0.05/6 = 0.0083. Tukey usa la distribución del rango studentizado, es exacto para ANOVA balanceado y más potente.</div>
+      <div class="d-alt"><strong>Cuándo Bonferroni gana:</strong> si las comparaciones son pre-especificadas (no todas vs todas) o si las muestras son muy distintas en tamaño. Para "todos contra todos" balanceado, Tukey.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué ANOVA y no 6 t-tests entre pares?</div>
+      <div class="d-text">Con 4 grupos hay 6 pares. 6 t-tests a α=0.05 cada uno tienen <strong>P(al menos 1 falso positivo) ≈ 26%</strong> (1 − 0.95⁶). ANOVA controla α en 5% para el TODO, y Tukey lo mantiene al ajustar los p-valores de cada par.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">TIPS PARA EL AULA</div>
+      <div class="panel-title">Preguntas y errores típicos</div>
+    </div></div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Por qué necesitamos un seed?"</strong> Sin seed, cada corrida da F y p ligeramente distintos. Hacé la prueba: comentá <code>np.random.seed(42)</code>, corré 3 veces. El alumno debe entender que estamos SIMULANDO los créditos individuales, no trabajando con un dataset fijo.</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"Si ANOVA dice 'alguna difiere' y Tukey dice 'ninguna', ¿qué pasó?"</strong> Puede pasar. ANOVA detecta efecto GLOBAL, Tukey es PAREJO con corrección. Caso típico: con muchos pares apenas significativos, ANOVA ve la suma pero ningún par individual la pasa post-corrección. Ahí toca interpretar con cuidado.</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Tukey HSD requiere los mismos supuestos que ANOVA?"</strong> Sí: normalidad, homocedasticidad, independencia. Si rompés normalidad pero los grupos son grandes, ambos siguen siendo válidos por TLC.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 1</div>
+      <div class="box-text">Pasar el dataset en formato ANCHO a pairwise_tukeyhsd. Tira error críptico. <strong>Cómo prevenir:</strong> recordá la regla: <em>"scipy come ancho, statsmodels come largo"</em>.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 2</div>
+      <div class="box-text">Reportar el F sin reportar Tukey, o al revés. ANOVA solo (sin Tukey) no responde "cuál sucursal". Tukey solo (sin ANOVA) infla el error tipo I. <strong>Siempre van juntos</strong>.</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 3</div>
+      <div class="box-text">Hacer t-tests "manuales" sin corrección porque "ANOVA es más complicada". <strong>Mostrá en clase qué pasa:</strong> 6 t-tests al 5%, hay ~26% de chance de falso positivo. Esa es la razón completa de existir de ANOVA.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VARIANTES Y EXTENSIONES</div>
+      <div class="panel-title">Otros usos del mismo patrón</div>
+    </div></div>
+
+    <div class="variant">
+      <div class="variant-title">Si rompe normalidad (n chico, datos sesgados) → Kruskal-Wallis</div>
+      <code class="variant-code">h_stat, p_kw = stats.kruskal(*datos.values())
+# Equivalente no paramétrico de ANOVA · usa rangos en lugar de valores</code>
+      <div class="variant-text">Cuando los grupos tienen n &lt; 30 o son claramente no normales (revisar con Shapiro-Wilk), Kruskal-Wallis es más seguro. Misma estructura de llamado.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Retail · ticket promedio entre 5 categorías de producto</div>
+      <code class="variant-code">f, p = stats.f_oneway(ticket_alim, ticket_hogar, ticket_textil, ticket_elec, ticket_bazar)
+tukey = pairwise_tukeyhsd(endog=df.ticket, groups=df.categoria, alpha=0.05)</code>
+      <div class="variant-text">Mismo flujo, datos continuos (no binarios). ANOVA es directamente aplicable porque los tickets son ya cantidades.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Si las varianzas son MUY distintas → Welch's ANOVA</div>
+      <code class="variant-code">from scipy.stats import f_oneway  # OJO: scipy 1.7+ no tiene Welch nativo
+# Alternativa: pingouin.welch_anova(data=df, dv="default", between="sucursal")</code>
+      <div class="variant-text">ANOVA clásica asume varianzas iguales (homocedasticidad). Si rompe ese supuesto (verificable con Levene), usá Welch. Para sucursales en BancoSur con default rates similares, las varianzas son parejas y la ANOVA clásica está bien.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 04 · CHI-CUADRADO                                        -->
+<!-- ============================================================ -->
+<div class="tab-content" id="t4">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case4);">CASO 04 · CHI-CUADRADO DE INDEPENDENCIA</div>
+    <h1 class="hero-title">Una sola función responde todo, <em>pero los residuos cuentan dónde rompe</em></h1>
+    <p class="hero-sub">El caso conceptualmente más simple del cuaderno: pasás una matriz de conteos, recibís un p-valor. Lo interesante viene después: los <strong>residuos estandarizados</strong> te dicen qué celdas específicas rompen la independencia. Es la pieza que separa el análisis básico del análisis útil.</p>
+  </header>
+
+  <div class="story s4">
+    <strong>Por qué este caso cierra bien la sesión.</strong> Chi² es el
+    único test del cuaderno donde rechazar H₀ no te dice mucho por sí solo:
+    "producto y default no son independientes" es vago. Los residuos
+    estandarizados convierten ese rechazo en una historia accionable:
+    "Consumo defaultea MÁS de lo esperado, Hipotecario MENOS".
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO COMPLETO · Chi² de independencia</div>
+      <div class="panel-title">Matriz · función · interpretación</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="kw">import</span> numpy <span class="kw">as</span> np</div>
+<div class="ln"><span class="kw">import</span> pandas <span class="kw">as</span> pd</div>
+<div class="ln"><span class="kw">from</span> scipy <span class="kw">import</span> stats</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="cm"># Tabla de contingencia OBSERVADA · sin totales</span></div>
+<div class="ln">tabla_obs = pd.<span class="fn">DataFrame</span>(</div>
+<div class="ln">    data=[</div>
+<div class="ln">        [<span class="num">1850</span>, <span class="num">105</span>],   <span class="cm"># Consumo</span></div>
+<div class="ln">        [<span class="num">1480</span>,  <span class="num">20</span>],   <span class="cm"># Hipotecario</span></div>
+<div class="ln">        [<span class="num">1390</span>,  <span class="num">60</span>],   <span class="cm"># Tarjeta</span></div>
+<div class="ln">        [  <span class="num">95</span>,   <span class="num">5</span>],   <span class="cm"># Vehicular</span></div>
+<div class="ln">    ],</div>
+<div class="ln">    index=[<span class="str">"Consumo"</span>, <span class="str">"Hipotecario"</span>, <span class="str">"Tarjeta"</span>, <span class="str">"Vehicular"</span>],</div>
+<div class="ln">    columns=[<span class="str">"Al día"</span>, <span class="str">"En default"</span>],</div>
+<div class="ln">)</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="cm"># Extraemos solo los valores (sin index ni columns) para scipy</span></div>
+<div class="ln">matriz_obs = tabla_obs.values</div>
+<div class="ln spacer"></div>
+<div class="ln hl">chi2_stat, p_valor, gl, esperados = stats.<span class="fn">chi2_contingency</span>(matriz_obs)</div>
+<div class="ln spacer"></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"χ² = {chi2_stat:.2f}"</span>)        <span class="cm"># → 19.34</span></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"gl = {gl}"</span>)                  <span class="cm"># → 3</span></div>
+<div class="ln"><span class="fn">print</span>(<span class="str">f"p  = {p_valor:.6f}"</span>)         <span class="cm"># → 0.000234</span></div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">CÓDIGO · RESIDUOS ESTANDARIZADOS</div>
+      <div class="panel-title">Dónde rompe la independencia</div>
+    </div></div>
+<div class="code-numbered">
+<div class="ln"><span class="cm"># Frecuencias ESPERADAS bajo H₀ (independencia)</span></div>
+<div class="ln">tabla_esp = pd.<span class="fn">DataFrame</span>(esperados,</div>
+<div class="ln">                          index=tabla_obs.index,</div>
+<div class="ln">                          columns=tabla_obs.columns)</div>
+<div class="ln spacer"></div>
+<div class="ln hl"><span class="cm"># Residuos estandarizados · regla |r| &gt; 2 marca celdas relevantes</span></div>
+<div class="ln hl">residuos = (matriz_obs - esperados) / np.<span class="fn">sqrt</span>(esperados)</div>
+<div class="ln spacer"></div>
+<div class="ln">tabla_res = pd.<span class="fn">DataFrame</span>(residuos.<span class="fn">round</span>(<span class="num">2</span>),</div>
+<div class="ln">                         index=tabla_obs.index,</div>
+<div class="ln">                         columns=tabla_obs.columns)</div>
+<div class="ln"><span class="fn">print</span>(tabla_res)</div>
+<div class="ln"><span class="cm"># Consumo / En default → r ≈ +3.8  (MÁS defaults de los esperados)</span></div>
+<div class="ln"><span class="cm"># Hipotec / En default → r ≈ -3.5  (MENOS defaults de los esperados)</span></div>
+</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">ANATOMÍA LÍNEA POR LÍNEA</div>
+      <div class="panel-title">Qué hace cada parte</div>
+    </div></div>
+    <table class="anatomia">
+      <thead><tr><th>Fragmento</th><th>Qué hace</th><th>Nota técnica</th></tr></thead>
+      <tbody>
+        <tr><td>pd.DataFrame(data=[...], index=..., columns=...)</td><td>Construye la tabla de contingencia con etiquetas legibles.</td><td>No es estrictamente necesario para Chi², pero ayuda a debuggear y reportar. scipy solo necesita la matriz numérica.</td></tr>
+        <tr><td>matriz_obs = tabla_obs.values</td><td>Extrae solo los valores numéricos (numpy array).</td><td>chi2_contingency acepta DataFrame también, pero el array es lo "limpio" para pasarle.</td></tr>
+        <tr><td>chi2_contingency(matriz_obs)</td><td>Calcula chi² automáticamente · sin pasarle "esperados" (los calcula sola).</td><td>Devuelve TUPLA de 4 elementos: (chi2, p_valor, gl, matriz_esperados). El orden es fijo, no se puede invertir.</td></tr>
+        <tr><td>chi2_stat, p_valor, gl, esperados = ...</td><td>Unpacking de los 4 valores devueltos.</td><td>El cuarto elemento (esperados) es lo que más se ignora pero más nos sirve para los residuos.</td></tr>
+        <tr><td>(matriz_obs - esperados) / np.sqrt(esperados)</td><td>Calcula residuos estandarizados elemento por elemento.</td><td>numpy broadcastea la operación: cada celda se resta y se divide individualmente. Resultado: matriz con la misma forma, valores ~ Normal estándar bajo H₀.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">DECISIONES TÉCNICAS</div>
+      <div class="panel-title">Por qué chi2_contingency, por qué residuos estandarizados</div>
+    </div></div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué chi2_contingency y no chi2 manual?</div>
+      <div class="d-text">Podrías calcular χ² = Σ(O − E)²/E con un loop. La función te ahorra eso, te da gl correctos (filas-1)(cols-1), y te da las frecuencias esperadas listas para los residuos. Tres por uno.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué residuos estandarizados y no residuos crudos?</div>
+      <div class="d-text">Un residuo crudo (O − E) sin escalar no es comparable entre celdas: una celda con E=2000 y O=2050 (diff 50) parece grande, pero proporcionalmente es chica. Dividir por √E estandariza, dando valores en escala Normal estándar.</div>
+      <div class="d-alt"><strong>Variante:</strong> residuos AJUSTADOS estandarizados (corrigen por totales marginales). Más exactos pero más complejos. Para uso didáctico, los estandarizados clásicos son suficientes y la regla |r| &gt; 2 funciona bien.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Por qué la regla |r| &gt; 2?</div>
+      <div class="d-text">Los residuos se distribuyen aproximadamente Normal estándar bajo H₀. La regla |r| &gt; 2 corresponde aproximadamente al 5% de las colas (1.96 redondeado). Una celda con |r| &gt; 2 es estadísticamente desviada de lo esperado.</div>
+    </div>
+
+    <div class="decision">
+      <div class="d-title">¿Qué pasa si una celda tiene frecuencia esperada &lt; 5?</div>
+      <div class="d-text">El Chi² deja de ser fiable. En nuestro caso, la celda más chica (Vehicular default) tiene E ≈ 3.8 (al borde). Para tablas con muchas celdas chicas, usar test exacto de Fisher (<code>scipy.stats.fisher_exact</code>) en lugar de chi².</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">TIPS PARA EL AULA</div>
+      <div class="panel-title">Preguntas y errores típicos</div>
+    </div></div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Por qué los grados de libertad son 3 y no 8 (las celdas)?"</strong> Porque los totales por fila y por columna están FIJOS. Una vez que conocés 3 celdas (en una tabla 4×2), el resto queda determinado por los totales. gl = (filas − 1)·(cols − 1) = 3·1 = 3.</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"Si chi² rechaza H₀ pero ningún residuo es |r| &gt; 2, ¿qué pasa?"</strong> Puede ocurrir cuando el efecto es la suma de muchas desviaciones chicas. Chi² agrega; los residuos miran celdas individuales. Si chi² rechaza, el efecto está; los residuos te dicen DÓNDE, pero a veces está repartido.</div>
+    </div>
+
+    <div class="box box-q">
+      <div class="box-label">PREGUNTA SOCRÁTICA</div>
+      <div class="box-text"><strong>"¿Por qué Vehicular con solo 100 créditos no inflas el chi²?"</strong> Porque chi² pondera cada celda por su esperado. Una celda chica contribuye poco al estadístico. Sin embargo, la frecuencia esperada baja hace que el test sea menos fiable: por eso reportamos al directorio enfocándonos en Consumo (donde sí hay n grande y residuo grande).</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 1</div>
+      <div class="box-text">Pasar la tabla con los totales (marginales) a chi2_contingency. <strong>Tira chi² inflado por cuenta doble.</strong> Verificá siempre que la matriz no tenga fila "Total" ni columna "Total".</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 2</div>
+      <div class="box-text">Interpretar "no son independientes" como "una causa la otra". <strong>NO.</strong> Chi² detecta asociación, no causalidad. Producto y default están asociados; eso no significa que el producto CAUSE el default (puede ser que clientes de mayor riesgo prefieran Consumo, por ejemplo).</div>
+    </div>
+
+    <div class="box box-err">
+      <div class="box-label">ERROR TÍPICO 3</div>
+      <div class="box-text">Olvidar revisar las frecuencias esperadas. Si alguna E &lt; 5, el chi² puede dar un p-valor falso. <strong>Cómo prevenir:</strong> después de chi2_contingency, siempre imprimí <code>esperados</code> y revisá el mínimo.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VARIANTES Y EXTENSIONES</div>
+      <div class="panel-title">Otros usos de chi² y alternativas</div>
+    </div></div>
+
+    <div class="variant">
+      <div class="variant-title">Telco · churn vs plan contratado</div>
+      <code class="variant-code">tabla = pd.crosstab(df["plan"], df["churn"])
+chi2, p, gl, esp = stats.chi2_contingency(tabla.values)</code>
+      <div class="variant-text">El patrón se aplica casi idéntico. <code>pd.crosstab</code> es la forma más rápida de construir la tabla de contingencia desde datos crudos.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Si E &lt; 5 en celdas · test exacto de Fisher</div>
+      <code class="variant-code">odds_ratio, p_fisher = stats.fisher_exact(matriz_2x2)
+# SOLO funciona para tablas 2x2. Para tablas mayores hay versiones,
+# pero no en scipy base.</code>
+      <div class="variant-text">Fisher exact es para tablas 2x2 (binaria × binaria). Cuando E es chico, es el test correcto. scipy lo tiene nativo.</div>
+    </div>
+
+    <div class="variant">
+      <div class="variant-title">Medir FUERZA de asociación · Cramer's V</div>
+      <code class="variant-code">cramers_v = np.sqrt(chi2_stat / (matriz_obs.sum() * (min(matriz_obs.shape) - 1)))
+# V ∈ [0, 1] · 0 sin asociación, 1 asociación perfecta</code>
+      <div class="variant-text">Chi² dice "hay asociación", Cramer's V dice "cuánta". Útil para reportes ejecutivos donde el directorio quiere un número entre 0 y 1.</div>
+    </div>
+  </div>
+</div>
+
+
+<footer>FUTURA · DATA SCIENCE FOR BUSINESS · SESIÓN 5 · GUION DOCENTE · ANATOMÍA DEL CÓDIGO</footer>
+
+<script>
+'use strict';
+
+function showTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${id}"]`).classList.add('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+</script>
+
+</body>
+</html>

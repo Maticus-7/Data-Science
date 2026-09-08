@@ -1,0 +1,74 @@
+{
+    "total_variables_evaluadas": 61,
+    "total_variables_utiles": 46,
+    "total_variables_descartadas": 15,
+    "variables_descartadas_iv_bajo": [
+        "not_purchasing_cant_find",
+        "not_purchasing_too_complicated",
+        "sexual_preference",
+        "not_purchasing_unfamiliar_vendor",
+        "how_you_heard_about_survey_usenet_news",
+        "community_membership_other",
+        "not_purchasing_judge_quality",
+        "community_membership_support",
+        "not_purchasing_no_credit",
+        "not_purchasing_receipt",
+        "community_membership_family",
+        "community_membership_religious",
+        "how_you_heard_about_survey_others",
+        "not_purchasing_prefer_people",
+        "not_purchasing_other"
+    ],
+    "top_10_variables_iv": [
+        {
+            "variable": "actual_time",
+            "IV": 2.520954143487471,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "primary_place_of_www_access",
+            "IV": 2.3148633929529265,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "primary_computing_platform",
+            "IV": 2.146377434610453,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "major_occupation",
+            "IV": 2.1374551962560178,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "years_on_internet",
+            "IV": 1.7623462508628276,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "age",
+            "IV": 0.9584781794096867,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "web_page_creation",
+            "IV": 0.9319592946930448,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "who_pays_for_access_self",
+            "IV": 0.8625098676480946,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "who_pays_for_access_work",
+            "IV": 0.8081178936714806,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        },
+        {
+            "variable": "major_geographical_location",
+            "IV": 0.7678423580342514,
+            "Diagnostico_IV": "\ud83d\udd25 Sospechoso / Extremadamente Fuerte (>0.50)"
+        }
+    ]
+}

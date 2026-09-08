@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PCA — Demo Paso a Paso | FUTURA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})">
+  </script>
+  <style>
+    :root {
+      --navy:   #051C2C;
+      --navy2:  #034B6F;
+      --teal:   #00A9E0;
+      --gold:   #B68A35;
+      --green:  #2E933C;
+      --red:    #C0392B;
+      --orange: #E67E22;
+      --purple: #8E44AD;
+      --grey1:  #F5F6FA;
+      --grey2:  #E8EAED;
+      --grey3:  #B8BCC8;
+      --grey4:  #6B7280;
+      --ink:    #1A1A2E;
+      --white:  #FFFFFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--grey1);
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    .hdr {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      border-bottom: 3px solid var(--teal);
+      padding: 12px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .hdr-left h1 { font-size: 20px; font-weight: 800; color: var(--teal); letter-spacing: -.4px; }
+    .hdr-left p  { font-size: 11px; color: var(--grey3); margin-top: 1px; }
+    .badge { padding: 4px 13px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-gold { background: var(--gold); color: var(--navy); }
+
+    /* ── Layout ── */
+    .app {
+      display: grid;
+      grid-template-columns: 272px 1fr;
+      gap: 14px;
+      padding: 16px 20px 20px;
+      max-width: 1560px;
+      margin: 0 auto;
+    }
+
+    /* ── Card ── */
+    .card { background: var(--white); border-radius: 10px; border: 1px solid var(--grey2); }
+    .card-hd {
+      padding: 9px 15px 8px; border-bottom: 1px solid var(--grey2);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .card-hd h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--navy2); }
+    .cb { padding: 14px; }
+
+    /* ── Stepper ── */
+    .stepper { margin-bottom: 2px; }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 10px; border-radius: 7px; cursor: pointer;
+      transition: background .14s; margin-bottom: 2px;
+      border: 1px solid transparent;
+    }
+    .step-item:hover { background: var(--grey1); }
+    .step-item.active {
+      background: rgba(0,169,224,0.08);
+      border-color: rgba(0,169,224,0.3);
+    }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--grey2); color: var(--grey4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; margin-top: 1px;
+      transition: background .14s, color .14s;
+    }
+    .step-item.active .step-num { background: var(--teal); color: var(--white); }
+    .step-item.done .step-num { background: var(--green); color: var(--white); }
+    .step-text strong { display: block; font-size: 11px; font-weight: 700; color: var(--navy); }
+    .step-text span   { font-size: 10px; color: var(--grey4); line-height: 1.4; }
+    .step-item.active .step-text strong { color: var(--navy2); }
+
+    /* Prev/Next */
+    .step-nav { display: flex; gap: 6px; margin-top: 10px; }
+    .nav-btn {
+      flex: 1; padding: 8px; border: 1px solid var(--grey2);
+      border-radius: 6px; background: var(--white); cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+      color: var(--navy2); transition: all .14s; text-align: center;
+    }
+    .nav-btn:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .nav-btn.primary { background: var(--teal); color: var(--white); border-color: var(--teal); }
+    .nav-btn.primary:hover { background: var(--navy2); border-color: var(--navy2); }
+
+    /* sep */
+    .sep { border: none; border-top: 1px solid var(--grey2); margin: 12px 0; }
+
+    /* ── Controls ── */
+    .ctrl-group { margin-bottom: 12px; }
+    .ctrl-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .ctrl-lbl { font-size: 11px; font-weight: 600; color: var(--navy2); }
+    .ctrl-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--teal); }
+    input[type=range] { width: 100%; height: 4px; accent-color: var(--teal); cursor: pointer; }
+
+    .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 8px 0; }
+    .preset-btn {
+      padding: 5px 4px; border: 1px solid var(--grey2); border-radius: 5px;
+      background: var(--grey1); color: var(--navy2); font-size: 10px; font-weight: 600;
+      cursor: pointer; text-align: center; font-family: 'Poppins', sans-serif; transition: all .14s;
+    }
+    .preset-btn:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    .btn { display: block; width: 100%; padding: 8px; border: none; border-radius: 6px; cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em; transition: background .16s; }
+    .btn-teal { background: var(--teal); color: var(--white); margin-top: 8px; }
+    .btn-teal:hover { background: var(--navy2); }
+
+    .toggle-row { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--navy2); margin: 5px 0; }
+    .toggle-row input { accent-color: var(--teal); cursor: pointer; }
+
+    /* ── Right column ── */
+    .right-col { display: flex; flex-direction: column; gap: 14px; }
+    .plots-row  { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+    .plot-wrap  { padding: 12px 12px 6px; }
+    .plot-title { font-size: 10px; font-weight: 700; color: var(--navy2); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 7px; }
+    #scatter_plot { width: 100%; height: 390px; }
+    #hist_plot    { width: 100%; height: 390px; }
+
+    /* ── Step insight card ── */
+    .insight-bar {
+      padding: 14px 18px; border-radius: 0 0 10px 10px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .insight-bar .step-title { font-size: 13px; font-weight: 800; color: var(--teal); margin-bottom: 5px; }
+    .insight-bar .step-desc  { font-size: 11px; color: rgba(255,255,255,0.82); line-height: 1.6; }
+    .insight-bar .step-formula { margin-top: 8px; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px 12px;
+      font-size: 11px; color: rgba(255,255,255,0.9); }
+
+    /* ── Stat chips ── */
+    .stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .stat-chip {
+      background: rgba(0,0,0,0.2); border-radius: 5px; padding: 5px 10px;
+      display: flex; flex-direction: column; align-items: center; min-width: 70px;
+    }
+    .stat-chip .sv { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; }
+    .stat-chip .sl { font-size: 9px; text-transform: uppercase; letter-spacing: .04em; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .sv.teal   { color: var(--teal); }
+    .sv.gold   { color: var(--gold); }
+    .sv.green  { color: #5DEBA0; }
+    .sv.orange { color: #F0AB4E; }
+
+    /* ── Matrices panel ── */
+    .mat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 7px; }
+    .mat-box { background: var(--navy); border-radius: 6px; padding: 9px; }
+    .mat-title { font-size: 9px; color: var(--teal); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+    .mat-val { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--white); line-height: 2.0; }
+    .eigen-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .eigen-chip {
+      background: rgba(0,169,224,.1); border: 1px solid rgba(0,169,224,.25);
+      border-radius: 4px; padding: 3px 7px; font-size: 10px; font-weight: 600;
+      color: var(--navy2); font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── VE bar ── */
+    .ve-bar-wrap { margin: 10px 0 5px; }
+    .ve-bar-bg { height: 10px; border-radius: 5px; background: var(--grey2); overflow: hidden; }
+    .ve-bar-fill { height: 100%; border-radius: 5px; transition: width .4s ease; }
+    .ve-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--grey4); margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Header ─── -->
+<header class="hdr">
+  <div class="hdr-left">
+    <h1>Análisis de Componentes Principales — PCA</h1>
+    <p>Demo paso a paso · Módulo Multivariado · Data Science for Business</p>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span style="font-size:11px;color:rgba(0,169,224,.8);border:1px solid rgba(0,169,224,.3);padding:4px 12px;border-radius:20px;">
+      $\mathbf{S}\mathbf{w} = \lambda\mathbf{w}$
+    </span>
+    <span class="badge badge-gold">FUTURA</span>
+  </div>
+</header>
+
+<!-- ─── App ─── -->
+<div class="app">
+
+  <!-- ── Left panel ── -->
+  <aside style="display:flex;flex-direction:column;gap:14px;">
+
+    <!-- Stepper -->
+    <div class="card">
+      <div class="card-hd"><span>📍</span><h3>Pasos del demo</h3></div>
+      <div class="cb">
+        <div class="stepper" id="stepper"></div>
+        <div class="step-nav">
+          <button class="nav-btn" id="btn_prev">← Anterior</button>
+          <button class="nav-btn primary" id="btn_next">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+      <div class="card-hd"><span>⚙</span><h3>Parámetros</h3></div>
+      <div class="cb">
+        <div class="ctrl-group">
+          <div class="ctrl-row">
+            <span class="ctrl-lbl">ρ — correlación</span>
+            <span class="ctrl-val" id="val_rho">0.75</span>
+          </div>
+          <input type="range" id="sl_rho" min="-0.95" max="0.95" step="0.05" value="0.75">
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-row">
+            <span class="ctrl-lbl">σ₁ (var. X)</span>
+            <span class="ctrl-val" id="val_s1">1.50</span>
+          </div>
+          <input type="range" id="sl_s1" min="0.4" max="2.5" step="0.1" value="1.5">
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-row">
+            <span class="ctrl-lbl">σ₂ (var. Y)</span>
+            <span class="ctrl-val" id="val_s2">1.00</span>
+          </div>
+          <input type="range" id="sl_s2" min="0.4" max="2.5" step="0.1" value="1.0">
+        </div>
+
+        <div class="presets">
+          <button class="preset-btn" data-rho="0"    data-s1="1"   data-s2="1">⬤ Sin corr.</button>
+          <button class="preset-btn" data-rho="0.85" data-s1="1.5" data-s2="1">↗ Alta ρ+</button>
+          <button class="preset-btn" data-rho="-0.8" data-s1="1.5" data-s2="1">↘ Alta ρ−</button>
+          <button class="preset-btn" data-rho="0.5"  data-s1="2.2" data-s2="0.6">⬭ Elongada</button>
+        </div>
+        <button class="btn btn-teal" id="btn_regen">↻ Regenerar datos</button>
+
+        <hr class="sep">
+        <div class="toggle-row">
+          <input type="checkbox" id="chk_ellipse" checked>
+          <label for="chk_ellipse">Elipse de covarianza</label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="chk_resid" checked>
+          <label for="chk_resid">Residuos de reconstrucción</label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="chk_recon" checked>
+          <label for="chk_recon">Puntos reconstruidos (PC1)</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrices panel -->
+    <div class="card">
+      <div class="card-hd"><span>∑</span><h3>Eigendescomposición</h3></div>
+      <div class="cb">
+        <div class="mat-grid">
+          <div class="mat-box">
+            <div class="mat-title">S (covarianza)</div>
+            <div class="mat-val" id="m_S"></div>
+          </div>
+          <div class="mat-box">
+            <div class="mat-title">W (eigenvect.)</div>
+            <div class="mat-val" id="m_W"></div>
+          </div>
+        </div>
+        <div class="eigen-row" id="eigen_row"></div>
+        <div class="ve-bar-wrap">
+          <div class="ctrl-row" style="margin-bottom:4px;">
+            <span class="ctrl-lbl">Varianza explicada por PC1</span>
+            <span class="ctrl-val" id="ve_val">—</span>
+          </div>
+          <div class="ve-bar-bg">
+            <div class="ve-bar-fill" id="ve_bar" style="background:var(--teal);width:0%;"></div>
+          </div>
+          <div class="ve-labels">
+            <span>0%</span>
+            <span id="ve_pct2" style="color:var(--gold);">PC2: —</span>
+            <span>100%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Right column ── -->
+  <div class="right-col">
+
+    <!-- Plots -->
+    <div class="plots-row">
+      <div class="card">
+        <div class="plot-wrap">
+          <div class="plot-title" id="scatter_title">📍 Datos centrados — nube original</div>
+          <div id="scatter_plot"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="plot-wrap">
+          <div class="plot-title" id="hist_title">📊 Scores en PC1 — distribución</div>
+          <div id="hist_plot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insight bar -->
+    <div class="card">
+      <div class="insight-bar">
+        <div class="step-title" id="ins_title">Paso 1 — Nube de datos centrada</div>
+        <div class="step-desc"  id="ins_desc"></div>
+        <div class="step-formula" id="ins_formula" style="display:none;"></div>
+        <div class="stat-row" id="ins_stats"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const N = 150;
+let RHO = 0.75, S1 = 1.5, S2 = 1.0;
+let currentStep = 0;
+
+let Z1 = [], Z2 = [];
+let DX = [], DY = [];
+let scores1 = [], scores2 = [];
+let reconX = [], reconY = [];
+let l1, l2, w1, w2;   // eigenvalues + eigenvectors
+
+// ══════════════════════════════════════════════
+// STEP DEFINITIONS
+// ══════════════════════════════════════════════
+const STEPS = [
+  {
+    num: 1, icon: '☁',
+    title: 'Nube de datos centrada',
+    short: 'Ver la estructura de los datos',
+    desc: 'Mostramos los datos centrados (media = 0) en el plano X–Y. La nube tiene una forma particular — alargada, circular, inclinada. PCA va a describir esa forma matemáticamente.',
+    formula: '$\\mathbf{X}$ centrada: $x_{ij} \\leftarrow x_{ij} - \\bar{x}_j$',
+    scatter: ['points'],
+    hist: ['scores_hist']
+  },
+  {
+    num: 2, icon: '⬭',
+    title: 'Elipse de covarianza',
+    short: 'La forma de la nube = S',
+    desc: 'La elipse superpuesta es el contorno de nivel de la distribución normal ajustada a los datos. Su forma está completamente determinada por la matriz de covarianza $\\mathbf{S}$. El eje largo de la elipse apunta hacia donde los datos varían más.',
+    formula: '$\\mathbf{S} = \\frac{1}{n-1}\\mathbf{X}^\\top\\mathbf{X}$',
+    scatter: ['points', 'ellipse'],
+    hist: ['scores_hist']
+  },
+  {
+    num: 3, icon: '↗',
+    title: 'Eigenvectores: PC1 y PC2',
+    short: 'Los ejes de la elipse = componentes',
+    desc: 'Resolvemos $\\mathbf{S}\\mathbf{w} = \\lambda\\mathbf{w}$. Los eigenvectores son los ejes de la elipse. PC1 (teal) apunta en la dirección de máxima varianza. PC2 (gold) es perpendicular. Los eigenvalores $\\lambda_1 \\geq \\lambda_2$ son las varianzas en cada dirección.',
+    formula: '$\\mathbf{S} = \\mathbf{W}\\boldsymbol{\\Lambda}\\mathbf{W}^\\top$',
+    scatter: ['points', 'ellipse', 'pc_arrows'],
+    hist: ['scores_hist']
+  },
+  {
+    num: 4, icon: '🔄',
+    title: 'Proyección sobre PC1',
+    short: 'La sombra más informativa',
+    desc: 'Proyectamos cada punto sobre la dirección de PC1: $t_{i1} = \\mathbf{x}_i^\\top \\mathbf{w}_1$. Las líneas grises muestran el "camino" de cada punto hasta su proyección. El score en PC1 es el resumen de ese punto en una sola dimensión.',
+    formula: '$\\mathbf{t}_1 = \\mathbf{X}\\mathbf{w}_1$',
+    scatter: ['points', 'ellipse', 'pc_arrows', 'proj_lines'],
+    hist: ['scores_hist']
+  },
+  {
+    num: 5, icon: '⭐',
+    title: 'Puntos proyectados (sombras)',
+    short: 'Los puntos sobre la línea de PC1',
+    desc: 'Los puntos púrpura son las proyecciones de cada observación sobre PC1. Todos caen sobre la línea de PC1. Esta es la representación 1D de la nube. El histograma (derecha) muestra la distribución de estos scores.',
+    formula: 'Reconstrucción 1D: $\\hat{\\mathbf{x}}_i = t_{i1} \\mathbf{w}_1$',
+    scatter: ['points', 'ellipse', 'pc_arrows', 'proj_lines', 'proj_points'],
+    hist: ['scores_hist', 'scores_line']
+  },
+  {
+    num: 6, icon: '📊',
+    title: 'Varianza explicada',
+    short: '¿Cuánto captura PC1?',
+    desc: 'La proporción de varianza retenida por PC1 es $\\lambda_1 / (\\lambda_1 + \\lambda_2)$. Cuando la correlación es alta, PC1 sola puede capturar el 80–95% de la varianza total. El scree plot (derecha) compara $\\lambda_1$ y $\\lambda_2$.',
+    formula: '$\\text{VE}_1 = \\lambda_1 / \\text{tr}(\\mathbf{S})$',
+    scatter: ['points', 'ellipse', 'pc_arrows', 'proj_points'],
+    hist: ['scree']
+  },
+  {
+    num: 7, icon: '🔁',
+    title: 'Reconstrucción y residuos',
+    short: '¿Cuánto perdemos al comprimir?',
+    desc: 'Los puntos verdes son las reconstrucciones desde PC1 (proyección de vuelta al espacio 2D). Las líneas rojas son los residuos — la información perdida al usar solo PC1. Si PC1 explica el 90%, los residuos son pequeños.',
+    formula: '$\\hat{\\mathbf{X}}_1 = \\mathbf{t}_1 \\mathbf{w}_1^\\top, \\quad \\varepsilon = \\mathbf{X} - \\hat{\\mathbf{X}}_1$',
+    scatter: ['points', 'ellipse', 'pc_arrows', 'recon_points', 'resid_lines'],
+    hist: ['resid_hist']
+  }
+];
+
+// ══════════════════════════════════════════════
+// RNG
+// ══════════════════════════════════════════════
+function randn() {
+  let u, v;
+  do { u = Math.random(); } while (u === 0);
+  do { v = Math.random(); } while (v === 0);
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// ══════════════════════════════════════════════
+// MATH
+// ══════════════════════════════════════════════
+function eig2x2(a, b, c) {
+  const tr = a + c;
+  const disc = Math.sqrt(Math.max(0, (a - c) ** 2 + 4 * b * b));
+  const lam1 = (tr + disc) / 2, lam2 = (tr - disc) / 2;
+  let wx, wy;
+  if (Math.abs(b) > 1e-10) {
+    wx = lam1 - c; wy = b;
+  } else {
+    wx = a >= c ? 1 : 0; wy = a >= c ? 0 : 1;
+  }
+  const norm = Math.sqrt(wx * wx + wy * wy);
+  wx /= norm; wy /= norm;
+  return { l1: lam1, l2: lam2, w1: [wx, wy], w2: [-wy, wx] };
+}
+
+function ellipseXY(scale) {
+  const xs = [], ys = [];
+  const L22 = S2 * Math.sqrt(Math.max(0, 1 - RHO * RHO));
+  for (let i = 0; i <= 130; i++) {
+    const t = 2 * Math.PI * i / 130;
+    const z1 = scale * Math.cos(t), z2 = scale * Math.sin(t);
+    xs.push(S1 * z1);
+    ys.push(RHO * S2 * z1 + L22 * z2);
+  }
+  return { xs, ys };
+}
+
+function computeData() {
+  // Generate from latent normals
+  const L22 = S2 * Math.sqrt(Math.max(0, 1 - RHO * RHO));
+  DX = Z1.map(z => S1 * z);
+  DY = Z1.map((z, i) => RHO * S2 * z + L22 * Z2[i]);
+
+  // Sample covariance
+  const mx = DX.reduce((a, b) => a + b, 0) / N;
+  const my = DY.reduce((a, b) => a + b, 0) / N;
+  const s11 = DX.reduce((a, x) => a + (x - mx) ** 2, 0) / (N - 1);
+  const s12 = DX.reduce((a, x, i) => a + (x - mx) * (DY[i] - my), 0) / (N - 1);
+  const s22 = DY.reduce((a, y) => a + (y - my) ** 2, 0) / (N - 1);
+
+  const eg = eig2x2(s11, s12, s22);
+  l1 = eg.l1; l2 = eg.l2; w1 = eg.w1; w2 = eg.w2;
+
+  // Scores
+  scores1 = DX.map((x, i) => x * w1[0] + DY[i] * w1[1]);
+  scores2 = DX.map((x, i) => x * w2[0] + DY[i] * w2[1]);
+
+  // Reconstruction from PC1
+  reconX = scores1.map(s => s * w1[0]);
+  reconY = scores1.map(s => s * w1[1]);
+}
+
+function initLatent() {
+  Z1 = Array.from({ length: N }, randn);
+  Z2 = Array.from({ length: N }, randn);
+}
+
+// ══════════════════════════════════════════════
+// SCATTER TRACES
+// ══════════════════════════════════════════════
+function buildScatterTraces(active) {
+  const traces = [];
+
+  if (active.includes('points')) {
+    traces.push({
+      type: 'scatter', mode: 'markers',
+      x: DX, y: DY,
+      name: 'Datos',
+      marker: {
+        size: 5, color: 'rgba(0,169,224,0.55)',
+        line: { color: 'rgba(0,169,224,0.8)', width: 0.5 }
+      },
+      hovertemplate: 'x=%{x:.2f}, y=%{y:.2f}<extra></extra>'
+    });
+  }
+
+  if (active.includes('ellipse') && document.getElementById('chk_ellipse').checked) {
+    const ell2 = ellipseXY(Math.sqrt(5.991)); // 95% chi2(2)
+    const ell1 = ellipseXY(Math.sqrt(2.296)); // 68%
+    traces.push({
+      type: 'scatter', mode: 'lines', name: 'Elipse 95%',
+      x: ell2.xs, y: ell2.ys,
+      line: { color: '#E67E22', width: 2, dash: 'dot' }
+    });
+    traces.push({
+      type: 'scatter', mode: 'lines', name: 'Elipse 68%',
+      x: ell1.xs, y: ell1.ys,
+      line: { color: '#E67E22', width: 1, dash: 'dot' }
+    });
+  }
+
+  const axLen = Math.sqrt(l1) * 2.1;
+  const axLen2 = Math.sqrt(l2) * 2.1;
+
+  if (active.includes('pc_arrows')) {
+    // PC1 arrow (scaled by sqrt(l1))
+    traces.push({
+      type: 'scatter', mode: 'lines+markers', name: 'PC1',
+      x: [-w1[0] * axLen, 0, w1[0] * axLen],
+      y: [-w1[1] * axLen, 0, w1[1] * axLen],
+      line: { color: '#00A9E0', width: 3 },
+      marker: { size: [6, 0, 8], symbol: ['circle', 'circle', 'arrow'], color: '#00A9E0' }
+    });
+    // PC2 arrow
+    traces.push({
+      type: 'scatter', mode: 'lines+markers', name: 'PC2',
+      x: [-w2[0] * axLen2, 0, w2[0] * axLen2],
+      y: [-w2[1] * axLen2, 0, w2[1] * axLen2],
+      line: { color: '#B68A35', width: 3 },
+      marker: { size: [6, 0, 8], symbol: ['circle', 'circle', 'arrow'], color: '#B68A35' }
+    });
+    // PC1 label
+    traces.push({
+      type: 'scatter', mode: 'text',
+      x: [w1[0] * axLen * 1.15], y: [w1[1] * axLen * 1.15],
+      text: ['PC1'], textfont: { color: '#00A9E0', size: 12, family: 'Poppins' },
+      showlegend: false, hoverinfo: 'skip'
+    });
+    traces.push({
+      type: 'scatter', mode: 'text',
+      x: [w2[0] * axLen2 * 1.2], y: [w2[1] * axLen2 * 1.2],
+      text: ['PC2'], textfont: { color: '#B68A35', size: 12, family: 'Poppins' },
+      showlegend: false, hoverinfo: 'skip'
+    });
+  }
+
+  if (active.includes('proj_lines')) {
+    // Lines from each point to its projection on PC1
+    const lx = [], ly = [];
+    for (let i = 0; i < N; i++) {
+      lx.push(DX[i], reconX[i], null);
+      ly.push(DY[i], reconY[i], null);
+    }
+    traces.push({
+      type: 'scatter', mode: 'lines', name: 'Proyección',
+      x: lx, y: ly,
+      line: { color: 'rgba(150,150,150,0.35)', width: 0.8 },
+      hoverinfo: 'skip'
+    });
+  }
+
+  if (active.includes('proj_points')) {
+    traces.push({
+      type: 'scatter', mode: 'markers', name: 'Scores PC1',
+      x: reconX, y: reconY,
+      marker: { size: 5, color: '#8E44AD', opacity: 0.75, line: { color: '#8E44AD', width: 0.5 } },
+      hovertemplate: 'score=%{text:.2f}<extra>PC1</extra>',
+      text: scores1.map(s => s.toFixed(2))
+    });
+  }
+
+  if (active.includes('recon_points') && document.getElementById('chk_recon').checked) {
+    traces.push({
+      type: 'scatter', mode: 'markers', name: 'Reconstruidos',
+      x: reconX, y: reconY,
+      marker: { size: 5, color: '#2E933C', opacity: 0.75, line: { color: '#2E933C', width: 0.5 } },
+      hoverinfo: 'skip'
+    });
+  }
+
+  if (active.includes('resid_lines') && document.getElementById('chk_resid').checked) {
+    const rx = [], ry = [];
+    for (let i = 0; i < N; i++) {
+      rx.push(reconX[i], DX[i], null);
+      ry.push(reconY[i], DY[i], null);
+    }
+    traces.push({
+      type: 'scatter', mode: 'lines', name: 'Residuos',
+      x: rx, y: ry,
+      line: { color: 'rgba(192,57,43,0.55)', width: 1 },
+      hoverinfo: 'skip'
+    });
+  }
+
+  // Origin
+  traces.push({
+    type: 'scatter', mode: 'markers', name: 'μ=0',
+    x: [0], y: [0],
+    marker: { size: 9, symbol: 'cross', color: '#051C2C', line: { color: '#fff', width: 1.5 } },
+    hoverinfo: 'name'
+  });
+
+  return traces;
+}
+
+// ══════════════════════════════════════════════
+// HISTOGRAM / SCREE
+// ══════════════════════════════════════════════
+function buildHistTraces(active) {
+  if (active.includes('scree')) {
+    const ve1p = l1 / (l1 + l2) * 100;
+    const ve2p = l2 / (l1 + l2) * 100;
+    return [{
+      type: 'bar', x: ['PC1', 'PC2'], y: [l1, l2],
+      marker: { color: ['#00A9E0', '#B68A35'], opacity: 0.85 },
+      text: [`λ₁=${l1.toFixed(2)}<br>${ve1p.toFixed(0)}%`, `λ₂=${l2.toFixed(2)}<br>${ve2p.toFixed(0)}%`],
+      textposition: 'outside',
+      textfont: { size: 11, family: 'JetBrains Mono, monospace', color: ['#00A9E0', '#B68A35'] },
+      name: 'Eigenvalores'
+    }];
+  }
+
+  const traces = [];
+  const allScores = active.includes('resid_hist')
+    ? DX.map((x, i) => x - reconX[i]) : scores1;
+  const color = active.includes('resid_hist') ? '#C0392B' : '#8E44AD';
+  const lbl   = active.includes('resid_hist') ? 'Residuos' : 'Scores PC1';
+
+  if (active.includes('scores_hist') || active.includes('resid_hist')) {
+    traces.push({
+      type: 'histogram', x: allScores,
+      name: lbl, nbinsx: 20,
+      marker: { color: color + '88', line: { color: color + 'CC', width: 0.8 } },
+      histnorm: 'probability density'
+    });
+  }
+  if (active.includes('scores_line')) {
+    // Normal PDF overlay
+    const mu  = allScores.reduce((a, b) => a + b, 0) / N;
+    const sig = Math.sqrt(allScores.reduce((a, x) => a + (x - mu) ** 2, 0) / (N - 1));
+    const xs  = Array.from({ length: 120 }, (_, k) => mu - 4 * sig + k * 8 * sig / 119);
+    const ys  = xs.map(x => Math.exp(-0.5 * ((x - mu) / sig) ** 2) / (sig * Math.sqrt(2 * Math.PI)));
+    traces.push({ type: 'scatter', mode: 'lines', x: xs, y: ys, name: 'Normal ajustada', line: { color: '#034B6F', width: 2.5 } });
+  }
+  return traces;
+}
+
+// ══════════════════════════════════════════════
+// DRAW
+// ══════════════════════════════════════════════
+const scatterLayout = {
+  margin: { l: 40, r: 10, t: 5, b: 40 },
+  xaxis: { title: 'X₁', zeroline: true, zerolinecolor: '#ddd', gridcolor: '#f0f0f0', tickfont: { size: 10 } },
+  yaxis: { title: 'X₂', zeroline: true, zerolinecolor: '#ddd', gridcolor: '#f0f0f0', scaleanchor: 'x', scaleratio: 1, tickfont: { size: 10 } },
+  plot_bgcolor: '#FAFAFA', paper_bgcolor: '#FFFFFF',
+  legend: { x: 0.01, y: 0.01, bgcolor: 'rgba(255,255,255,0.9)', borderwidth: 1, bordercolor: '#ddd', font: { size: 9 } },
+  hovermode: 'closest',
+  font: { family: 'Poppins, sans-serif', size: 10 }
+};
+
+function getHistLayout(active) {
+  const isScree = active.includes('scree');
+  return {
+    margin: { l: 45, r: 15, t: 5, b: 40 },
+    xaxis: { title: isScree ? 'Componente' : (active.includes('resid_hist') ? 'Residuo' : 'Score PC1'), gridcolor: '#f0f0f0', tickfont: { size: 10 } },
+    yaxis: { title: isScree ? 'Eigenvalor (λ)' : 'Densidad', gridcolor: '#f0f0f0', tickfont: { size: 10 } },
+    plot_bgcolor: '#FAFAFA', paper_bgcolor: '#FFFFFF',
+    legend: { x: 0.55, y: 0.96, bgcolor: 'rgba(255,255,255,0.9)', borderwidth: 1, bordercolor: '#ddd', font: { size: 9 } },
+    font: { family: 'Poppins, sans-serif', size: 10 },
+    bargap: 0.1
+  };
+}
+
+function draw() {
+  const step = STEPS[currentStep];
+  Plotly.react('scatter_plot', buildScatterTraces(step.scatter), scatterLayout, { responsive: true, displayModeBar: false });
+  Plotly.react('hist_plot', buildHistTraces(step.hist), getHistLayout(step.hist), { responsive: true, displayModeBar: false });
+}
+
+// ══════════════════════════════════════════════
+// SIDEBAR UPDATES
+// ══════════════════════════════════════════════
+function updateSidebar() {
+  const s11 = DX.reduce((a, x) => a + x * x, 0) / (N - 1);
+  const s12 = DX.reduce((a, x, i) => a + x * DY[i], 0) / (N - 1);
+  const s22 = DY.reduce((a, y) => a + y * y, 0) / (N - 1);
+
+  document.getElementById('m_S').innerHTML =
+    `⎡${s11.toFixed(2)}  ${s12.toFixed(2)}⎤<br>⎣${s12.toFixed(2)}  ${s22.toFixed(2)}⎦`;
+
+  document.getElementById('m_W').innerHTML =
+    `⎡${w1[0].toFixed(2)}  ${w2[0].toFixed(2)}⎤<br>⎣${w1[1].toFixed(2)}  ${w2[1].toFixed(2)}⎦`;
+
+  const ve1 = l1 / (l1 + l2);
+  const ve2 = l2 / (l1 + l2);
+  document.getElementById('ve_val').textContent = (ve1 * 100).toFixed(1) + '%';
+  document.getElementById('ve_bar').style.width  = (ve1 * 100).toFixed(1) + '%';
+  document.getElementById('ve_pct2').textContent = `PC2: ${(ve2 * 100).toFixed(1)}%`;
+
+  document.getElementById('eigen_row').innerHTML =
+    `<div class="eigen-chip">λ₁=${l1.toFixed(3)}</div>` +
+    `<div class="eigen-chip">λ₂=${l2.toFixed(3)}</div>` +
+    `<div class="eigen-chip">θ=${(Math.atan2(w1[1], w1[0]) * 180 / Math.PI).toFixed(1)}°</div>` +
+    `<div class="eigen-chip">VE₁=${(ve1 * 100).toFixed(0)}%</div>`;
+}
+
+// ══════════════════════════════════════════════
+// STEPPER UI
+// ══════════════════════════════════════════════
+function buildStepper() {
+  const el = document.getElementById('stepper');
+  el.innerHTML = '';
+  STEPS.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step-item' + (i === currentStep ? ' active' : '') + (i < currentStep ? ' done' : '');
+    div.innerHTML = `<div class="step-num">${i < currentStep ? '✓' : s.num}</div>
+      <div class="step-text"><strong>${s.icon} ${s.title}</strong><span>${s.short}</span></div>`;
+    div.addEventListener('click', () => { currentStep = i; refresh(); });
+    el.appendChild(div);
+  });
+  document.getElementById('btn_prev').disabled = currentStep === 0;
+  document.getElementById('btn_next').disabled = currentStep === STEPS.length - 1;
+}
+
+function updateInsightBar() {
+  const s = STEPS[currentStep];
+  document.getElementById('ins_title').textContent  = `Paso ${s.num} — ${s.title}`;
+  document.getElementById('ins_desc').textContent   = s.desc;
+
+  const fEl = document.getElementById('ins_formula');
+  fEl.style.display = 'block';
+  fEl.textContent = s.formula;
+  if (window.renderMathInElement) renderMathInElement(fEl, { delimiters: [{ left: '$', right: '$', display: false }] });
+
+  // Stats row
+  const ve1 = l1 / (l1 + l2);
+  const resNorm = Math.sqrt(DX.reduce((a, x, i) => a + (x - reconX[i]) ** 2 + (DY[i] - reconY[i]) ** 2, 0));
+  const datNorm = Math.sqrt(DX.reduce((a, x, i) => a + x * x + DY[i] * DY[i], 0));
+
+  document.getElementById('ins_stats').innerHTML = `
+    <div class="stat-chip"><span class="sv teal">${(ve1 * 100).toFixed(1)}%</span><span class="sl">VE PC1</span></div>
+    <div class="stat-chip"><span class="sv gold">${((1 - ve1) * 100).toFixed(1)}%</span><span class="sl">VE PC2</span></div>
+    <div class="stat-chip"><span class="sv green">${l1.toFixed(2)}</span><span class="sl">λ₁</span></div>
+    <div class="stat-chip"><span class="sv orange">${l2.toFixed(2)}</span><span class="sl">λ₂</span></div>
+    <div class="stat-chip"><span class="sv" style="color:#5DEBA0;">${((1 - resNorm / datNorm) * 100).toFixed(1)}%</span><span class="sl">Info retenida</span></div>
+  `;
+
+  const scatterTitles = [
+    '☁ Datos centrados — nube original',
+    '⬭ Nube + elipse de covarianza',
+    '↗ Eigenvectores: PC1 y PC2',
+    '🔄 Proyección sobre PC1',
+    '⭐ Puntos proyectados (sombras en PC1)',
+    '📊 Varianza explicada — scree',
+    '🔁 Reconstrucción desde PC1 + residuos'
+  ];
+  const histTitles = [
+    '📊 Scores en PC1',
+    '📊 Scores en PC1',
+    '📊 Scores en PC1',
+    '📊 Scores en PC1',
+    '📊 Distribución de scores + curva normal',
+    '📊 Scree plot — eigenvalores',
+    '📊 Distribución de residuos'
+  ];
+  document.getElementById('scatter_title').textContent = scatterTitles[currentStep];
+  document.getElementById('hist_title').textContent    = histTitles[currentStep];
+}
+
+function refresh() {
+  buildStepper();
+  updateInsightBar();
+  updateSidebar();
+  draw();
+}
+
+// ══════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════
+function bindSlider(id, valId, decimals, cb) {
+  const el = document.getElementById(id);
+  const vl = document.getElementById(valId);
+  vl.textContent = parseFloat(el.value).toFixed(decimals);
+  el.addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    vl.textContent = v.toFixed(decimals);
+    cb(v);
+    computeData(); refresh();
+  });
+}
+
+function applyPreset(rho, s1, s2) {
+  RHO = rho; S1 = s1; S2 = s2;
+  ['sl_rho', 'sl_s1', 'sl_s2'].forEach((id, i) => {
+    document.getElementById(id).value = [rho, s1, s2][i];
+  });
+  document.getElementById('val_rho').textContent = rho.toFixed(2);
+  document.getElementById('val_s1').textContent  = s1.toFixed(2);
+  document.getElementById('val_s2').textContent  = s2.toFixed(2);
+  computeData(); refresh();
+}
+
+function setupControls() {
+  bindSlider('sl_rho', 'val_rho', 2, v => { RHO = v; });
+  bindSlider('sl_s1',  'val_s1',  2, v => { S1  = v; });
+  bindSlider('sl_s2',  'val_s2',  2, v => { S2  = v; });
+
+  document.getElementById('btn_regen').addEventListener('click', () => {
+    initLatent(); computeData(); refresh();
+  });
+  document.getElementById('btn_prev').addEventListener('click', () => {
+    if (currentStep > 0) { currentStep--; refresh(); }
+  });
+  document.getElementById('btn_next').addEventListener('click', () => {
+    if (currentStep < STEPS.length - 1) { currentStep++; refresh(); }
+  });
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyPreset(
+      parseFloat(btn.dataset.rho), parseFloat(btn.dataset.s1), parseFloat(btn.dataset.s2)
+    ));
+  });
+
+  ['chk_ellipse', 'chk_resid', 'chk_recon'].forEach(id => {
+    document.getElementById(id).addEventListener('change', draw);
+  });
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setupControls();
+  initLatent();
+  computeData();
+  refresh();
+});
+</script>
+</body>
+</html>

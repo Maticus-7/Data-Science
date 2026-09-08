@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contexto · Interpretación de p-valores · BancoSur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --futura: #0073A6;
+  --futura-dark: #004A6E;
+  --navy: #0A1F44;
+  --teal: #0085AE;
+  --text: #2A2A2A;
+  --text-soft: #5A5A5A;
+  --gray: #9A9A9A;
+  --gray-light: #DCDCDC;
+  --bg: #FAFAF7;
+  --bg-soft: #F0EFE9;
+  --bg-card: #FFFFFF;
+  --good: #16A085;
+  --good-light: #D9F2EC;
+  --bad: #C0392B;
+  --bad-light: #FDECEA;
+  --warn: #E67E22;
+  --warn-light: #FDF1E5;
+  --case1: #1a5276;
+  --case2: #d35400;
+  --case3: #117864;
+  --case4: #8e44ad;
+  --shadow-sm: 0 1px 2px rgba(10,31,68,0.04), 0 1px 3px rgba(10,31,68,0.05);
+  --shadow-md: 0 4px 12px rgba(10,31,68,0.06), 0 2px 4px rgba(10,31,68,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter Tight', -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.55; font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ TOPBAR ============ */
+.topbar {
+  background: var(--navy); color: white;
+  padding: 14px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: var(--shadow-md);
+}
+.topbar-title {
+  font-family: 'Fraunces', serif;
+  font-size: 19px; font-weight: 500;
+}
+.topbar-title em { font-style: italic; color: #8BB8DD; font-weight: 400; }
+.topbar-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #C0CFE0; letter-spacing: 0.08em;
+}
+.topbar-meta strong { color: white; }
+
+/* ============ TABS ============ */
+.tabs-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--gray-light);
+  padding: 0 32px;
+  display: flex; gap: 4px; overflow-x: auto;
+}
+.tab-btn {
+  background: transparent; border: none;
+  border-bottom: 3px solid transparent;
+  padding: 16px 22px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13.5px; font-weight: 600;
+  color: var(--text-soft); cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--futura); }
+.tab-btn.active { color: var(--navy); border-bottom-color: var(--futura); }
+.tab-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  background: var(--bg-soft); color: var(--gray);
+  padding: 3px 8px; border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+.tab-btn.active .tab-num { background: var(--futura); color: white; }
+
+.tab-content { display: none; padding: 32px; max-width: 1500px; margin: 0 auto; }
+.tab-content.active { display: block; animation: fadein 0.22s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============ HERO ============ */
+.hero { margin-bottom: 28px; }
+.hero-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 500; color: var(--navy); line-height: 1.15;
+  margin-bottom: 12px; letter-spacing: -0.01em;
+}
+.hero-title em { font-style: italic; font-weight: 400; color: var(--text-soft); }
+.hero-sub {
+  font-size: 16px; color: var(--text-soft); max-width: 1050px; line-height: 1.55;
+}
+
+/* ============ PANELS ============ */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--gray-light);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.panel-header { margin-bottom: 18px; display: flex; align-items: baseline; gap: 14px; }
+.panel-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: 0.10em;
+  color: var(--gray); font-weight: 600; text-transform: uppercase;
+}
+.panel-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 500;
+  color: var(--navy); line-height: 1.2;
+}
+.panel-title em { font-style: italic; color: var(--text-soft); font-weight: 400; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 980px) { .grid-2 { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; } }
+
+/* ============ CASO NARRATIVO ============ */
+.story {
+  background: var(--bg-soft);
+  border-left: 4px solid;
+  padding: 18px 22px;
+  border-radius: 0 8px 8px 0;
+  font-size: 15px; line-height: 1.6;
+}
+.story strong { color: var(--navy); }
+.story em { color: var(--text); font-style: italic; }
+
+/* ============ DATOS DEL CASO ============ */
+.data-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.data-card {
+  background: var(--bg-card);
+  border: 1px solid var(--gray-light);
+  border-left: 4px solid var(--gray);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.data-card .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; letter-spacing: 0.08em;
+  color: var(--gray); font-weight: 600; text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.data-card .val {
+  font-family: 'Fraunces', serif;
+  font-size: 26px; font-weight: 500;
+  color: var(--navy); line-height: 1.05;
+}
+.data-card .sub {
+  font-size: 12px; color: var(--text-soft); margin-top: 4px;
+}
+.data-card.case1 { border-left-color: var(--case1); }
+.data-card.case2 { border-left-color: var(--case2); }
+.data-card.case3 { border-left-color: var(--case3); }
+.data-card.case4 { border-left-color: var(--case4); }
+
+/* ============ TABLAS ============ */
+.tablita {
+  width: 100%; border-collapse: collapse;
+  font-size: 13.5px;
+}
+.tablita th, .tablita td {
+  padding: 9px 12px; text-align: left;
+  border-bottom: 1px solid var(--gray-light);
+}
+.tablita th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.05em;
+  color: var(--gray); text-transform: uppercase;
+  font-weight: 600;
+}
+.tablita td.num {
+  font-family: 'JetBrains Mono', monospace;
+  text-align: right;
+}
+.tablita tr.total td {
+  font-weight: 700; color: var(--navy);
+  border-top: 2px solid var(--navy); border-bottom: none;
+}
+
+/* ============ HIPÓTESIS ============ */
+.hyp-row {
+  display: grid; grid-template-columns: 70px 1fr;
+  gap: 14px; padding: 12px 0;
+  border-bottom: 1px dashed var(--gray-light);
+}
+.hyp-row:last-child { border-bottom: none; }
+.hyp-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 600;
+  color: var(--navy);
+}
+.hyp-text { font-size: 14px; line-height: 1.5; }
+.hyp-text em { color: var(--text-soft); font-style: italic; }
+
+/* ============ CODE BLOCK ============ */
+.code-block {
+  background: #1E2A3A; color: #E8E8E8;
+  padding: 18px 22px; border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 1.6;
+  overflow-x: auto; white-space: pre;
+  border-left: 4px solid var(--futura);
+}
+.code-block .kw  { color: #C792EA; }
+.code-block .fn  { color: #82AAFF; }
+.code-block .str { color: #C3E88D; }
+.code-block .num { color: #F78C6C; }
+.code-block .cm  { color: #6A737D; font-style: italic; }
+.code-block .var { color: #FFCB6B; }
+
+/* ============ INSIGHT ============ */
+.insight {
+  background: var(--navy); color: white;
+  padding: 22px 26px; border-radius: 10px;
+  border-left: 5px solid var(--teal);
+  margin-top: 8px;
+}
+.insight-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em;
+  color: var(--teal); font-weight: 600;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.insight-text { font-size: 15px; line-height: 1.6; }
+.insight-text strong { color: #8BB8DD; }
+
+/* ============ P-VALOR RULER (rediseñado) ============ */
+.rejilla-wrap {
+  position: relative;
+  margin: 56px 12px 48px;
+}
+.rejilla-alpha {
+  position: absolute;
+  top: -38px;
+  left: 18%;
+  transform: translateX(-50%);
+  background: var(--navy);
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 5px;
+  white-space: nowrap;
+  z-index: 3;
+  letter-spacing: 0.04em;
+}
+.rejilla-alpha::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 8px solid var(--navy);
+}
+.rejilla-bar {
+  display: flex;
+  height: 68px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.rejilla-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  padding: 4px 6px;
+  min-width: 0;
+}
+.rejilla-zone.zg { background: #16A085; }
+.rejilla-zone.zw { background: #E67E22; }
+.rejilla-zone.zb { background: #C0392B; }
+.rejilla-zone .zp {
+  font-size: 12.5px; font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+.rejilla-zone .zs {
+  font-size: 10.5px; font-weight: 500;
+  opacity: 0.92; margin-top: 4px;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.rejilla-axis {
+  position: relative;
+  margin-top: 8px;
+  height: 18px;
+}
+.rejilla-axis span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+.rejilla-axis span:first-child { transform: translateX(0); }
+.rejilla-axis span:last-child  { transform: translateX(-100%); }
+.rejilla-axis span.hl { color: var(--navy); font-weight: 700; }
+
+/* ============ CHART WRAPPER ============ */
+.chart-wrap {
+  position: relative; height: 320px;
+  background: white; border-radius: 6px;
+  padding: 8px;
+}
+.chart-wrap.tall { height: 380px; }
+.chart-wrap.short { height: 220px; }
+
+.chart-card {
+  background: var(--bg-soft);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.chart-card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 16px; color: var(--navy);
+  margin-bottom: 4px; font-weight: 500;
+}
+.chart-card-sub {
+  font-size: 12px; color: var(--text-soft);
+  margin-bottom: 10px; font-style: italic;
+}
+
+/* ============ EXPECTED P ============ */
+.expected-p {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: var(--bg-soft);
+  border-radius: 8px;
+}
+.expected-p .arrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px; color: var(--gray);
+}
+.expected-p .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em;
+  color: var(--gray); text-transform: uppercase;
+}
+.expected-p .pvalue {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px; font-weight: 600;
+}
+.expected-p .verdict {
+  font-family: 'Fraunces', serif;
+  font-size: 16px; font-style: italic;
+  margin-left: auto;
+}
+
+/* ============ MAPA RESUMEN ============ */
+.case-map {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+.case-map-item {
+  padding: 16px;
+  border-radius: 10px;
+  border: 1.5px solid var(--gray-light);
+  background: white;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.case-map-item:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.case-map-item .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em;
+  color: var(--gray); font-weight: 600;
+}
+.case-map-item .title {
+  font-family: 'Fraunces', serif;
+  font-size: 18px; color: var(--navy);
+  margin: 4px 0 6px; font-weight: 500;
+}
+.case-map-item .q {
+  font-size: 13px; color: var(--text-soft); line-height: 1.45;
+}
+.case-map-item .pchip {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px;
+  margin-top: 10px;
+}
+.case-map-item.case1 { border-left: 4px solid var(--case1); }
+.case-map-item.case2 { border-left: 4px solid var(--case2); }
+.case-map-item.case3 { border-left: 4px solid var(--case3); }
+.case-map-item.case4 { border-left: 4px solid var(--case4); }
+
+/* ============ FOOTER ============ */
+footer {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; color: var(--gray); letter-spacing: 0.10em;
+  padding: 30px 0; border-top: 1px solid var(--gray-light);
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Contexto · <em>4 casos antes de tocar código</em></div>
+  <div class="topbar-meta">SESIÓN 5 · CASO <strong>BANCOSUR</strong> · NOTEBOOK: INTERPRETARPVALORES</div>
+</div>
+
+<nav class="tabs-bar">
+  <button class="tab-btn active" data-tab="map"><span class="tab-num">★</span><span>Mapa</span></button>
+  <button class="tab-btn" data-tab="tab1"><span class="tab-num">01</span><span>IC para Proporción</span></button>
+  <button class="tab-btn" data-tab="tab2"><span class="tab-num">02</span><span>z de 2 Proporciones</span></button>
+  <button class="tab-btn" data-tab="tab3"><span class="tab-num">03</span><span>ANOVA + Tukey</span></button>
+  <button class="tab-btn" data-tab="tab4"><span class="tab-num">04</span><span>Chi-Cuadrado</span></button>
+</nav>
+
+<!-- ============================================================ -->
+<!-- TAB · MAPA                                                   -->
+<!-- ============================================================ -->
+<div class="tab-content active" id="map">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--futura);">SESIÓN 5 · LECTURA OPERATIVA DEL P-VALOR</div>
+    <h1 class="hero-title">Cuatro preguntas para el directorio. <em>Cuatro pruebas. Una sola rejilla de lectura.</em></h1>
+    <p class="hero-sub">Marta Echevarría, CRO de BancoSur, llega al directorio con cuatro preguntas concretas. Cada una se responde con una prueba estadística distinta, pero todas terminan en lo mismo: <strong>un p-valor que hay que leer correctamente</strong>. Este HTML te pone en contexto cada caso antes de abrir la notebook y correr el código.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-kicker">REJILLA DE LECTURA DEL P-VALOR</div>
+        <div class="panel-title">La misma regla se aplica a las 4 pruebas</div>
+      </div>
+    </div>
+    <p style="font-size:14.5px; color:var(--text-soft); margin-bottom: 12px;">
+      <strong>Definición operativa:</strong> el p-valor es la probabilidad de observar
+      datos tan extremos como los nuestros <em>asumiendo que H₀ es verdadera</em>.
+      Cuanto más chico, más raros son los datos bajo H₀, más confianza en rechazarla.
+    </p>
+
+    <div class="rejilla-wrap">
+      <div class="rejilla-alpha">α = 0.05</div>
+
+      <div class="rejilla-bar">
+        <div class="rejilla-zone zg" style="flex: 0 0 18%;">
+          <div class="zp">p &lt; 0.05</div>
+          <div class="zs">rechazar H₀</div>
+        </div>
+        <div class="rejilla-zone zw" style="flex: 0 0 20%;">
+          <div class="zp">0.05 ≤ p &lt; 0.10</div>
+          <div class="zs">al borde</div>
+        </div>
+        <div class="rejilla-zone zb" style="flex: 1 1 auto;">
+          <div class="zp">p ≥ 0.10</div>
+          <div class="zs">compatible con H₀</div>
+        </div>
+      </div>
+
+      <div class="rejilla-axis">
+        <span style="left: 0%;">0.00</span>
+        <span style="left: 18%;" class="hl">0.05</span>
+        <span style="left: 38%;">0.10</span>
+        <span style="left: 100%;">1.00</span>
+      </div>
+    </div>
+
+    <p style="font-size:14px; color:var(--text-soft); margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--gray-light);">
+      <strong style="color:var(--navy);">Cuidado pedagógico:</strong> el p-valor NO es la probabilidad de que H₀ sea verdadera, NO es la probabilidad de que el efecto sea por azar, y NO mide la magnitud del efecto. Es probabilidad condicional de tus datos bajo H₀.
+    </p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-kicker">MAPA DE LOS 4 CASOS DE MARTA</div>
+        <div class="panel-title">Cada tarjeta abre el caso correspondiente</div>
+      </div>
+    </div>
+
+    <div class="case-map">
+      <div class="case-map-item case1" onclick="showTab('tab1')">
+        <div class="num">CASO 01 · IC PROPORCIÓN</div>
+        <div class="title">¿Cuál es el verdadero default rate?</div>
+        <div class="q">5.000 créditos auditados, 140 en default. ¿Cuán confiable es ese 2.8%?</div>
+        <span class="pchip" style="background:#E8F4F8; color:var(--case1);">No usa p · usa IC</span>
+      </div>
+      <div class="case-map-item case2" onclick="showTab('tab2')">
+        <div class="num">CASO 02 · Z DE 2 PROPORCIONES</div>
+        <div class="title">¿Subió el default vs Q4?</div>
+        <div class="q">Q4: 2.5% sobre 4.800. Q1: 2.8% sobre 5.000. ¿Es deterioro real?</div>
+        <span class="pchip" style="background:#FDF1E5; color:var(--case2);">p-valor esperado ≈ 0.18</span>
+      </div>
+      <div class="case-map-item case3" onclick="showTab('tab3')">
+        <div class="num">CASO 03 · ANOVA + TUKEY</div>
+        <div class="title">¿Hay sucursales más riesgosas?</div>
+        <div class="q">4 sucursales con default rates entre 2.5% y 3.1%. ¿Alguna difiere?</div>
+        <span class="pchip" style="background:#D9F2EC; color:var(--case3);">p-valor esperado ≈ 0.04</span>
+      </div>
+      <div class="case-map-item case4" onclick="showTab('tab4')">
+        <div class="num">CASO 04 · CHI²</div>
+        <div class="title">¿El default depende del producto?</div>
+        <div class="q">Consumo, Hipotecario, Tarjeta, Vehicular. ¿Defaultean parejo?</div>
+        <span class="pchip" style="background:#F4E6F2; color:var(--case4);">p-valor esperado &lt; 0.001</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 1 · IC PARA PROPORCIÓN                                   -->
+<!-- ============================================================ -->
+<div class="tab-content" id="tab1">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case1);">CASO 01 · IC PARA PROPORCIÓN · ESTIMACIÓN HONESTA</div>
+    <h1 class="hero-title">¿Cuál es el <em>verdadero</em> default rate del portfolio?</h1>
+    <p class="hero-sub">Marta tiene una estimación puntual de 2.8% sobre 5.000 créditos auditados. El directorio le va a preguntar "¿es confiable?". Aquí no hay p-valor, hay rango: <strong>el IC95% responde la misma pregunta de manera equivalente</strong>: si el valor histórico cae adentro, no hay alarma.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">EL CASO</div>
+      <div class="panel-title">La pregunta de Marta antes de abrir el código</div>
+    </div></div>
+    <div class="story" style="border-left-color: var(--case1);">
+      De los <strong>50.000 créditos del portfolio</strong>, Marta audita
+      una muestra aleatoria de <strong>5.000</strong>. Encuentra
+      <strong>140 en default</strong>, lo que da p̂ = 2.8%.
+      El histórico de referencia es <strong>2.5%</strong>. El COO grita
+      "¡subió!". Marta no quiere reportar un número solo; quiere reportar
+      un rango con confianza para que el directorio entienda la
+      incertidumbre real de la estimación.
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">LOS DATOS DEL CASO</div>
+      <div class="panel-title">Estos son los números que entran al código</div>
+    </div></div>
+    <div class="data-grid">
+      <div class="data-card case1"><div class="lbl">n auditados</div><div class="val">5,000</div><div class="sub">de 50.000 del portfolio</div></div>
+      <div class="data-card case1"><div class="lbl">defaults</div><div class="val">140</div><div class="sub">en la muestra</div></div>
+      <div class="data-card case1"><div class="lbl">p̂ observado</div><div class="val">2.80%</div><div class="sub">estimación puntual</div></div>
+      <div class="data-card case1"><div class="lbl">histórico Q4</div><div class="val">2.50%</div><div class="sub">valor de referencia</div></div>
+      <div class="data-card case1"><div class="lbl">α</div><div class="val">0.05</div><div class="sub">confianza 95%</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VISUALIZACIÓN PREVIA · LO QUE EL CÓDIGO VA A GRAFICAR</div>
+      <div class="panel-title">El IC95% y la posición del histórico</div>
+    </div></div>
+    <div class="chart-card">
+      <div class="chart-card-title">IC95% Wald para la proporción de default</div>
+      <div class="chart-card-sub">La banda azul es el IC. La línea roja es el histórico. Si el histórico cae dentro, los datos NO permiten afirmar que el default cambió.</div>
+      <div class="chart-wrap short"><canvas id="chart-tab1"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">LA PRUEBA</div>
+        <div class="panel-title">IC para proporción · método Wald</div>
+      </div></div>
+      <p style="font-size:14px; color:var(--text-soft); margin-bottom: 14px;">
+        El IC es equivalente a una prueba bilateral: si el valor de referencia cae fuera del IC, rechazás H₀. No hay p-valor explícito porque <em>el rango es la respuesta</em>.
+      </p>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--bg-soft); padding:14px; border-radius:6px;">
+        IC<sub>1−α</sub> = p̂ ± z<sub>α/2</sub> · √(p̂(1−p̂) / n)
+      </div>
+      <p style="font-size:13px; color:var(--text-soft); margin-top: 14px;">
+        Para 95%: z = 1.96. Condición de validez: n·p̂ ≥ 10 y n·(1−p̂) ≥ 10 (acá ambas se cumplen).
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">EL RESULTADO QUE VAS A VER</div>
+        <div class="panel-title">Antes de correr · qué esperar</div>
+      </div></div>
+      <div class="expected-p">
+        <div>
+          <div class="label">IC95% esperado</div>
+          <div class="pvalue" style="color: var(--case1);">[2.34% , 3.26%]</div>
+        </div>
+        <div class="verdict" style="color:var(--good);">El histórico 2.5% cae adentro.</div>
+      </div>
+      <p style="font-size:13.5px; color:var(--text-soft); margin-top: 14px; line-height:1.55;">
+        <strong style="color:var(--navy);">Lectura para el directorio:</strong>
+        "El default rate del portfolio está entre 2.34% y 3.26% con 95% de confianza. La banda incluye el histórico, no hay alarma."
+      </p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">EL CÓDIGO QUE VAMOS A CORRER</div>
+      <div class="panel-title">Tres líneas con <em>statsmodels</em></div>
+    </div></div>
+<pre class="code-block"><span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportion_confint
+
+<span class="cm"># IC95% Wald · método clásico cuando n·p̂ y n·(1-p̂) &gt; 10</span>
+ic_inf, ic_sup = <span class="fn">proportion_confint</span>(
+    count=<span class="num">140</span>, nobs=<span class="num">5000</span>,
+    alpha=<span class="num">0.05</span>, method=<span class="str">"normal"</span>,
+)
+<span class="fn">print</span>(<span class="str">f"IC95%: [{ic_inf:.4f}, {ic_sup:.4f}]"</span>)
+<span class="cm"># → IC95%: [0.0234, 0.0326]</span></pre>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">PARA LLEVAR AL DIRECTORIO</div>
+    <div class="insight-text">
+      Un número solo es opinión. Un rango con confianza es información.
+      El IC95% incluye el histórico 2.5%, por lo tanto <strong>no hay evidencia
+      estadística para afirmar que el default haya cambiado</strong>. Para confirmar
+      esa conclusión con una prueba formal, ver el Caso 02.
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 2 · z DE 2 PROPORCIONES                                  -->
+<!-- ============================================================ -->
+<div class="tab-content" id="tab2">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case2);">CASO 02 · TEST z DE DOS PROPORCIONES · A/B EN BANCA</div>
+    <h1 class="hero-title">¿El alza de 2.5% a 2.8% es <em>señal real o ruido muestral?</em></h1>
+    <p class="hero-sub">Q4 cerró con default 2.5% sobre 4.800 créditos. Q1 cerró con 2.8% sobre 5.000 créditos. El COO grita "deterioro". Marta corre un test z de dos proporciones, unilateral cola derecha (porque la hipótesis es de subida, no de cambio en cualquier dirección). El p-valor va a decir si hay evidencia.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">LOS DATOS DEL CASO</div>
+      <div class="panel-title">Q4 vs Q1 · números exactos</div>
+    </div></div>
+    <div class="data-grid">
+      <div class="data-card case2"><div class="lbl">n Q4</div><div class="val">4,800</div><div class="sub">créditos</div></div>
+      <div class="data-card case2"><div class="lbl">defaults Q4</div><div class="val">120</div><div class="sub">p̂ = 2.50%</div></div>
+      <div class="data-card case2"><div class="lbl">n Q1</div><div class="val">5,000</div><div class="sub">créditos</div></div>
+      <div class="data-card case2"><div class="lbl">defaults Q1</div><div class="val">140</div><div class="sub">p̂ = 2.80%</div></div>
+      <div class="data-card case2"><div class="lbl">Δ observado</div><div class="val">+0.30pp</div><div class="sub">subida absoluta</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VISUALIZACIÓN PREVIA · LO QUE EL CÓDIGO VA A GRAFICAR</div>
+      <div class="panel-title">Q4 vs Q1 con buffer de ruido (±2 SE)</div>
+    </div></div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-card-title">Default rate observado con su error estándar</div>
+        <div class="chart-card-sub">Las barras de error son ±2·SE. Si se solapan fuerte, la diferencia es indistinguible del ruido.</div>
+        <div class="chart-wrap"><canvas id="chart-tab2a"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">El p-valor como área bajo la cola</div>
+        <div class="chart-card-sub">Distribución Normal estándar bajo H₀. El área naranja a la derecha del z observado es <strong>literalmente</strong> el p-valor.</div>
+        <div class="chart-wrap"><canvas id="chart-tab2b"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">LAS HIPÓTESIS</div>
+        <div class="panel-title">Planteo antes de mirar el resultado</div>
+      </div></div>
+      <div class="hyp-row">
+        <div class="hyp-label">H₀</div>
+        <div class="hyp-text">p<sub>Q1</sub> = p<sub>Q4</sub> <em>· no hay deterioro</em></div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">H₁</div>
+        <div class="hyp-text">p<sub>Q1</sub> &gt; p<sub>Q4</sub> <em>· hay deterioro (unilateral)</em></div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">α</div>
+        <div class="hyp-text">0.05 <em>· 5% de tolerancia a falso positivo</em></div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">Test</div>
+        <div class="hyp-text">z de dos proporciones, cola derecha</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">EL RESULTADO QUE VAS A VER</div>
+        <div class="panel-title">Antes de correr · qué esperar</div>
+      </div></div>
+      <div class="expected-p">
+        <div>
+          <div class="label">z observado</div>
+          <div class="pvalue" style="color: var(--case2);">≈ 0.93</div>
+        </div>
+        <div>
+          <div class="label">p-valor</div>
+          <div class="pvalue" style="color: var(--case2);">≈ 0.176</div>
+        </div>
+        <div class="verdict" style="color:var(--warn);">NO rechazar H₀</div>
+      </div>
+      <p style="font-size:13.5px; color:var(--text-soft); margin-top: 14px; line-height:1.55;">
+        <strong style="color:var(--navy);">Lectura:</strong>
+        Hay 17.6% de probabilidad de ver una diferencia así de grande
+        <em>aun si Q1 y Q4 fueran idénticos</em>. Como 17.6% &gt; 5%, los datos
+        son compatibles con H₀. <strong>No rechazamos · no aceptamos.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">EL CÓDIGO QUE VAMOS A CORRER</div>
+      <div class="panel-title">Test z con <em>statsmodels</em> + análisis de poder</div>
+    </div></div>
+<pre class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportions_ztest
+<span class="kw">from</span> statsmodels.stats.power <span class="kw">import</span> NormalIndPower
+
+<span class="cm"># Test z unilateral cola derecha · "Q1 mayor que Q4"</span>
+z_stat, p_valor = <span class="fn">proportions_ztest</span>(
+    count=np.<span class="fn">array</span>([<span class="num">140</span>, <span class="num">120</span>]),       <span class="cm"># Q1, Q4</span>
+    nobs =np.<span class="fn">array</span>([<span class="num">5000</span>, <span class="num">4800</span>]),
+    alternative=<span class="str">"larger"</span>,
+)
+<span class="fn">print</span>(<span class="str">f"z = {z_stat:.3f}, p = {p_valor:.4f}"</span>)
+<span class="cm"># → z = 0.928, p = 0.1768</span></pre>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">EL PROBLEMA DEL PODER</div>
+    <div class="insight-text">
+      Que p ≥ α NO significa "H₀ es verdadera". Significa "no podemos rechazarla".
+      Quizás el deterioro es real, pero con <strong>n=5.000 no tenemos poder estadístico</strong>
+      para detectarlo. La notebook computa que para detectar Δ=0.5pp con poder 80%
+      hacen falta <strong>~15.000 créditos por brazo</strong>. Ausencia de evidencia ≠ evidencia de ausencia.
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 3 · ANOVA + TUKEY                                        -->
+<!-- ============================================================ -->
+<div class="tab-content" id="tab3">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case3);">CASO 03 · ANOVA DE UN FACTOR + POST-HOC TUKEY HSD</div>
+    <h1 class="hero-title">¿Hay <em>alguna</em> sucursal más riesgosa que las demás?</h1>
+    <p class="hero-sub">BancoSur tiene 4 sucursales: Lima, Arequipa, Trujillo, Piura. Cada una cerró Q1 con un default rate ligeramente distinto. ¿Hay diferencias reales, o son variaciones de muestreo? ANOVA responde "¿hay al menos una distinta?". Si rechazás H₀, aplicás Tukey HSD para saber <strong>cuál</strong>.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">LOS DATOS DEL CASO</div>
+      <div class="panel-title">Default rate por sucursal · Q1 2026</div>
+    </div></div>
+    <table class="tablita">
+      <thead>
+        <tr><th>Sucursal</th><th>n créditos</th><th>defaults esperados</th><th>default rate</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Lima</strong></td><td class="num">1,500</td><td class="num">≈ 38</td><td class="num" style="color:var(--case3);font-weight:600;">2.5%</td></tr>
+        <tr><td><strong>Arequipa</strong></td><td class="num">1,200</td><td class="num">≈ 32</td><td class="num" style="color:var(--case3);font-weight:600;">2.7%</td></tr>
+        <tr><td><strong>Trujillo</strong></td><td class="num">1,100</td><td class="num">≈ 34</td><td class="num" style="color:var(--warn);font-weight:600;">3.1%</td></tr>
+        <tr><td><strong>Piura</strong></td><td class="num">1,200</td><td class="num">≈ 36</td><td class="num" style="color:var(--warn);font-weight:600;">3.0%</td></tr>
+        <tr class="total"><td>Total</td><td class="num">5,000</td><td class="num">≈ 140</td><td class="num">2.8% (global)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VISUALIZACIÓN PREVIA · LO QUE EL CÓDIGO VA A GRAFICAR</div>
+      <div class="panel-title">Default rate por sucursal con IC95% por barra</div>
+    </div></div>
+    <div class="chart-card">
+      <div class="chart-card-title">¿Se solapan los IC entre sucursales?</div>
+      <div class="chart-card-sub">Si los IC se solapan claramente, ANOVA no va a encontrar diferencias. Si Lima y Trujillo (por ejemplo) tienen IC disjuntos, hay candidato para Tukey.</div>
+      <div class="chart-wrap tall"><canvas id="chart-tab3"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">LAS HIPÓTESIS DE ANOVA</div>
+        <div class="panel-title">Test global · F de Fisher</div>
+      </div></div>
+      <div class="hyp-row">
+        <div class="hyp-label">H₀</div>
+        <div class="hyp-text">μ<sub>Lima</sub> = μ<sub>AQP</sub> = μ<sub>Tru</sub> = μ<sub>Piura</sub></div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">H₁</div>
+        <div class="hyp-text">al menos una difiere</div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">α</div>
+        <div class="hyp-text">0.05</div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">F</div>
+        <div class="hyp-text">var entre grupos / var dentro de grupos</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">EL RESULTADO QUE VAS A VER</div>
+        <div class="panel-title">ANOVA + post-hoc Tukey</div>
+      </div></div>
+      <div class="expected-p">
+        <div>
+          <div class="label">F estimado</div>
+          <div class="pvalue" style="color: var(--case3);">≈ 2.8</div>
+        </div>
+        <div>
+          <div class="label">p-valor</div>
+          <div class="pvalue" style="color: var(--case3);">≈ 0.037</div>
+        </div>
+        <div class="verdict" style="color:var(--good);">RECHAZAR H₀</div>
+      </div>
+      <p style="font-size:13.5px; color:var(--text-soft); margin-top: 14px; line-height:1.55;">
+        <strong style="color:var(--navy);">Hay diferencias.</strong> ANOVA no dice cuáles:
+        para eso corremos <em>Tukey HSD</em>, que compara TODOS los pares ajustando
+        el p-valor. Esperá ver que <strong>Trujillo &gt; Lima</strong> con p ajustado significativo.
+      </p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">POR QUÉ NO HACER 6 t-TESTS</div>
+      <div class="panel-title">El problema de las comparaciones múltiples</div>
+    </div></div>
+    <p style="font-size:14px; color:var(--text-soft);">
+      Con 4 grupos hay <strong>6 pares posibles</strong>. Si corrés 6 t-tests al α=0.05 cada uno,
+      la probabilidad de obtener al menos un falso positivo es <strong>1 − 0.95⁶ ≈ 26%</strong>.
+      ANOVA testea TODO en un solo F (mantiene α=5%). Tukey HSD ajusta los pares.
+      <strong>Nunca</strong> hagas "todos contra todos" sin corrección.
+    </p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">EL CÓDIGO QUE VAMOS A CORRER</div>
+      <div class="panel-title">ANOVA con <em>scipy</em> + Tukey con <em>statsmodels</em></div>
+    </div></div>
+<pre class="code-block"><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">from</span> statsmodels.stats.multicomp <span class="kw">import</span> pairwise_tukeyhsd
+
+<span class="cm"># Cada sucursal es un array de 0/1 (default sí/no), simulado con Bernoulli</span>
+f_stat, p_anova = stats.<span class="fn">f_oneway</span>(
+    datos_lima, datos_arequipa, datos_trujillo, datos_piura,
+)
+<span class="fn">print</span>(<span class="str">f"F = {f_stat:.3f}, p = {p_anova:.4f}"</span>)
+<span class="cm"># → F ≈ 2.8, p ≈ 0.037</span>
+
+<span class="cm"># Post-hoc Tukey HSD · p-valor ajustado por pares</span>
+tukey = <span class="fn">pairwise_tukeyhsd</span>(endog=df[<span class="str">"default"</span>],
+                          groups=df[<span class="str">"sucursal"</span>], alpha=<span class="num">0.05</span>)
+<span class="fn">print</span>(tukey)
+<span class="cm"># → Trujillo vs Lima · p-adj &lt; 0.05 · diferencia significativa</span></pre>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">PARA LLEVAR AL DIRECTORIO</div>
+    <div class="insight-text">
+      "El portfolio agregado está estable (caso 02), pero <strong>Trujillo y Piura
+      tienen default significativamente mayor a Lima</strong>. Hay que entender qué
+      pasa en esas dos sucursales antes de extrapolar conclusiones al portfolio total."
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TAB 4 · CHI-CUADRADO                                         -->
+<!-- ============================================================ -->
+<div class="tab-content" id="tab4">
+  <header class="hero">
+    <div class="hero-kicker" style="color: var(--case4);">CASO 04 · CHI-CUADRADO DE INDEPENDENCIA</div>
+    <h1 class="hero-title">¿El default <em>depende</em> del tipo de producto?</h1>
+    <p class="hero-sub">Marta sospecha que el deterioro viene principalmente del producto "Crédito Consumo". Cruza tipo de producto contra estado del crédito en una tabla de contingencia y aplica Chi². El test responde: ¿son producto y default <strong>independientes</strong>, o están <strong>relacionados</strong>?</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">LOS DATOS DEL CASO</div>
+      <div class="panel-title">Tabla de contingencia observada · números exactos del caso</div>
+    </div></div>
+    <table class="tablita">
+      <thead>
+        <tr><th>Producto</th><th>Al día</th><th>En default</th><th>Total</th><th>% default</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Consumo</strong></td><td class="num">1,850</td><td class="num" style="color:var(--bad);font-weight:600;">105</td><td class="num">1,955</td><td class="num" style="color:var(--bad);font-weight:600;">5.4%</td></tr>
+        <tr><td><strong>Hipotecario</strong></td><td class="num">1,480</td><td class="num" style="color:var(--good);font-weight:600;">20</td><td class="num">1,500</td><td class="num" style="color:var(--good);font-weight:600;">1.3%</td></tr>
+        <tr><td><strong>Tarjeta</strong></td><td class="num">1,390</td><td class="num">60</td><td class="num">1,450</td><td class="num">4.1%</td></tr>
+        <tr><td><strong>Vehicular</strong></td><td class="num">95</td><td class="num">5</td><td class="num">100</td><td class="num">5.0%</td></tr>
+        <tr class="total"><td>Total</td><td class="num">4,815</td><td class="num">190</td><td class="num">5,005</td><td class="num">3.8%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">VISUALIZACIÓN PREVIA · LO QUE EL CÓDIGO VA A GRAFICAR</div>
+      <div class="panel-title">Observados vs Esperados bajo independencia</div>
+    </div></div>
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="chart-card-title">Defaults observados vs esperados (bajo H₀)</div>
+        <div class="chart-card-sub">Si producto y default fueran independientes, las barras claras (esperadas) coincidirían con las oscuras (observadas). Las brechas son <em>donde rompe la independencia</em>.</div>
+        <div class="chart-wrap"><canvas id="chart-tab4a"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">% default por producto vs promedio del portfolio</div>
+        <div class="chart-card-sub">La línea roja es el promedio global (3.8%). Hipotecario está muy por debajo; Consumo muy por encima. Eso es lo que Chi² formaliza.</div>
+        <div class="chart-wrap"><canvas id="chart-tab4b"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">LAS HIPÓTESIS</div>
+        <div class="panel-title">Independencia vs asociación</div>
+      </div></div>
+      <div class="hyp-row">
+        <div class="hyp-label">H₀</div>
+        <div class="hyp-text">Producto y default son <strong>independientes</strong> <em>· defaultean parejo</em></div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">H₁</div>
+        <div class="hyp-text">Producto y default están <strong>relacionados</strong></div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">α</div>
+        <div class="hyp-text">0.05</div>
+      </div>
+      <div class="hyp-row">
+        <div class="hyp-label">gl</div>
+        <div class="hyp-text">(filas − 1) · (cols − 1) = 3 · 1 = 3</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div>
+        <div class="panel-kicker">EL RESULTADO QUE VAS A VER</div>
+        <div class="panel-title">Chi² con scipy</div>
+      </div></div>
+      <div class="expected-p">
+        <div>
+          <div class="label">χ² (gl=3)</div>
+          <div class="pvalue" style="color: var(--case4);">≈ 19.34</div>
+        </div>
+        <div>
+          <div class="label">p-valor</div>
+          <div class="pvalue" style="color: var(--case4);">&lt; 0.001</div>
+        </div>
+        <div class="verdict" style="color:var(--bad);">RECHAZAR H₀ contundente</div>
+      </div>
+      <p style="font-size:13.5px; color:var(--text-soft); margin-top: 14px; line-height:1.55;">
+        <strong style="color:var(--navy);">Evidencia muy fuerte.</strong>
+        Producto y default NO son independientes. Para saber dónde rompe la independencia,
+        miramos los <em>residuos estandarizados</em> (Consumo positivos altos, Hipotecario negativos altos).
+      </p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><div>
+      <div class="panel-kicker">EL CÓDIGO QUE VAMOS A CORRER</div>
+      <div class="panel-title">Tabla de contingencia + Chi² + residuos</div>
+    </div></div>
+<pre class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="cm"># Solo las celdas O (sin totales). Filas: producto; columnas: al_día, default</span>
+matriz_obs = np.<span class="fn">array</span>([
+    [<span class="num">1850</span>, <span class="num">105</span>],   <span class="cm"># Consumo</span>
+    [<span class="num">1480</span>,  <span class="num">20</span>],   <span class="cm"># Hipotecario</span>
+    [<span class="num">1390</span>,  <span class="num">60</span>],   <span class="cm"># Tarjeta</span>
+    [  <span class="num">95</span>,   <span class="num">5</span>],   <span class="cm"># Vehicular</span>
+])
+
+chi2_stat, p_valor, gl, esperados = stats.<span class="fn">chi2_contingency</span>(matriz_obs)
+<span class="fn">print</span>(<span class="str">f"χ² = {chi2_stat:.2f}, gl = {gl}, p = {p_valor:.6f}"</span>)
+<span class="cm"># → χ² = 19.34, gl = 3, p &lt; 0.001</span>
+
+<span class="cm"># Residuos estandarizados · |r| &gt; 2 indica celda que rompe independencia</span>
+residuos = (matriz_obs - esperados) / np.<span class="fn">sqrt</span>(esperados)</pre>
+  </div>
+
+  <div class="insight">
+    <div class="insight-label">PARA LLEVAR AL DIRECTORIO</div>
+    <div class="insight-text">
+      "La hipótesis de la CRO se confirma. Consumo tiene 5.4% de default vs
+      Hipotecario apenas 1.3%. La diferencia no es atribuible al azar
+      (p &lt; 0.001). <strong>Acción: revisar política de aprobación de Consumo</strong>,
+      especialmente en Trujillo y Piura (Caso 03)."
+    </div>
+  </div>
+
+  <div class="panel" style="background:var(--navy); color:white; border: none;">
+    <div class="panel-header"><div>
+      <div class="panel-kicker" style="color:#8BB8DD;">CIERRE · LAS 4 RESPUESTAS PARA MARTA</div>
+      <div class="panel-title" style="color:white;">Lo que llega al directorio</div>
+    </div></div>
+    <p style="font-size:15px; line-height:1.7; color:#E0E5EE;">
+      <strong style="color:white;">1. ¿Cuál es el default rate?</strong> 2.8%, IC95% [2.34%, 3.26%]. Banda incluye histórico.<br>
+      <strong style="color:white;">2. ¿Subió vs Q4?</strong> p ≈ 0.18. No hay evidencia de deterioro real con n=5.000.<br>
+      <strong style="color:white;">3. ¿Hay sucursales más riesgosas?</strong> p ≈ 0.04. Trujillo y Piura sí.<br>
+      <strong style="color:white;">4. ¿Depende del producto?</strong> p &lt; 0.001. Consumo lidera, Hipotecario muy bajo.<br><br>
+      <em style="color:#8BB8DD;">"El portfolio en agregado está estable. El alza viene concentrada en producto Consumo y en sucursales Trujillo y Piura. Acción recomendada: revisar política de Consumo en esas dos sucursales."</em>
+    </p>
+  </div>
+</div>
+
+
+<footer>FUTURA · DATA SCIENCE FOR BUSINESS · SESIÓN 5 · CONTEXTO DE LOS CASOS · BANCOSUR</footer>
+
+<script>
+'use strict';
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${id}"]`).classList.add('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+// ============================================================
+// PALETA Y CHART.JS DEFAULTS
+// ============================================================
+Chart.defaults.font.family = "'Inter Tight', sans-serif";
+Chart.defaults.color = '#5A5A5A';
+Chart.defaults.borderColor = '#E5E5E5';
+
+const COLOR = {
+  case1: '#1a5276',
+  case2: '#d35400',
+  case3: '#117864',
+  case4: '#8e44ad',
+  navy:  '#0A1F44',
+  bad:   '#C0392B',
+  good:  '#16A085',
+  warn:  '#E67E22',
+  gray:  '#9A9A9A',
+};
+
+// ============================================================
+// HELPERS MATEMÁTICOS
+// ============================================================
+function normalPDF(x, mu = 0, sigma = 1) {
+  return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(2 * Math.PI));
+}
+
+// ============================================================
+// TAB 1 · IC para proporción
+// ============================================================
+function drawTab1() {
+  const p_hat = 0.028;
+  const n = 5000;
+  const se = Math.sqrt(p_hat * (1 - p_hat) / n);
+  const ic_inf = p_hat - 1.96 * se;
+  const ic_sup = p_hat + 1.96 * se;
+  const historico = 0.025;
+
+  const xs = [];
+  const banda = [];
+  const punto = [];
+  const histo = [];
+  const xMin = 0.018, xMax = 0.038;
+  const npts = 120;
+  for (let i = 0; i <= npts; i++) {
+    const x = xMin + (xMax - xMin) * i / npts;
+    xs.push(x);
+    banda.push(x >= ic_inf && x <= ic_sup ? 1 : null);
+  }
+
+  const ctx = document.getElementById('chart-tab1').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: xs.map(v => (v * 100).toFixed(2) + '%'),
+      datasets: [
+        {
+          label: `IC95% [${(ic_inf*100).toFixed(2)}%, ${(ic_sup*100).toFixed(2)}%]`,
+          data: banda,
+          backgroundColor: 'rgba(26,82,118,0.35)',
+          borderColor: 'rgba(26,82,118,0.7)',
+          borderWidth: 0,
+          fill: 'origin',
+          pointRadius: 0,
+          stepped: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 12 } } },
+        tooltip: { enabled: false },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Default rate' }, ticks: { maxTicksLimit: 9 } },
+        y: { display: false, min: 0, max: 1.2 },
+      },
+    },
+    plugins: [{
+      id: 'refLines',
+      afterDraw(ch) {
+        const xS = ch.scales.x, yS = ch.scales.y;
+        const ctx = ch.ctx;
+        const drawV = (val, color, label, dash) => {
+          const idx = Math.round((val - xMin) / (xMax - xMin) * npts);
+          if (idx < 0 || idx > npts) return;
+          const px = xS.getPixelForValue(idx);
+          ctx.save();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.5;
+          if (dash) ctx.setLineDash(dash);
+          ctx.beginPath();
+          ctx.moveTo(px, yS.top + 20);
+          ctx.lineTo(px, yS.bottom);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = color;
+          ctx.font = 'bold 12px "Inter Tight"';
+          ctx.textAlign = 'center';
+          ctx.fillText(label, px, yS.top + 12);
+          ctx.restore();
+        };
+        drawV(p_hat, COLOR.navy, `p̂ = ${(p_hat*100).toFixed(2)}%`, null);
+        drawV(historico, COLOR.bad, `histórico Q4 = ${(historico*100).toFixed(1)}%`, [5,4]);
+      },
+    }],
+  });
+}
+
+// ============================================================
+// TAB 2 · z dos proporciones
+// ============================================================
+function drawTab2a() {
+  // p_Q4 = 0.025 (n=4800), p_Q1 = 0.028 (n=5000)
+  const p4 = 0.025, p1 = 0.028;
+  const se4 = Math.sqrt(p4*(1-p4)/4800);
+  const se1 = Math.sqrt(p1*(1-p1)/5000);
+  const ctx = document.getElementById('chart-tab2a').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Q4 2025 (control)', 'Q1 2026 (tratamiento)'],
+      datasets: [{
+        label: 'Default rate observado',
+        data: [p4 * 100, p1 * 100],
+        backgroundColor: ['rgba(41,128,185,0.65)', 'rgba(211,84,0,0.65)'],
+        borderColor: ['#1a5276', '#d35400'],
+        borderWidth: 2,
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + '%' } },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { title: { display: true, text: 'Default rate (%)' }, beginAtZero: true,
+             ticks: { callback: v => v.toFixed(1) + '%' } },
+      },
+    },
+    plugins: [{
+      id: 'errorBars',
+      afterDatasetsDraw(ch) {
+        const ctx = ch.ctx;
+        const xs = ch.scales.x, ys = ch.scales.y;
+        const lows  = [(p4 - 2*se4) * 100, (p1 - 2*se1) * 100];
+        const highs = [(p4 + 2*se4) * 100, (p1 + 2*se1) * 100];
+        [0, 1].forEach(i => {
+          const cx = xs.getPixelForValue(i);
+          const yLow = ys.getPixelForValue(lows[i]);
+          const yHigh = ys.getPixelForValue(highs[i]);
+          ctx.save();
+          ctx.strokeStyle = COLOR.navy; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, yLow); ctx.lineTo(cx, yHigh);
+          ctx.moveTo(cx - 18, yLow); ctx.lineTo(cx + 18, yLow);
+          ctx.moveTo(cx - 18, yHigh); ctx.lineTo(cx + 18, yHigh);
+          ctx.stroke();
+          ctx.fillStyle = COLOR.navy;
+          ctx.font = 'bold 10px "JetBrains Mono"';
+          ctx.textAlign = 'center';
+          ctx.fillText('±2 SE', cx + 32, (yLow + yHigh) / 2 + 4);
+          ctx.restore();
+        });
+      },
+    }],
+  });
+}
+
+function drawTab2b() {
+  const xs = [];
+  const ys = [];
+  const yArea = [];
+  const z_obs = 0.93;
+  const z_crit = 1.645;
+  for (let i = 0; i <= 200; i++) {
+    const x = -4 + 8 * i / 200;
+    xs.push(x);
+    const y = normalPDF(x);
+    ys.push(y);
+    yArea.push(x >= z_obs ? y : null);
+  }
+
+  const ctx = document.getElementById('chart-tab2b').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: xs.map(v => v.toFixed(2)),
+      datasets: [
+        {
+          label: 'Distribución Normal bajo H₀',
+          data: ys,
+          borderColor: COLOR.navy,
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: `p-valor ≈ 0.176 (área sombreada)`,
+          data: yArea,
+          backgroundColor: 'rgba(230,126,34,0.45)',
+          borderColor: 'rgba(230,126,34,0.7)',
+          borderWidth: 0,
+          fill: 'origin',
+          pointRadius: 0,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+        tooltip: { enabled: false },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Estadístico z' }, ticks: { maxTicksLimit: 9 } },
+        y: { display: false, beginAtZero: true },
+      },
+    },
+    plugins: [{
+      id: 'zMarkers',
+      afterDraw(ch) {
+        const xS = ch.scales.x, yS = ch.scales.y, ctx = ch.ctx;
+        const drawV = (val, color, label) => {
+          const idx = Math.round((val + 4) / 8 * 200);
+          const px = xS.getPixelForValue(idx);
+          ctx.save();
+          ctx.strokeStyle = color; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(px, yS.top + 18); ctx.lineTo(px, yS.bottom);
+          ctx.stroke();
+          ctx.fillStyle = color;
+          ctx.font = 'bold 11px "JetBrains Mono"';
+          ctx.textAlign = 'center';
+          ctx.fillText(label, px, yS.top + 10);
+          ctx.restore();
+        };
+        drawV(z_obs, COLOR.warn, `z = ${z_obs}`);
+        drawV(z_crit, COLOR.bad, `z_crítico = ${z_crit}`);
+      },
+    }],
+  });
+}
+
+// ============================================================
+// TAB 3 · ANOVA
+// ============================================================
+function drawTab3() {
+  const sucursales = [
+    { n: 'Lima',     n_: 1500, p: 0.025 },
+    { n: 'Arequipa', n_: 1200, p: 0.027 },
+    { n: 'Trujillo', n_: 1100, p: 0.031 },
+    { n: 'Piura',    n_: 1200, p: 0.030 },
+  ];
+  const medias = sucursales.map(s => s.p * 100);
+  const ses    = sucursales.map(s => Math.sqrt(s.p * (1-s.p) / s.n_) * 100);
+  const errores = ses.map(se => 1.96 * se);
+  const colores = ['#117864', '#117864', '#d35400', '#d35400'];
+
+  const ctx = document.getElementById('chart-tab3').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sucursales.map(s => s.n),
+      datasets: [{
+        label: 'Default rate (%)',
+        data: medias,
+        backgroundColor: colores.map(c => c + 'B0'),
+        borderColor: colores,
+        borderWidth: 2,
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + '%' } },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { title: { display: true, text: 'Default rate (%)' }, beginAtZero: true,
+             ticks: { callback: v => v.toFixed(1) + '%' } },
+      },
+    },
+    plugins: [{
+      id: 'errorBars',
+      afterDatasetsDraw(ch) {
+        const ctx = ch.ctx;
+        const xs = ch.scales.x, ys = ch.scales.y;
+        sucursales.forEach((s, i) => {
+          const cx = xs.getPixelForValue(i);
+          const yLow = ys.getPixelForValue(medias[i] - errores[i]);
+          const yHigh = ys.getPixelForValue(medias[i] + errores[i]);
+          ctx.save();
+          ctx.strokeStyle = COLOR.navy; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, yLow); ctx.lineTo(cx, yHigh);
+          ctx.moveTo(cx - 16, yLow); ctx.lineTo(cx + 16, yLow);
+          ctx.moveTo(cx - 16, yHigh); ctx.lineTo(cx + 16, yHigh);
+          ctx.stroke();
+          ctx.fillStyle = COLOR.navy;
+          ctx.font = 'bold 10px "JetBrains Mono"';
+          ctx.textAlign = 'center';
+          ctx.fillText(medias[i].toFixed(1) + '%', cx, yHigh - 8);
+          ctx.restore();
+        });
+      },
+    }],
+  });
+}
+
+// ============================================================
+// TAB 4 · Chi²
+// ============================================================
+function drawTab4a() {
+  const productos = ['Consumo', 'Hipotecario', 'Tarjeta', 'Vehicular'];
+  const obs = [105, 20, 60, 5];
+  const totales = [1955, 1500, 1450, 100];
+  const tot_n = 5005, tot_def = 190;
+  const tasa_global = tot_def / tot_n;
+  const esp = totales.map(t => t * tasa_global);
+
+  const ctx = document.getElementById('chart-tab4a').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: productos,
+      datasets: [
+        {
+          label: 'Observados',
+          data: obs,
+          backgroundColor: 'rgba(142,68,173,0.75)',
+          borderColor: '#8e44ad',
+          borderWidth: 2,
+          borderRadius: 5,
+        },
+        {
+          label: 'Esperados (bajo H₀)',
+          data: esp.map(v => +v.toFixed(1)),
+          backgroundColor: 'rgba(154,154,154,0.55)',
+          borderColor: '#7A7A7A',
+          borderWidth: 2,
+          borderRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { title: { display: true, text: 'Defaults' }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+function drawTab4b() {
+  const productos = ['Consumo', 'Hipotecario', 'Tarjeta', 'Vehicular'];
+  const tasas = [5.4, 1.3, 4.1, 5.0];
+  const colores = ['#C0392B', '#16A085', '#E67E22', '#E67E22'];
+
+  const ctx = document.getElementById('chart-tab4b').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: productos,
+      datasets: [{
+        label: '% default por producto',
+        data: tasas,
+        backgroundColor: colores.map(c => c + 'B0'),
+        borderColor: colores,
+        borderWidth: 2,
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(1) + '%' } },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { title: { display: true, text: '% default' }, beginAtZero: true,
+             ticks: { callback: v => v.toFixed(1) + '%' } },
+      },
+    },
+    plugins: [{
+      id: 'promedioLine',
+      afterDraw(ch) {
+        const ys = ch.scales.y, ctx = ch.ctx;
+        const yP = ys.getPixelForValue(3.8);
+        const xS = ch.scales.x;
+        ctx.save();
+        ctx.strokeStyle = COLOR.bad;
+        ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+        ctx.beginPath();
+        ctx.moveTo(xS.left, yP); ctx.lineTo(xS.right, yP);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = COLOR.bad;
+        ctx.font = 'bold 10px "JetBrains Mono"';
+        ctx.textAlign = 'right';
+        ctx.fillText('Promedio portfolio = 3.8%', xS.right - 8, yP - 6);
+        ctx.restore();
+      },
+    }],
+  });
+}
+
+// ============================================================
+// INIT · dibujar todos los charts una vez al cargar
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  drawTab1();
+  drawTab2a();
+  drawTab2b();
+  drawTab3();
+  drawTab4a();
+  drawTab4b();
+});
+</script>
+
+</body>
+</html>

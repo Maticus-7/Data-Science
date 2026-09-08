@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué es un KPI? · Introducción previa a los dashboards</title>
+<style>
+  :root {
+    --azul:#2E6BB8; --teal:#3FA9BE; --naranja:#E67E22;
+    --rojo:#C0392B; --gris:#7F8C8D; --azulOscuro:#1B3A6B;
+    --crema:#F8F6F0; --linea:#E7E9EE; --verde:#2E8B57;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+         background:#F4F6F9; color:#2b2b2b; line-height:1.65; }
+  header { background:var(--azulOscuro); color:#fff; padding:36px 6vw 28px; }
+  header .eyebrow { font-size:13px; letter-spacing:.18em; color:var(--teal);
+                    font-weight:700; text-transform:uppercase; }
+  header h1 { font-size:clamp(26px,3.4vw,40px); margin:8px 0 6px; }
+  header p { color:#cdd9e8; font-size:16px; max-width:800px; }
+  main { padding:36px 6vw 60px; max-width:1100px; margin:0 auto; }
+  section { margin-bottom:36px; }
+  h2 { color:var(--azulOscuro); font-size:clamp(20px,2.4vw,26px);
+       margin-bottom:6px; padding-bottom:6px; border-bottom:3px solid var(--teal);
+       display:inline-block; }
+  h3 { color:var(--azulOscuro); font-size:17px; margin-bottom:8px; margin-top:18px; }
+  p { margin:10px 0; font-size:15.5px; }
+  .lead { font-size:17px; color:var(--gris); font-style:italic; margin:14px 0 22px; max-width:880px; }
+  .card { background:#fff; border:1px solid var(--linea); border-radius:12px;
+          padding:22px 26px; margin-bottom:18px; }
+  .card.acento { border-left:5px solid var(--teal); }
+  .card.alerta { border-left:5px solid var(--naranja); background:#FCF6EF; }
+  .card.error { border-left:5px solid var(--rojo); background:#FEF6F5; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media (max-width:900px) { .grid2,.grid3 { grid-template-columns:1fr; } }
+  .smart { background:var(--azulOscuro); color:#fff; padding:20px 24px;
+           border-radius:12px; }
+  .smart .letra { font-size:34px; font-weight:800; color:var(--teal); line-height:1; }
+  .smart h4 { font-size:14px; letter-spacing:.06em; text-transform:uppercase;
+              margin:6px 0 4px; }
+  .smart p { font-size:14px; color:#cdd9e8; margin:0; }
+  .vs { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:12px;
+        overflow:hidden; border:1px solid var(--linea); margin:12px 0; }
+  .vs > div { padding:20px 24px; }
+  .vs .si { background:#EDF7F0; }
+  .vs .no { background:#FBE3E0; }
+  .vs h4 { font-size:14px; letter-spacing:.06em; text-transform:uppercase;
+           color:var(--verde); margin-bottom:8px; }
+  .vs .no h4 { color:var(--rojo); }
+  .vs ul { padding-left:20px; font-size:14.5px; }
+  .vs li { margin:5px 0; }
+  /* Estrategias detalladas */
+  .est { background:#fff; border:1px solid var(--linea); border-radius:12px;
+         padding:22px 24px 22px 78px; position:relative; margin-bottom:16px; }
+  .est::before { content:attr(data-n); position:absolute; left:18px; top:22px;
+                 width:44px; height:44px; border-radius:50%; background:var(--azul);
+                 color:#fff; font-weight:800; display:flex; align-items:center;
+                 justify-content:center; font-size:18px; }
+  .est h3 { margin-top:0; }
+  .est .desc { font-size:15px; color:#2b2b2b; margin-bottom:10px; }
+  .est .ej { background:var(--crema); border-left:4px solid var(--teal);
+             padding:12px 16px; border-radius:0 8px 8px 0; font-size:14px;
+             margin-top:10px; }
+  .est .ej .lbl { font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+                   color:var(--teal); font-weight:700; }
+  .est .si-no { background:#FCF6EF; border-left:4px solid var(--naranja);
+                padding:12px 16px; border-radius:0 8px 8px 0; font-size:14px;
+                margin-top:8px; }
+  .est .si-no .lbl { font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+                      color:var(--naranja); font-weight:700; }
+  /* Anti-patrones detallados */
+  .anti { background:#FEF6F5; border:1px solid #F2C9C4; border-left:5px solid var(--rojo);
+          border-radius:12px; padding:22px 26px; margin-bottom:16px; }
+  .anti h3 { color:var(--rojo); margin-top:0; }
+  .anti .bloque { margin-top:12px; }
+  .anti .bloque .lbl { font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+                       font-weight:700; color:var(--azulOscuro); display:block;
+                       margin-bottom:4px; }
+  .anti .bloque .txt { font-size:14.5px; }
+  .ejemplo { background:#fff; border:1px solid var(--linea); border-radius:10px;
+             padding:18px 22px; }
+  .ejemplo .sector { font-size:11px; font-weight:700; letter-spacing:.12em;
+                     text-transform:uppercase; color:var(--teal); }
+  .ejemplo h4 { font-size:16px; color:var(--azulOscuro); margin:6px 0 8px; }
+  .ejemplo .kpi { font-size:14.5px; }
+  .ejemplo .kpi strong { color:var(--azulOscuro); }
+  .ejemplo .por-que { font-size:13px; color:var(--gris); margin-top:8px;
+                       padding-top:8px; border-top:1px solid var(--linea); font-style:italic; }
+  .pill { display:inline-block; background:var(--crema); padding:3px 12px;
+          border-radius:999px; font-size:12px; color:var(--azulOscuro);
+          font-weight:600; margin-right:6px; }
+  .nav-foot { background:var(--azulOscuro); color:#fff; padding:24px 6vw;
+              text-align:center; font-size:14px; }
+  .nav-foot a { color:var(--teal); text-decoration:none; font-weight:600;
+                margin:0 10px; }
+  .nav-foot a:hover { text-decoration:underline; }
+  blockquote { border-left:4px solid var(--teal); padding:10px 18px;
+               margin:14px 0; background:var(--crema); border-radius:0 8px 8px 0;
+               font-style:italic; color:var(--azulOscuro); }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Módulo 2 · S11 · Material introductorio</div>
+  <h1>¿Qué es un KPI?</h1>
+  <p>Antes de abrir cualquier dashboard, conviene aclarar qué estamos
+     midiendo y por qué. Esta vista define qué es un KPI, cómo se distingue
+     de una métrica cualquiera, y cómo se eligen. Cada concepto viene con
+     ejemplos didácticos conectados a los casos de los dashboards.</p>
+</header>
+
+<main>
+
+<!-- ============================================================ -->
+<section>
+  <h2>1 · La definición</h2>
+  <p class="lead">KPI significa <strong>Key Performance Indicator</strong>
+     (Indicador Clave de Desempeño). El nombre tiene tres palabras, y cada
+     una importa para distinguirlo de una métrica cualquiera.</p>
+
+  <div class="card acento">
+    <h3>Cada palabra del nombre dice algo</h3>
+    <div class="grid3" style="margin-top:14px;">
+      <div>
+        <p><span class="pill">KEY</span></p>
+        <p><strong>Clave.</strong> Un KPI no es cualquier número que se
+        pueda medir. Es uno de los pocos que mueve la decisión. Si tu
+        dashboard tiene 40 "KPIs", probablemente tenga 3 KPIs y 37
+        métricas.</p>
+      </div>
+      <div>
+        <p><span class="pill">PERFORMANCE</span></p>
+        <p><strong>Desempeño.</strong> Mide qué tan bien se está logrando
+        un objetivo, pero no es el objetivo en sí. "Vender más" es el
+        objetivo; "ticket promedio mensual" es la métrica de desempeño
+        contra ese objetivo.</p>
+      </div>
+      <div>
+        <p><span class="pill">INDICATOR</span></p>
+        <p><strong>Indicador.</strong> Es una señal, no la verdad completa.
+        Sirve para detectar tendencias y activar conversaciones. No
+        reemplaza el criterio de quien decide.</p>
+      </div>
+    </div>
+  </div>
+
+  <blockquote>Un KPI es un número que, cuando cambia, alguien debería
+    decidir algo distinto. Si nadie va a actuar diferente al verlo subir
+    o bajar, no es un KPI: es decoración.</blockquote>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>2 · ¿Qué hace que un KPI sea bueno?</h2>
+  <p class="lead">La regla clásica se llama <strong>SMART</strong>. No es
+     burocracia académica: es un filtro rápido para descartar métricas
+     que parecen útiles y no lo son.</p>
+
+  <div class="grid2">
+    <div class="smart">
+      <div class="letra">S</div>
+      <h4>Specific · Específico</h4>
+      <p>Una definición precisa, no ambigua. "Mejorar satisfacción" no es
+         específico. "NPS de clientes activos del último trimestre" sí.</p>
+    </div>
+    <div class="smart">
+      <div class="letra">M</div>
+      <h4>Measurable · Medible</h4>
+      <p>Se puede cuantificar con los datos que realmente existen. Si nadie
+         puede calcularlo el lunes, no es medible: es deseo.</p>
+    </div>
+    <div class="smart">
+      <div class="letra">A</div>
+      <h4>Achievable · Alcanzable</h4>
+      <p>La meta es realista dado el contexto. Un KPI con objetivos
+         imposibles deja de mover comportamiento porque la gente lo ignora.</p>
+    </div>
+    <div class="smart">
+      <div class="letra">R</div>
+      <h4>Relevant · Relevante</h4>
+      <p>Conecta con un objetivo de negocio importante. Si nadie en
+         dirección lo pediría, no es relevante: es ruido medible.</p>
+    </div>
+    <div class="smart">
+      <div class="letra">T</div>
+      <h4>Time-bound · Acotado en el tiempo</h4>
+      <p>Tiene un horizonte definido (semana, trimestre, año). Sin marco
+         temporal no podés decir si el resultado es bueno o malo.</p>
+    </div>
+    <div class="smart" style="background:var(--teal);">
+      <div class="letra" style="color:#fff;">+1</div>
+      <h4>Actionable · Accionable</h4>
+      <p>Lleva a una acción concreta. Si el KPI cambia y nadie sabe qué
+         palanca tocar, te falta el plan, no el número.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>3 · KPI vs métrica vs vanity metric</h2>
+  <p class="lead">No todo número en un dashboard es KPI. Distinguir esto
+     es la habilidad más importante para no enterrar al equipo en tableros
+     que no llevan a ninguna decisión.</p>
+
+  <div class="vs">
+    <div class="si">
+      <h4>✓ KPI (clave, mueve decisiones)</h4>
+      <ul>
+        <li>Tasa de default del portfolio (banca)</li>
+        <li>Tiempo medio de atención en urgencias (salud)</li>
+        <li>Margen bruto por categoría (retail)</li>
+        <li>P99 de latencia del checkout (e-commerce)</li>
+        <li>% de revenue del top 5% de clientes (concentración)</li>
+      </ul>
+    </div>
+    <div class="no">
+      <h4>✗ Vanity metric (suena bien, no cambia decisiones)</h4>
+      <ul>
+        <li>"Total acumulado de usuarios registrados" (siempre sube)</li>
+        <li>"Followers en redes" (sin tasa de engagement)</li>
+        <li>"Páginas vistas" (sin tiempo en sitio o conversión)</li>
+        <li>"Tickets totales atendidos" (sin tiempo de resolución)</li>
+        <li>"NPS de clientes activos" (excluye a los que se fueron)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card alerta">
+    <h3>El test de los 5 segundos</h3>
+    <p>Para cada número en un dashboard, preguntate:
+       <strong>"si esto sube 10% mañana, ¿qué decisión tomamos distinto?"</strong>
+       Si la respuesta es "ninguna" o "celebrar", es vanity. Si la respuesta
+       es "abrir tal proyecto, parar tal acción, revisar tal supuesto",
+       es KPI.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>4 · Estrategias para encontrar buenos KPIs</h2>
+  <p class="lead">No se descubren mirando los datos. Se descubren entendiendo
+     <strong>qué decisión necesita tomar quién</strong>. El dato viene
+     después. Estas siete estrategias son los pasos en orden.</p>
+
+  <div class="est" data-n="1">
+    <h3>Empezá por la decisión, no por el dato</h3>
+    <p class="desc">Antes de elegir qué medir, identificá la decisión
+       concreta que va a depender de ese número. Si nadie va a tomar una
+       decisión cuando el indicador cambie, no necesitan ese KPI,
+       necesitan otra conversación. La pregunta de oro es: "¿qué vamos a
+       hacer distinto si este número se mueve?".</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Retail</div>
+      El equipo de marketing dice "queremos medir la satisfacción del
+      cliente". Antes de elegir NPS, CSAT o reviews, preguntá: "si la
+      satisfacción baja 10 puntos, ¿qué hacemos?". Si la respuesta es
+      "lanzar una campaña de reactivación a clientes inactivos hace
+      menos de 90 días", el KPI no es "satisfacción". Es "tasa de
+      inactividad en los últimos 90 días", porque ese es el número
+      que dispara la acción que ya decidieron.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      Terminás con tableros llenos de números bonitos que nadie usa. La
+      gente entra al dashboard, asiente, lo cierra y sigue trabajando
+      igual. Eso es la prueba de que los KPIs no estaban anclados a
+      decisiones.
+    </div>
+  </div>
+
+  <div class="est" data-n="2">
+    <h3>Identificá al "dueño" del KPI</h3>
+    <p class="desc">Cada KPI debe tener un nombre y apellido detrás, no
+       un equipo o un área. Si nadie es personalmente responsable de
+       moverlo, no se va a mover. La responsabilidad colectiva en
+       métricas suele equivaler a responsabilidad de nadie.</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Banca</div>
+      "Tasa de default del portfolio retail" es un KPI sólido, pero si
+      en la presentación al comité dice "responsable: Riesgos", está mal
+      planteado. La versión correcta: "responsable: Ana López, Jefa de
+      Modelos de Crédito Retail". Esa persona reporta el número al
+      comité, defiende sus movimientos y propone acciones. Sin dueño
+      individual, el comité pregunta y "alguien" contesta vagamente.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      El KPI se reporta pero nadie lo trabaja. Cuando empeora, hay tres
+      reuniones para decidir quién debería hacer algo. Cuando mejora,
+      todos lo atribuyen a su gestión.
+    </div>
+  </div>
+
+  <div class="est" data-n="3">
+    <h3>Conectá cada KPI con un objetivo de negocio explícito</h3>
+    <p class="desc">Un KPI no flota: cuelga de un objetivo. Antes de
+       definir el indicador, escribí el objetivo arriba. Si el objetivo
+       es vago, el KPI será vago. Si el objetivo no existe, el KPI
+       tampoco debería existir.</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Salud</div>
+      Objetivo del año: "reducir un 15% el costo promedio por episodio
+      del servicio de Medicina Interna sin aumentar la tasa de
+      readmisión a 30 días". Ese objetivo arriba define naturalmente dos
+      KPIs: (1) costo mediano por episodio Medicina Interna mensual y
+      (2) % readmisiones 30 días Medicina Interna mensual. Ambos cuelgan
+      del mismo objetivo y juntos lo cubren. Reportarlos por separado
+      sin el objetivo arriba pierde sentido.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      Tu dashboard tiene métricas que no se contradicen pero tampoco
+      conversan entre sí. Mejora el costo, empeora la calidad, nadie lo
+      ve porque cada KPI vive en su propia tarjeta.
+    </div>
+  </div>
+
+  <div class="est" data-n="4">
+    <h3>Limitá la cantidad a 3-5 KPIs principales por nivel</h3>
+    <p class="desc">Un board ejecutivo no opera con 40 indicadores. Un
+       líder operativo, con 5-8. Más KPIs no es más control: es atención
+       diluida y reportes que nadie lee. Si tu lista pasa de 7, separá
+       en "principales" y "de soporte". Los principales se revisan
+       siempre; los de soporte solo cuando los principales se mueven.</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Supermercado</div>
+      Dirección comercial puede vivir con 4 KPIs principales: (1) ventas
+      totales mensuales ajustadas por estacionalidad, (2) margen bruto
+      por categoría, (3) ticket mediano, (4) % concentración del top 20%
+      de clientes. Todo lo demás (tasa de mermas, rotación de
+      inventario, NPS) son KPIs operativos de soporte que las jefaturas
+      reportan solo cuando los 4 principales muestran algo raro. Hacerlo
+      al revés produce reuniones de tres horas viendo 30 gráficos donde
+      nadie decide nada.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      Las reuniones de revisión se vuelven recorridos por el dashboard.
+      Nadie llega a las conclusiones. La gerencia confunde "hay datos"
+      con "estamos decidiendo bien".
+    </div>
+  </div>
+
+  <div class="est" data-n="5">
+    <h3>Combiná indicadores lagging y leading</h3>
+    <p class="desc">Los lagging miden resultado pasado (revenue, churn,
+       defaults). Los leading anticipan el resultado (leads calificados,
+       NPS de las últimas 4 semanas, tasa de uso del producto). Solo
+       lagging significa manejar mirando por el espejo retrovisor:
+       cuando ves el problema, ya pasó. Solo leading significa adivinar
+       sin verificar. Necesitás los dos.</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Retail e-commerce</div>
+      Lagging: revenue mensual (cuando lo ves, el mes ya cerró). Leading
+      del mismo objetivo: visitas únicas semanales × tasa de conversión
+      semanal × ticket promedio reciente. Si el leading cae tres semanas
+      seguidas, sabés en septiembre que octubre va a estar flojo y
+      podés actuar. Si solo mirás revenue, te enterás cuando ya no se
+      puede hacer nada.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      Solo con lagging reaccionás tarde. Solo con leading vivís en
+      hipótesis. Una mezcla típica son 2 lagging principales y 2-3
+      leading que los preceden.
+    </div>
+  </div>
+
+  <div class="est" data-n="6">
+    <h3>Definí el umbral antes de medir</h3>
+    <p class="desc">Antes de calcular el primer dato, escribí: "¿qué
+       valor sería bueno? ¿Cuál malo? ¿En qué rango está la zona normal?".
+       Si lo definís después de ver el resultado, vas a racionalizar lo
+       que sea que haya pasado, porque tu cerebro busca confirmar el
+       número que ya vio.</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Banca</div>
+      Definís el KPI "% NPL (Non-Performing Loans) mensual del segmento
+      PYME". Antes de ver ningún dato, el comité acuerda: verde menor a
+      3%, amarillo entre 3% y 5%, rojo mayor a 5%. Cuando llega el primer
+      reporte y sale 4.2%, ya sabés que es amarillo y se discute qué
+      acción se activa. Si los umbrales se definen después de ver el
+      4.2%, alguien va a sugerir "bueno, dado el contexto, 5% es
+      aceptable", y el indicador deja de servir.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      Los umbrales se "ajustan" cada trimestre para que el KPI se vea
+      verde. El indicador termina describiendo lo que pasó, no exigiendo
+      lo que tenía que pasar.
+    </div>
+  </div>
+
+  <div class="est" data-n="7">
+    <h3>Acompañá cada KPI con una métrica de calidad de datos</h3>
+    <p class="desc">Un KPI calculado sobre datos con 30% de valores
+       faltantes o 5% de errores de captura está mintiendo silenciosamente.
+       Antes de mostrar el número, hay que poder mostrar de qué datos
+       sale y qué tan completos están. Si no podés responder eso, el KPI
+       todavía no está listo para reportarse.</p>
+    <div class="ej">
+      <div class="lbl">Ejemplo aplicado · Salud</div>
+      KPI: "días promedio de estadía por departamento". Métrica de
+      calidad acompañante: "% de episodios con fecha de alta
+      registrada". Si la calidad cae al 85%, el promedio de estadía se
+      reporta con la advertencia "calculado sobre el 85% de episodios
+      con alta confirmada; los 15% restantes están en proceso". Sin esa
+      transparencia, la dirección decide sobre un número que podría
+      estar 20% sesgado y no lo sabe.
+    </div>
+    <div class="si-no">
+      <div class="lbl">Qué pasa si no lo hacés</div>
+      Reportás KPIs precisos hasta el segundo decimal calculados sobre
+      datos sucios. Cuando alguien descubre el problema, perdés
+      credibilidad de todos los KPIs, no solo del que falló.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>5 · Ejemplos didácticos por sector</h2>
+  <p class="lead">Para cada uno de los rubros que vamos a ver en los
+     dashboards, así se vería un KPI bien planteado y por qué.</p>
+
+  <div class="grid2">
+    <div class="ejemplo">
+      <div class="sector">Retail · Online Retail</div>
+      <h4>Mediana del ticket por factura</h4>
+      <p class="kpi">Mide el comportamiento del <strong>cliente típico</strong>
+         de compra. Resistente a outliers B2B que distorsionan la media.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> si cae, hay que
+         revisar mix de producto y precio promedio. Si sube, validar que
+         no sea por dejar de vender al cliente chico.</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Retail · Online Retail</div>
+      <h4>% de revenue concentrado en top 5% de clientes</h4>
+      <p class="kpi">Mide la <strong>fragilidad de la cartera</strong>. Si
+         5% de los clientes genera 80% del revenue, perder uno duele.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> activa programa
+         de retención de cuentas clave y la conversación de diversificar.</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Salud · Operación hospitalaria</div>
+      <h4>Mediana de días de estadía por departamento</h4>
+      <p class="kpi">Mide la <strong>eficiencia operativa</strong> sin que la
+         distorsionen un par de casos UCI prolongados.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> sube y hay que
+         revisar protocolos de alta. Baja y hay que validar que no haya
+         reingresos prematuros (otro KPI a mirar junto).</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Salud · Operación hospitalaria</div>
+      <h4>% de readmisiones a 30 días</h4>
+      <p class="kpi">Mide la <strong>calidad del alta médica</strong>. Una
+         estadía corta pero con reingreso a las 2 semanas no es eficiencia,
+         es mala atención disfrazada.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> es un leading
+         indicator de calidad. Sin él, la mediana de estadía se puede
+         "manipular" dando altas prematuras.</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Banca · Riesgo crediticio</div>
+      <h4>VaR 99% de la pérdida (= P99)</h4>
+      <p class="kpi">Mide el <strong>capital económico</strong>: cuánto
+         capital tiene que reservar el banco para soportar un día malo.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> sube y hay que
+         revisar concentración por segmento, ajustar políticas de
+         aprobación. Es literalmente regulatorio.</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Banca · Riesgo crediticio</div>
+      <h4>Tasa de default mensual con banda de estrés</h4>
+      <p class="kpi">No es la media anual. Es la tasa mensual y
+         <strong>cuánto se mueve en periodos de estrés</strong>.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> dispara stress
+         testing y revisión de provisiones. La media anual aplana
+         exactamente el evento que importa.</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Supermercado · Ventas</div>
+      <h4>Crecimiento mensual ajustado por estacionalidad</h4>
+      <p class="kpi">Mide crecimiento <strong>real</strong>, comparando
+         contra el mismo mes del año anterior (YoY), no contra el mes
+         previo, que está distorsionado por la temporada.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> sin ajuste,
+         diciembre siempre "crece" y enero siempre "cae". Inservible para
+         decidir.</p>
+    </div>
+    <div class="ejemplo">
+      <div class="sector">Supermercado · Ventas</div>
+      <h4>Ratio media / mediana de ventas diarias por categoría</h4>
+      <p class="kpi">Detector de <strong>eventos anómalos sin gráfico</strong>.
+         Si la categoría sensible cambia el ratio rápido, hay algo pasando.</p>
+      <p class="por-que"><strong>Por qué es KPI:</strong> sirve para
+         disparar la investigación de outliers. Funcionó con COVID en
+         papel higiénico antes de que apareciera en los gráficos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>6 · Anti-patrones · KPIs que mejor no tener</h2>
+  <p class="lead">Hay errores frecuentes al elegir KPIs que producen tableros
+     vistosos y conclusiones equivocadas. Cada uno con su síntoma, ejemplo,
+     cómo detectarlo y cómo arreglarlo.</p>
+
+  <div class="anti">
+    <h3>1 · Métricas que solo pueden subir</h3>
+    <div class="bloque"><span class="lbl">Síntoma</span>
+      <div class="txt">Indicadores acumulativos que nunca decrecen por
+        definición matemática: "usuarios registrados desde el inicio",
+        "tickets totales atendidos", "ventas acumuladas históricas",
+        "publicaciones totales en el blog".</div></div>
+    <div class="bloque"><span class="lbl">Ejemplo concreto</span>
+      <div class="txt">Una empresa SaaS reporta "tenemos 1.2 millones de
+        usuarios registrados desde el lanzamiento". Suena impresionante,
+        pero ese número no puede bajar nunca, así que no informa nada
+        sobre el momento actual. Quizás 900 mil de esos usuarios están
+        inactivos hace dos años, pero el KPI lo esconde.</div></div>
+    <div class="bloque"><span class="lbl">Cómo identificarlo</span>
+      <div class="txt">Preguntate: "¿este número podría bajar el mes que
+        viene si pasa algo malo?". Si la respuesta es "no, solo puede
+        subir o quedarse igual", es métrica de stock acumulado, no KPI.
+        Otra señal: si la primera frase del reporte usa la palabra
+        "total" o "acumulado", desconfiá.</div></div>
+    <div class="bloque"><span class="lbl">Cómo arreglarlo</span>
+      <div class="txt">Convertí el stock en flujo. En lugar de "usuarios
+        registrados acumulados", reportá "usuarios nuevos del mes" y
+        "usuarios activos del mes". Esos sí pueden subir, bajar, mostrar
+        tendencias, dispararse en una campaña. Esos sí son KPI.</div></div>
+  </div>
+
+  <div class="anti">
+    <h3>2 · KPIs sin denominador</h3>
+    <div class="bloque"><span class="lbl">Síntoma</span>
+      <div class="txt">Cifras absolutas reportadas sin contexto comparativo.
+        "Vendimos 20.000 unidades este mes." ¿Es mucho? ¿Es poco? ¿Está
+        creciendo? ¿Es estacional? Imposible saber. El número solo no
+        responde nada porque le falta su denominador (la base contra la
+        que comparar).</div></div>
+    <div class="bloque"><span class="lbl">Ejemplo concreto</span>
+      <div class="txt">Marketing reporta "este trimestre generamos 5.000
+        leads". Sin denominador, no sabés si es bueno o malo. Las
+        versiones útiles son: "5.000 leads (vs 4.200 el trimestre
+        anterior, +19%)", o "tasa de conversión de visita a lead: 3.2%
+        sobre 156.000 visitas". Ahora sí se puede decidir.</div></div>
+    <div class="bloque"><span class="lbl">Cómo identificarlo</span>
+      <div class="txt">Mirá tu lista de KPIs y para cada uno preguntate:
+        "comparado con qué?". Si no podés responder en una palabra (el
+        mes anterior, el target, el mismo mes el año pasado, una base
+        natural), te falta el denominador. Casi todos los KPIs de
+        negocio útiles son ratios o variaciones, no cifras absolutas.</div></div>
+    <div class="bloque"><span class="lbl">Cómo arreglarlo</span>
+      <div class="txt">Acompañá toda cifra absoluta con al menos una
+        comparación: vs período anterior, vs target, vs base natural
+        (clientes activos, transacciones del período, capacidad
+        instalada). Una buena regla: si el KPI no tiene un %, un "vs"
+        o un "por cada", probablemente le falta su denominador.</div></div>
+  </div>
+
+  <div class="anti">
+    <h3>3 · Promedios sin acompañamiento</h3>
+    <div class="bloque"><span class="lbl">Síntoma</span>
+      <div class="txt">Reportar la media como único resumen, sin
+        mediana, sin dispersión, sin distribución. "El ticket promedio
+        es £42." Pero la distribución podría tener una media de £42 con
+        mediana de £15 y un puñado de outliers de £5.000 que la
+        inflaron. La media sola engaña en cualquier distribución
+        asimétrica, que en negocios son la mayoría.</div></div>
+    <div class="bloque"><span class="lbl">Ejemplo concreto</span>
+      <div class="txt">Recursos Humanos reporta "el salario promedio de
+        la empresa es $80.000". Pero el CEO gana $1.2 millones y los 200
+        empleados promedio ganan $42.000. La mediana real es $42.000.
+        Reportar solo la media oculta la realidad de la base salarial
+        completa, y cualquier decisión de aumento general queda mal
+        calibrada.</div></div>
+    <div class="bloque"><span class="lbl">Cómo identificarlo</span>
+      <div class="txt">Si tu KPI dice "promedio de X" sin ir acompañado
+        de la mediana o de percentiles, sospechá. Calculá el ratio
+        media/mediana de tu variable. Si está lejos de 1 (por ejemplo
+        > 1.5), la media miente y necesitás la mediana al lado.</div></div>
+    <div class="bloque"><span class="lbl">Cómo arreglarlo</span>
+      <div class="txt">Reportá siempre la trinidad: media, mediana y un
+        percentil alto (P90 o P99 según el caso). El ratio media/mediana
+        es en sí mismo un KPI útil. Si está cerca de 1, la distribución
+        es simétrica. Si se separa, hay outliers o cola larga, y eso ya
+        es información de negocio.</div></div>
+  </div>
+
+  <div class="anti">
+    <h3>4 · Métricas que se pueden manipular trivialmente</h3>
+    <div class="bloque"><span class="lbl">Síntoma</span>
+      <div class="txt">KPIs que se "mejoran" cambiando comportamientos
+        en formas que en realidad empeoran el negocio, pero que el
+        indicador no detecta porque no tiene contrapeso. Cuando un
+        equipo descubre cómo subir su KPI sin mejorar el resultado real,
+        lo va a hacer.</div></div>
+    <div class="bloque"><span class="lbl">Ejemplo concreto</span>
+      <div class="txt">Un hospital tiene como KPI "tiempo medio de
+        atención en urgencias menor a 30 minutos". El equipo descubre
+        que puede bajar ese tiempo dando altas más rápidas, incluso
+        cuando el paciente todavía requiere observación. El KPI mejora,
+        pero las readmisiones a 72 horas suben. Como nadie mira ese
+        contrapeso, el "éxito" en urgencias se está pagando con
+        reingresos que cuestan más y empeoran la atención.</div></div>
+    <div class="bloque"><span class="lbl">Cómo identificarlo</span>
+      <div class="txt">Para cada KPI preguntate: "¿cómo lo manipularía si
+        mi bono dependiera de él, sin que el negocio realmente mejore?".
+        Si encontrás 2-3 formas, son las brechas. También: si un KPI
+        está moviendo en la dirección esperada pero el negocio no se
+        siente mejor, hay manipulación silenciosa.</div></div>
+    <div class="bloque"><span class="lbl">Cómo arreglarlo</span>
+      <div class="txt">Todo KPI necesita un "KPI de control" que lo
+        contrapese. Tiempo de atención se mide junto con readmisiones.
+        Ticket promedio se mide junto con clientes activos. Velocidad
+        de cierre de tickets de soporte se mide junto con tasa de
+        reapertura. Un KPI solo, sin control, invita a la trampa. Un
+        par bien diseñado la previene.</div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section>
+  <h2>7 · Resumen · el reflejo del Analyst</h2>
+  <div class="card acento">
+    <h3>Antes de poner un número en un dashboard, tres preguntas</h3>
+    <p style="margin-top:14px;">
+      <strong>1.</strong> ¿Quién va a decidir algo distinto si este número cambia?<br>
+      <strong>2.</strong> ¿Cuál es la acción concreta si sube o baja?<br>
+      <strong>3.</strong> ¿Qué métrica de control evita que este KPI se manipule?
+    </p>
+    <p style="margin-top:14px;">Si las tres tienen respuesta clara, es un KPI.
+       Si una falla, todavía no: es métrica, deseo o adorno.</p>
+  </div>
+  <blockquote>Los dashboards que siguen ilustran KPIs reales aplicados a
+    cuatro sectores: retail, salud, banca-riesgo y supermercado. La pregunta
+    para llevar a cada uno es la misma: <strong>¿qué decisión cambia este número?</strong></blockquote>
+</section>
+
+</main>
+
+<div class="nav-foot">
+  Siguiente paso: abrir los dashboards aplicados →
+  <a href="dashboard.html">Retail</a> ·
+  <a href="dashboard-salud.html">Salud</a> ·
+  <a href="dashboard-banca.html">Banca-Riesgo</a> ·
+  <a href="dashboard-graficos.html">Tipos de gráficos</a>
+</div>
+
+</body>
+</html>

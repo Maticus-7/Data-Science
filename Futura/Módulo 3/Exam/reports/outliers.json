@@ -1,0 +1,11 @@
+{
+    "total_registros_train_inicial": 8086,
+    "detecciones_individuales": {
+        "isolation_forest": 243,
+        "local_outlier_factor": 178,
+        "elliptic_envelope": 243
+    },
+    "outliers_consenso_eliminados": 68,
+    "pct_outliers_eliminados": 0.84,
+    "total_registros_train_depurado": 8018
+}

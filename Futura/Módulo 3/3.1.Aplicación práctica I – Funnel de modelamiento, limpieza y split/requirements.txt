@@ -1,0 +1,13 @@
+# Dependencias del pipeline modular — Módulo 3 · FUTURA
+# Instalar con:  pip install -r requirements.txt
+pandas
+numpy
+scikit-learn
+scipy
+statsmodels
+imbalanced-learn
+seaborn
+matplotlib
+prince
+missingno
+jupyter
